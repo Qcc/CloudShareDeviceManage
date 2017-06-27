@@ -2,3 +2,7 @@ a:link {color:#108ee9;}      /* 未访问链接*/
 a:visited {color:#108ee9;}  /* 已访问链接 */
 a:hover {color:#ff9900;}  /* 鼠标移动到链接上 */
 a:active {color:#ff9900;}  /* 鼠标点击时 */
+body{
+   margin: 0;
+   padding: 0; 
+}
