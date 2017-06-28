@@ -29,11 +29,7 @@
       <!--字符串默认类型-->
       <el-input v-if="AdvancedSearchType1 === 'STRING'" v-model="AdvancedSearchValue1" style="width:150px" placeholder="请输入..."></el-input>
       <!--日期类型样式 -->
-      <el-date-picker style="width:210px" v-if="AdvancedSearchType1 === 'DATE'" v-model="AdvancedSearchValue1" type="daterange" placeholder="选择日期范围">
-      </el-date-picker>
-      <!--时间类型样式-->
-      <el-time-picker style="width:175px" v-if="AdvancedSearchType1 === 'TIME'" is-range v-model="AdvancedSearchValue1" placeholder="选择时间范围">
-      </el-time-picker>
+      <el-date-picker style="width:210px" v-if="AdvancedSearchType1 === 'DATE'" v-model="AdvancedSearchValue1" type="datetime" placeholder="选择日期时间"></el-date-picker>
       <!--数字类型样式-->
       <input class="number-input" v-if="AdvancedSearchType1 === 'INT'" v-model="AdvancedSearchValue1" type="number" placeholder="请输入..."></input>
       <!--枚举类型样式-->
@@ -66,11 +62,7 @@
       <!--字符串默认类型-->
       <el-input v-if="AdvancedSearchType2 === 'STRING'" v-model="AdvancedSearchValue2" style="width:150px" placeholder="请输入..."></el-input>
       <!--日期类型样式 -->
-      <el-date-picker style="width:210px" v-if="AdvancedSearchType2 === 'DATE'" v-model="AdvancedSearchValue2" type="daterange" placeholder="选择日期范围">
-      </el-date-picker>
-      <!--时间类型样式-->
-      <el-time-picker style="width:175px" v-if="AdvancedSearchType2 === 'TIME'" is-range v-model="AdvancedSearchValue2" placeholder="选择时间范围">
-      </el-time-picker>
+      <el-date-picker style="width:210px" v-if="AdvancedSearchType2 === 'DATE'" v-model="AdvancedSearchValue2" type="datetime" placeholder="选择日期时间"></el-date-picker>
       <!--数字类型样式-->
       <input class="number-input" v-if="AdvancedSearchType2 === 'INT'" v-model="AdvancedSearchValue2" type="number" placeholder="请输入..."></input>
       <!--枚举类型样式-->
@@ -93,9 +85,9 @@
       <el-col>
         <el-button-group>
           <el-button @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
-          <el-button @click="handleEditCOl" :plain="true" type="info" icon="edit">{{editCOl}}</el-button>
-          <el-button @click="handleDisableCol" :plain="true" type="warning" icon="d-caret">{{disableCol}}</el-button>          
-          <el-button @click="handleDeleteCol" :plain="true" type="danger" icon="delete" >{{deleteCol}}</el-button>
+          <el-button @click="handleEditCOl" :plain="true" :disabled="disabled" type="info" icon="edit">{{editCOl}}</el-button>
+          <el-button @click="handleDisableCol" :plain="true" :disabled="disabled" type="warning" icon="d-caret">{{disableCol}}</el-button>          
+          <el-button @click="handleDeleteCol" :plain="true" :disabled="disabled" type="danger" icon="delete" >{{deleteCol}}</el-button>
         </el-button-group>
       </el-col>
     </el-row>
@@ -114,6 +106,7 @@
     @selection-change="handleSelectionChange">
 
     <el-table-column
+      :selectable="selectable"
       type="selection"
       width="55">
     </el-table-column>
@@ -126,6 +119,24 @@
       @filter-method="filterTag"
       v-bind:prop="col.prop"
       v-bind:label="col.label" >
+      <template scope="scope">
+        <!--字符串类型-->
+        <el-input v-if="scope.row.editslyle && col.type === 'STRING'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请输入内容"></el-input>
+        <!--日期类型样式 -->
+        <el-date-picker style="width:210px" v-else-if="scope.row.editslyle && col.type === 'DATE'" @change="tabledataChange" v-model="scope.row[col.key]" type="datetime" placeholder="选择日期时间"></el-date-picker>
+        <!--数字类型样式-->
+        <input class="number-input" v-else-if="scope.row.editslyle && col.type === 'INT'" @change="tabledataChange" v-model="scope.row[col.key]" type="number" placeholder="请输入..."></input>
+        <!--枚举类型样式-->
+        <el-select style="width:100px" v-else-if="scope.row.editslyle && col.type === 'ENUM'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请选择">
+          <el-option
+            v-for="item in col.filters"
+            :key="item.value"
+            :label="item.text"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <span v-else>{{scope.row[col.key]}}</span>
+      </template>
     </el-table-column>
      
   </el-table>
@@ -155,6 +166,22 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!--单行编辑-->
+    <el-dialog title="收货地址" :visible.sync="singleEditVisible">
+      <el-form :model="form">
+        <el-form-item label="活动名称" >
+
+        </el-form-item>
+      
+        <el-form-item label="活动区域" >
+
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="singleEditVisible = false">取 消</el-button>
+        <el-button type="primary" @click="singleEditVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -208,33 +235,64 @@
     },
     data () {
       return {
-        tableData: [],
-        tableData1: [{
+        tableData1: [],
+        tableData: [{
           date: '2016-05-03',
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄',
-          age: 25
+          age: 25,
+          sex: '男',
+          line: 0,
+          editslyle: false
         }, {
           date: '2016-05-02',
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄',
-          age: 25
+          age: 25,
+          sex: '女',
+          line: 1,
+          editslyle: false
+        }, {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄',
+          age: 25,
+          sex: '男',
+          line: 2,
+          editslyle: false
+        }, {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄',
+          age: 25,
+          sex: '男',
+          line: 3,
+          editslyle: false
+        }, {
+          date: '2016-07-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄',
+          age: 25,
+          sex: '女',
+          line: 4,
+          editslyle: false
+        }, {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄',
+          age: 25,
+          sex: '女',
+          line: 5,
+          editslyle: false
         }],
         // visible是否可见、sortable是否可排序、filters筛选数据源、search是否可搜索,editable是否可编辑
         // type 日期 date 时间 time  2017-06-23 11:39:08 字符串 string  数字 number  枚举 enum
-        tableCol: [],
-        tableCol1: [{key: 'date', prop: 'date', label: '日期', visible: true, sortable: true, type: 'date'},
-                  {key: 'name', prop: 'name', label: '姓名', visible: true, search: true},
-                  {key: 'sex', prop: 'sex', label: '性别', visible: true, sortable: true, type: 'enum', filters: [{text: '男', value: '男'}, {text: '女', value: '女'}]},
-                  {key: 'age', prop: 'age', label: '年龄', visible: false, search: true, type: 'number'},
-                  {key: 'address', prop: 'address', label: '地址', visible: true, type: 'string'},
-                  {key: 'nationality', prop: 'nationality', label: '籍贯', visible: false, editable: true},
-                  {key: 'phone', prop: 'phone', label: '电话', visible: false, sortable: true},
-                  {key: 'email', prop: 'email', label: '邮箱', visible: false},
-                  {key: 'conent', prop: 'conent', label: '紧急联系人', visible: false},
-                  {key: 'time', prop: 'time', label: '时间', visible: true, search: true, type: 'time'},
-                  {key: 'make', prop: 'make', label: '操作', visible: false, filters: []},
-                  {key: 'state', prop: 'state', label: '状态', visible: false, type: 'enum', filters: [{text: '家', value: '家'}, {text: '公司', value: '公司'}]}
+        tableCol1: [],
+        tableCol: [{key: 'name', prop: 'name', label: '姓名', visible: true, type: 'STRING', search: true},
+                  {key: 'sex', prop: 'sex', label: '性别', visible: true, type: 'ENUM', filters: [{text: '男', value: '男'}, {text: '女', value: '女'}]},
+                  {key: 'age', prop: 'age', label: '年龄', visible: false, sortable: true, type: 'INT', search: true},
+                  {key: 'address', prop: 'address', label: '地址', visible: true, type: 'STRING', editable: true},
+                  {key: 'date', prop: 'date', label: '日期', type: 'DATE', visible: false, sortable: true}
         ],
         total: 5,
         currentPage: 1,
@@ -270,14 +328,37 @@
         createCOl: '创建',
         editCOl: '编辑',
         disableCol: '禁用',
-        deleteCol: '删除'
+        deleteCol: '删除',
+        // 表格删改查按钮 是否可用
+        disabled: true,
+        // 单行编辑莫太框
+        singleEditVisible: false,
+        // 数据是否有修改
+        rowModified: false
       }
     },
     created: function () {
-      console.log('props=>>', this.getPagerURL)
-      this.fetch2(this.getPagerURL, this.getDataOnComplate, {condition: {}, ifGetColumns: true, ifGetCount: true, pageSize: 10, pageNo: 1})
+      // this.fetch2(this.getPagerURL, this.getDataOnComplate, {condition: {}, ifGetColumns: true, ifGetCount: true, pageSize: 10, pageNo: 1})
     },
     methods: {
+      // 数据是否有修改1
+      tabledataChange (value) {
+        this.rowModified = true
+      },
+      // 数据修改后表格选中行未保存不能取消
+      selectable (row, index) {
+        if (this.rowModified && this.multipleSelection.length > 1) {
+          for (let i = 0; i < this.multipleSelection.length; i++) {
+            if (this.multipleSelection[i].line === index) {
+              return false
+            } else {
+              return true
+            }
+          }
+        } else {
+          return true
+        }
+      },
       getDataOnComplate (data) {
         if (data === null) {
           this.$alert('网络错误，请刷新（F5）后重试。', '错误提示', {
@@ -310,7 +391,12 @@
           }
           this.tableCol.push(colObj)
         }
-        this.tableData = data.entity.list
+        //  添加是否编辑状态与行号
+        for (let i = 0; i < data.entity.list.length; i++) {
+          data.entity.list[i].editslyle = false
+          data.entity.list[i].line = i
+          this.tableData.push(data.entity.list[i])
+        }
       },
       fetch (url, onComplate, params = {}, method = 'POST') {
         if (typeof onComplete !== 'function') {
@@ -405,6 +491,11 @@
       // 表格多选响应
       handleSelectionChange (val) {
         this.multipleSelection = val
+        if (val.length > 0) {
+          this.disabled = false
+        } else {
+          this.disabled = true
+        }
         if (val.length > 1) {
           this.editCOl = '批量编辑'
           this.disableCol = '批量禁用'
@@ -445,7 +536,14 @@
       },
       // 编辑表格行
       handleEditCOl () {
-        console.log('编辑行')
+        if (this.multipleSelection.length === 1) {
+          this.singleEditVisible = true
+        } else {
+          for (let i = 0; i < this.multipleSelection.length; i++) {
+            let line = this.multipleSelection[i].line
+            this.tableData[line].editslyle = true
+          }
+        }
       },
       // 禁用表格行
       handleDisableCol () {
