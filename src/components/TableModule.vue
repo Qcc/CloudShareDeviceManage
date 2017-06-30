@@ -86,6 +86,7 @@
         <el-button-group>
           <el-button @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
           <el-button @click="handleEditCOl" :plain="true" :disabled="disabled" type="info" icon="edit">{{editCOl}}</el-button>
+          <el-button @click="handleCancelEditCOl" v-if="cancelEdit" :plain="true" type="warning" icon="d-arrow-left">{{cancelEditCOl}}</el-button>
           <el-button @click="handleDisableCol" :plain="true" :disabled="disabled" type="warning" icon="d-caret">{{disableCol}}</el-button>          
           <el-button @click="handleDeleteCol" :plain="true" :disabled="disabled" type="danger" icon="delete" >{{deleteCol}}</el-button>
         </el-button-group>
@@ -121,13 +122,13 @@
       v-bind:label="col.label" >
       <template scope="scope">
         <!--字符串类型-->
-        <el-input v-if="scope.row.editslyle && col.type === 'STRING'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请输入内容"></el-input>
+        <el-input v-if="scope.row.editstyle && col.type === 'STRING'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请输入内容"></el-input>
         <!--日期类型样式 -->
-        <el-date-picker style="width:210px" v-else-if="scope.row.editslyle && col.type === 'DATE'" @change="tabledataChange" v-model="scope.row[col.key]" type="datetime" placeholder="选择日期时间"></el-date-picker>
+        <el-date-picker style="width:210px" v-else-if="scope.row.editstyle && col.type === 'DATE'" @change="tabledataChange" v-model="scope.row[col.key]" type="datetime" placeholder="选择日期时间"></el-date-picker>
         <!--数字类型样式-->
-        <input class="number-input" v-else-if="scope.row.editslyle && col.type === 'INT'" @change="tabledataChange" v-model="scope.row[col.key]" type="number" placeholder="请输入..."></input>
+        <input class="number-input" v-else-if="scope.row.editstyle && col.type === 'INT'" @change="tabledataChange" v-model="scope.row[col.key]" type="number" placeholder="请输入..."></input>
         <!--枚举类型样式-->
-        <el-select style="width:100px" v-else-if="scope.row.editslyle && col.type === 'ENUM'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请选择">
+        <el-select style="width:100px" v-else-if="scope.row.editstyle && col.type === 'ENUM'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请选择">
           <el-option
             v-for="item in col.filters"
             :key="item.value"
@@ -167,19 +168,55 @@
       :total="total">
     </el-pagination>
     <!--单行编辑-->
-    <el-dialog title="收货地址" :visible.sync="singleEditVisible">
-      <el-form :model="form">
-        <el-form-item label="活动名称" >
-
-        </el-form-item>
-      
-        <el-form-item label="活动区域" >
-
+    <el-dialog  title="编辑" :visible.sync="singleEditVisible">
+      <el-form :model="singleEditForm" label-position="right" label-width="80px">
+        <el-form-item v-for="item in singleEditForm" v-bind:key="item.key" v-bind:label="item.label">
+          <!--字符串类型-->
+          <el-input style="width:300px;float:left" v-if="item.type === 'STRING'"  v-model="item.value" placeholder="请输入内容"></el-input>
+          <!--日期类型样式 -->
+          <el-date-picker style="float:left"  v-else-if="item.type === 'DATE'" v-model="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+          <!--数字类型样式-->
+          <input class="number-input" style="float:left" v-else-if="item.type === 'INT'" v-model="item.value" type="number" placeholder="请输入..."></input>
+          <!--枚举类型样式-->
+          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
+          <el-option
+            v-for="list in item.filters"
+            :key="list.value"
+            :label="list.label"
+            :value="list.value">
+          </el-option>
+        </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="singleEditVisible = false">取 消</el-button>
-        <el-button type="primary" @click="singleEditVisible = false">确 定</el-button>
+        <el-button @click="handleSingleEditCancel">取 消</el-button>
+        <el-button type="primary" :loading="editLoading" @click="handleSingleEditSubmit">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!--新建记录-->
+    <el-dialog  title="新建" :visible.sync="createVisible">
+      <el-form :model="createForm" label-position="right" label-width="80px">
+        <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
+          <!--字符串类型-->
+          <el-input style="width:300px;float:left" v-if="item.type === 'STRING'"  v-model="item.value" placeholder="请输入内容"></el-input>
+          <!--日期类型样式 -->
+          <el-date-picker style="float:left"  v-else-if="item.type === 'DATE'" v-model="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+          <!--数字类型样式-->
+          <input class="number-input" style="float:left" v-else-if="item.type === 'INT'" v-model="item.value" type="number" placeholder="请输入..."></input>
+          <!--枚举类型样式-->
+          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
+            <el-option
+              v-for="list in item.filters"
+              :key="list.value"
+              :label="list.label"
+              :value="list.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="handleCreateCancel">取 消</el-button>
+        <el-button type="primary" :loading="createLoading" @click="handleCreateSubmit">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -235,6 +272,13 @@
     },
     data () {
       return {
+        formData: {
+          0: { key: 'name', label: '姓名', filters: [], type: 'STRING', value: '' },
+          1: {key: 'date', label: '日期', value: '', filters: [], type: 'DATE'},
+          2: { key: 'age', label: '年龄', filters: [], type: 'INT', value: '' },
+          3: { key: 'address', label: '地址', filters: [], type: 'STRING', value: '' },
+          4: {key: 'sex', label: '性别', value: '', type: 'ENUM', filters: [{ value: '男', label: '男' }, { value: '女', label: '女' }]}
+        },
         tableData1: [],
         tableData: [{
           date: '2016-05-03',
@@ -243,7 +287,7 @@
           age: 25,
           sex: '男',
           line: 0,
-          editslyle: false
+          editstyle: false
         }, {
           date: '2016-05-02',
           name: '王小虎',
@@ -251,7 +295,7 @@
           age: 25,
           sex: '女',
           line: 1,
-          editslyle: false
+          editstyle: false
         }, {
           date: '2016-05-02',
           name: '王小虎',
@@ -259,7 +303,7 @@
           age: 25,
           sex: '男',
           line: 2,
-          editslyle: false
+          editstyle: false
         }, {
           date: '2016-05-02',
           name: '王小虎',
@@ -267,7 +311,7 @@
           age: 25,
           sex: '男',
           line: 3,
-          editslyle: false
+          editstyle: false
         }, {
           date: '2016-07-02',
           name: '王小虎',
@@ -275,7 +319,7 @@
           age: 25,
           sex: '女',
           line: 4,
-          editslyle: false
+          editstyle: false
         }, {
           date: '2016-05-02',
           name: '王小虎',
@@ -283,13 +327,13 @@
           age: 25,
           sex: '女',
           line: 5,
-          editslyle: false
+          editstyle: false
         }],
         // visible是否可见、sortable是否可排序、filters筛选数据源、search是否可搜索,editable是否可编辑
         // type 日期 date 时间 time  2017-06-23 11:39:08 字符串 string  数字 number  枚举 enum
         tableCol1: [],
         tableCol: [{key: 'name', prop: 'name', label: '姓名', visible: true, type: 'STRING', search: true},
-                  {key: 'sex', prop: 'sex', label: '性别', visible: true, type: 'ENUM', filters: [{text: '男', value: '男'}, {text: '女', value: '女'}]},
+                  {key: 'sex', prop: 'sex', label: '性别', visible: true, type: 'ENUM', filters: [{ value: '男', label: '男' }, { value: '女', label: '女' }]},
                   {key: 'age', prop: 'age', label: '年龄', visible: false, sortable: true, type: 'INT', search: true},
                   {key: 'address', prop: 'address', label: '地址', visible: true, type: 'STRING', editable: true},
                   {key: 'date', prop: 'date', label: '日期', type: 'DATE', visible: false, sortable: true}
@@ -327,12 +371,20 @@
         // 表格增删改查按钮
         createCOl: '创建',
         editCOl: '编辑',
+        cancelEditCOl: '取消修改',
+        cancelEdit: false,
         disableCol: '禁用',
         deleteCol: '删除',
         // 表格删改查按钮 是否可用
         disabled: true,
-        // 单行编辑莫太框
+        // 单行编辑模态框
         singleEditVisible: false,
+        singleEditForm: {},
+        editLoading: false,
+        // 新建行
+        createForm: {},
+        createVisible: false,
+        createLoading: false,
         // 数据是否有修改
         rowModified: false
       }
@@ -344,20 +396,19 @@
       // 数据是否有修改1
       tabledataChange (value) {
         this.rowModified = true
+        this.editCOl = '保存修改'
       },
       // 数据修改后表格选中行未保存不能取消
       selectable (row, index) {
+        let flag = true
         if (this.rowModified && this.multipleSelection.length > 1) {
           for (let i = 0; i < this.multipleSelection.length; i++) {
-            if (this.multipleSelection[i].line === index) {
-              return false
-            } else {
-              return true
+            if ((this.multipleSelection[i].line === row.line) && row.editstyle) {
+              flag = false
             }
           }
-        } else {
-          return true
         }
+        return flag
       },
       getDataOnComplate (data) {
         if (data === null) {
@@ -393,7 +444,7 @@
         }
         //  添加是否编辑状态与行号
         for (let i = 0; i < data.entity.list.length; i++) {
-          data.entity.list[i].editslyle = false
+          data.entity.list[i].editstyle = false
           data.entity.list[i].line = i
           this.tableData.push(data.entity.list[i])
         }
@@ -532,18 +583,68 @@
       },
       // 创建表格行
       handleCreateCOl () {
-        console.log('创建行')
+        this.createVisible = true
+        this.createForm = {}
+        for (let i = 0; i < this.tableCol.length; i++) {
+          let key = this.tableCol[i].key
+          let label = this.tableCol[i].label
+          let type = this.tableCol[i].type
+          let filters = []
+          if (type === 'ENUM') {
+            filters = this.tableCol[i].filters.slice(0)
+          }
+          this.createForm[i] = { key: key, label: label, filters: filters, type: type, value: '' }
+        }
+      },
+      // 取消创建表格行
+      handleCreateCancel () {
+        this.createVisible = false
+      },
+      // 创建表格行提交
+      handleCreateSubmit () {
+        this.createLoading = true
       },
       // 编辑表格行
       handleEditCOl () {
         if (this.multipleSelection.length === 1) {
           this.singleEditVisible = true
+          this.singleEditForm = {}
+          for (let i = 0; i < this.tableCol.length; i++) {
+            let key = this.tableCol[i].key
+            let label = this.tableCol[i].label
+            let type = this.tableCol[i].type
+            let filters = []
+            if (type === 'ENUM') {
+              filters = this.tableCol[i].filters.slice(0)
+            }
+            let value = this.multipleSelection[0][key]
+            this.singleEditForm[i] = { key: key, label: label, filters: filters, type: type, value: value }
+          }
         } else {
+          this.cancelEdit = true
           for (let i = 0; i < this.multipleSelection.length; i++) {
             let line = this.multipleSelection[i].line
-            this.tableData[line].editslyle = true
+            this.tableData[line].editstyle = true
           }
         }
+      },
+      // 取消修改
+      handleCancelEditCOl () {
+        this.rowModified = false
+        this.cancelEdit = false
+        this.editCOl = '批量编辑'
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          let line = this.multipleSelection[i].line
+          this.tableData[line].editstyle = false
+        }
+      },
+      // 取消单行编辑
+      handleSingleEditCancel () {
+        this.singleEditVisible = false
+      },
+      // 单行编辑提交
+      handleSingleEditSubmit () {
+        this.editLoading = true
       },
       // 禁用表格行
       handleDisableCol () {
