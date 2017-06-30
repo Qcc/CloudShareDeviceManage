@@ -200,16 +200,16 @@
           <!--字符串类型-->
           <el-input style="width:300px;float:left" v-if="item.type === 'STRING'"  v-model="item.value" placeholder="请输入内容"></el-input>
           <!--日期类型样式 -->
-          <el-date-picker style="float:left"  v-else-if="item.type === 'DATE'" v-model="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+          <el-date-picker style="float:left" v-else-if="item.type === 'DATE'" v-model.lazy="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
           <!--数字类型样式-->
-          <input class="number-input" style="float:left" v-else-if="item.type === 'INT'" v-model="item.value" type="number" placeholder="请输入..."></input>
+          <el-input style="float:left" v-else-if="item.type === 'INT'" v-model.number="item.value" type="number" placeholder="请输入..."></el-input>
           <!--枚举类型样式-->
-          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
+          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model.lazy="item.value" placeholder="请选择">
             <el-option
               v-for="list in item.filters"
               :key="list.value"
               :label="list.label"
-              :value="list.value">
+              :value="list.value"> 
             </el-option>
           </el-select>
         </el-form-item>
