@@ -176,7 +176,7 @@
           <!--日期类型样式 -->
           <el-date-picker style="float:left"  v-else-if="item.type === 'DATE'" v-model="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
           <!--数字类型样式-->
-          <input class="number-input" style="float:left" v-else-if="item.type === 'INT'" v-model="item.value" type="number" placeholder="请输入..."></input>
+          <el-input style="width:150px;float:left" v-else-if="item.type === 'INT'" v-model="item.value" type="number" placeholder="请输入..."></el-input>
           <!--枚举类型样式-->
           <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
           <el-option
@@ -202,7 +202,7 @@
           <!--日期类型样式 -->
           <el-date-picker style="float:left" v-else-if="item.type === 'DATE'" v-model.lazy="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
           <!--数字类型样式-->
-          <el-input style="float:left" v-else-if="item.type === 'INT'" v-model.number="item.value" type="number" placeholder="请输入..."></el-input>
+          <el-input style="width:150px;float:left" v-else-if="item.type === 'INT'" v-model.number="item.value" type="number" placeholder="请输入..."></el-input>
           <!--枚举类型样式-->
           <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model.lazy="item.value" placeholder="请选择">
             <el-option
@@ -272,15 +272,8 @@
     },
     data () {
       return {
-        formData: {
-          0: { key: 'name', label: '姓名', filters: [], type: 'STRING', value: '' },
-          1: {key: 'date', label: '日期', value: '', filters: [], type: 'DATE'},
-          2: { key: 'age', label: '年龄', filters: [], type: 'INT', value: '' },
-          3: { key: 'address', label: '地址', filters: [], type: 'STRING', value: '' },
-          4: {key: 'sex', label: '性别', value: '', type: 'ENUM', filters: [{ value: '男', label: '男' }, { value: '女', label: '女' }]}
-        },
-        tableData1: [],
-        tableData: [{
+        tableData: [],
+        tableData1: [{
           date: '2016-05-03',
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄',
@@ -331,8 +324,8 @@
         }],
         // visible是否可见、sortable是否可排序、filters筛选数据源、search是否可搜索,editable是否可编辑
         // type 日期 date 时间 time  2017-06-23 11:39:08 字符串 string  数字 number  枚举 enum
-        tableCol1: [],
-        tableCol: [{key: 'name', prop: 'name', label: '姓名', visible: true, type: 'STRING', search: true},
+        tableCol: [],
+        tableCol1: [{key: 'name', prop: 'name', label: '姓名', visible: true, type: 'STRING', search: true},
                   {key: 'sex', prop: 'sex', label: '性别', visible: true, type: 'ENUM', filters: [{ value: '男', label: '男' }, { value: '女', label: '女' }]},
                   {key: 'age', prop: 'age', label: '年龄', visible: false, sortable: true, type: 'INT', search: true},
                   {key: 'address', prop: 'address', label: '地址', visible: true, type: 'STRING', editable: true},
@@ -390,7 +383,7 @@
       }
     },
     created: function () {
-      // this.fetch2(this.getPagerURL, this.getDataOnComplate, {condition: {}, ifGetColumns: true, ifGetCount: true, pageSize: 10, pageNo: 1})
+      this.fetch2(this.getPagerURL, this.getDataOnComplate, {condition: {}, ifGetColumns: true, ifGetCount: true, pageSize: 10, pageNo: 1})
     },
     methods: {
       // 数据是否有修改1
@@ -593,7 +586,7 @@
           if (type === 'ENUM') {
             filters = this.tableCol[i].filters.slice(0)
           }
-          this.createForm[i] = { key: key, label: label, filters: filters, type: type, value: '' }
+          this.$set(this.createForm, i, { key: key, label: label, filters: filters, type: type, value: '' })
         }
       },
       // 取消创建表格行
@@ -618,7 +611,7 @@
               filters = this.tableCol[i].filters.slice(0)
             }
             let value = this.multipleSelection[0][key]
-            this.singleEditForm[i] = { key: key, label: label, filters: filters, type: type, value: value }
+            this.$set(this.singleEditForm, i, { key: key, label: label, filters: filters, type: type, value: value })
           }
         } else {
           this.cancelEdit = true
