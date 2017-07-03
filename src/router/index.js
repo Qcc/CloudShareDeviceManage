@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+const Demo = r => require.ensure([], () => r(require('../demo.vue')), 'Demo')
 const Home = r => require.ensure([], () => r(require('../pages/Home.vue')), 'Home')
 const Main = r => require.ensure([], () => r(require('../pages/Main.vue')), 'Main')
 const Feedback = r => require.ensure([], () => r(require('../pages/Feedback.vue')), 'Feedback')
@@ -32,6 +33,11 @@ export default new Router({
       path: '/hotelManagement',
       name: 'HotelManagement',
       component: HotelManagement
+    },
+    {
+      path: '/Demo',
+      name: 'Demo',
+      component: Demo
     }
   ]
 })
