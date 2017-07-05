@@ -4,5 +4,6 @@ a:hover {color:#ff9900;}  /* 鼠标移动到链接上 */
 a:active {color:#ff9900;}  /* 鼠标点击时 */
 body{
    margin: 0;
-   padding: 0; 
+   padding: 0;
+   height: 100%;
 }

@@ -31,13 +31,13 @@
       <!--日期类型样式 -->
       <el-date-picker style="width:210px" v-if="AdvancedSearchType1 === 'DATE'" v-model="AdvancedSearchValue1" type="datetime" placeholder="选择日期时间"></el-date-picker>
       <!--数字类型样式-->
-      <input class="number-input" v-if="AdvancedSearchType1 === 'INT'" v-model="AdvancedSearchValue1" type="number" placeholder="请输入..."></input>
+      <el-input v-if="AdvancedSearchType1 === 'INT'" v-model="AdvancedSearchValue1" style="width:150px" type="number" placeholder="请输入..."></el-input>
       <!--枚举类型样式-->
       <el-select style="width:100px" v-if="AdvancedSearchType1 === 'ENUM'" v-model="AdvancedSearchValue1" placeholder="请选择">
         <el-option
           v-for="item in getEnumTypeOption1"
           :key="item.value"
-          :label="item.label"
+          :label="item.text"
           :value="item.value">
         </el-option>
       </el-select>
@@ -45,9 +45,9 @@
       <el-select v-model="relationalValue" style="width:60px;margin:0 15px">
         <el-option
           v-for="item in relationalOptions"
-          :key="item.label"
+          :key="item.value"
           :label="item.label"
-          :value="item.label">
+          :value="item.value">
         </el-option>
       </el-select>
 
@@ -64,13 +64,13 @@
       <!--日期类型样式 -->
       <el-date-picker style="width:210px" v-if="AdvancedSearchType2 === 'DATE'" v-model="AdvancedSearchValue2" type="datetime" placeholder="选择日期时间"></el-date-picker>
       <!--数字类型样式-->
-      <input class="number-input" v-if="AdvancedSearchType2 === 'INT'" v-model="AdvancedSearchValue2" type="number" placeholder="请输入..."></input>
+      <el-input v-if="AdvancedSearchType2 === 'INT'" v-model="AdvancedSearchValue2" style="width:150px" type="number" placeholder="请输入..."></el-input>
       <!--枚举类型样式-->
       <el-select style="width:100px" v-if="AdvancedSearchType2 === 'ENUM'" v-model="AdvancedSearchValue2" placeholder="请选择">
         <el-option
           v-for="item in getEnumTypeOption2"
           :key="item.value"
-          :label="item.label"
+          :label="item.text"
           :value="item.value">
         </el-option>
       </el-select>
@@ -87,7 +87,6 @@
           <el-button @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
           <el-button @click="handleEditCOl" :plain="true" :disabled="disabled" type="info" icon="edit">{{editCOl}}</el-button>
           <el-button @click="handleCancelEditCOl" v-if="cancelEdit" :plain="true" type="warning" icon="d-arrow-left">{{cancelEditCOl}}</el-button>
-          <el-button @click="handleDisableCol" :plain="true" :disabled="disabled" type="warning" icon="d-caret">{{disableCol}}</el-button>          
           <el-button @click="handleDeleteCol" :plain="true" :disabled="disabled" type="danger" icon="delete" >{{deleteCol}}</el-button>
         </el-button-group>
       </el-col>
@@ -116,8 +115,9 @@
       v-bind:key="col.key"
       v-if="col.visible"
       v-bind:sortable="col.sortable"
-      v-bind:filters="col.filters"
+      v-bind:filters="col.filters.length === 0 ? null : col.filters"
       @filter-method="filterTag"
+      :filter-multiple="false"
       v-bind:prop="col.prop"
       v-bind:label="col.label" >
       <template scope="scope">
@@ -126,7 +126,7 @@
         <!--日期类型样式 -->
         <el-date-picker style="width:210px" v-else-if="scope.row.editstyle && col.type === 'DATE'" @change="tabledataChange" v-model="scope.row[col.key]" type="datetime" placeholder="选择日期时间"></el-date-picker>
         <!--数字类型样式-->
-        <input class="number-input" v-else-if="scope.row.editstyle && col.type === 'INT'" @change="tabledataChange" v-model="scope.row[col.key]" type="number" placeholder="请输入..."></input>
+        <el-input v-else-if="scope.row.editstyle && col.type === 'INT'" @change="tabledataChange" v-model="scope.row[col.key]" type="number" placeholder="请输入..."></el-input>
         <!--枚举类型样式-->
         <el-select style="width:100px" v-else-if="scope.row.editstyle && col.type === 'ENUM'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请选择">
           <el-option
@@ -136,7 +136,23 @@
             :value="item.value">
           </el-option>
         </el-select>
-        <span v-else>{{scope.row[col.key]}}</span>
+        <!--依赖对象-->
+        <!--<el-select style="float:left" v-else-if="scope.row.editstyle && col.type === 'OBJECT'" 
+          v-model="scope.row[col.key]"
+          filterable
+          remote
+          placeholder="请输入关键词"
+          :remote-method="getServerObj(scope.col)">
+          <el-option
+            v-for="list in scope.col.filters"
+            :key="list.value"
+            :label="list.text"
+            :value="list.value">
+          </el-option>
+        </el-select>-->
+        <!--枚举类型显示为选项-->
+        <span v-else-if="!scope.row.editstyle && col.type === 'ENUM'">{{enumDescribes(scope.row, col, col.key)}}</span>
+        <span v-else-if="!scope.row.editstyle">{{scope.row[col.key]}}</span>
       </template>
     </el-table-column>
      
@@ -162,7 +178,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="currentPage"
-      :page-sizes="[2, 50, 200, 500, 1000]"
+      :page-sizes="[10, 50, 200, 500, 1000]"
       :page-size="10"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
@@ -182,7 +198,22 @@
           <el-option
             v-for="list in item.filters"
             :key="list.value"
-            :label="list.label"
+            :label="list.text"
+            :value="list.value">
+          </el-option>
+        </el-select>
+        <!--依赖对象-->
+        <el-select style="float:left" v-else-if="item.type === 'OBJECT'" 
+          v-model="item.value"
+          filterable
+          remote
+          placeholder="请输入关键词"
+          :remote-method="getServerObj(item)"
+          :loading="item.loading">
+          <el-option
+            v-for="list in item.filters"
+            :key="list.value"
+            :label="list.text"
             :value="list.value">
           </el-option>
         </el-select>
@@ -204,12 +235,27 @@
           <!--数字类型样式-->
           <el-input style="width:150px;float:left" v-else-if="item.type === 'INT'" v-model.number="item.value" type="number" placeholder="请输入..."></el-input>
           <!--枚举类型样式-->
-          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model.lazy="item.value" placeholder="请选择">
+          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
             <el-option
               v-for="list in item.filters"
               :key="list.value"
-              :label="list.label"
+              :label="list.text"
               :value="list.value"> 
+            </el-option>
+          </el-select>
+          <!--依赖对象-->
+          <el-select style="float:left" v-else-if="item.type === 'OBJECT'" 
+            v-model="item.value"
+            filterable
+            remote
+            placeholder="请输入关键词"
+            :remote-method="getServerObj(item)"
+            :loading="item.loading">
+            <el-option
+              v-for="list in item.filters"
+              :key="list.value"
+              :label="list.text"
+              :value="list.value">
             </el-option>
           </el-select>
         </el-form-item>
@@ -229,108 +275,36 @@
 ** propADUQ  增删改查
 ** propPagination  分页
 ** propColumn  自定义列
+**
 // API
+** getPagerURL 获取正页
 ** createURL 新建API
 ** deleteURL 删除 API
 ** updateURL 更新 API
 ** queryURL 查询API
 */
   import reqwest from 'reqwest'
+  import {customGetPagerURL} from '../api/api.js'
   export default {
     props: {
-      createURL: {
-        type: String
-      },
-      deleteURL: {
-        type: String
-      },
-      updateURL: {
-        type: String
-      },
-      queryURL: {
-        type: String
-      },
-      getPagerURL: {
-        type: String
-      },
-      propSearch: {
-        type: Boolean,
-        default: true
-      },
-      propADUQ: {
-        type: Boolean,
-        default: true
-      },
-      propPagination: {
-        type: Boolean,
-        default: true
-      },
-      propColumn: {
-        type: Boolean,
-        default: true
-      }
+      createURL: {type: String},
+      deleteURL: {type: String},
+      batchDeleteURL: {type: String},
+      updateURL: {type: String},
+      batchUpdateURL: {type: String},
+      queryURL: {type: String},
+      getPagerURL: {type: String},
+      propSearch: {type: Boolean, default: true},
+      propADUQ: {type: Boolean, default: true},
+      propPagination: {type: Boolean, default: true},
+      propColumn: {type: Boolean, default: true}
     },
     data () {
       return {
         tableData: [],
-        tableData1: [{
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          age: 25,
-          sex: '男',
-          line: 0,
-          editstyle: false
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          age: 25,
-          sex: '女',
-          line: 1,
-          editstyle: false
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          age: 25,
-          sex: '男',
-          line: 2,
-          editstyle: false
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          age: 25,
-          sex: '男',
-          line: 3,
-          editstyle: false
-        }, {
-          date: '2016-07-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          age: 25,
-          sex: '女',
-          line: 4,
-          editstyle: false
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄',
-          age: 25,
-          sex: '女',
-          line: 5,
-          editstyle: false
-        }],
         // visible是否可见、sortable是否可排序、filters筛选数据源、search是否可搜索,editable是否可编辑
         // type 日期 date 时间 time  2017-06-23 11:39:08 字符串 string  数字 number  枚举 enum
         tableCol: [],
-        tableCol1: [{key: 'name', prop: 'name', label: '姓名', visible: true, type: 'STRING', search: true},
-                  {key: 'sex', prop: 'sex', label: '性别', visible: true, type: 'ENUM', filters: [{ value: '男', label: '男' }, { value: '女', label: '女' }]},
-                  {key: 'age', prop: 'age', label: '年龄', visible: false, sortable: true, type: 'INT', search: true},
-                  {key: 'address', prop: 'address', label: '地址', visible: true, type: 'STRING', editable: true},
-                  {key: 'date', prop: 'date', label: '日期', type: 'DATE', visible: false, sortable: true}
-        ],
         total: 5,
         currentPage: 1,
         // 模糊搜索值
@@ -345,6 +319,9 @@
         // 搜索框对对应的类型
         AdvancedSearchType1: 'STRING',
         AdvancedSearchType2: 'STRING',
+        // 当前选中搜索打列
+        currentSelectItem1: '',
+        currentSelectItem2: '',
         // 选择要搜索的列的值
         searchCloumnValue1: '',
         searchCloumnValue2: '',
@@ -355,10 +332,10 @@
         relationalValue: '',
         // 高级搜索与或关系选择器
         relationalOptions: [{
-          value: 'and',
+          value: 'AND',
           label: '与'
         }, {
-          value: 'or',
+          value: 'OR',
           label: '或'
         }],
         // 表格增删改查按钮
@@ -366,7 +343,6 @@
         editCOl: '编辑',
         cancelEditCOl: '取消修改',
         cancelEdit: false,
-        disableCol: '禁用',
         deleteCol: '删除',
         // 表格删改查按钮 是否可用
         disabled: true,
@@ -383,7 +359,9 @@
       }
     },
     created: function () {
-      this.fetch2(this.getPagerURL, this.getDataOnComplate, {condition: {}, ifGetColumns: true, ifGetCount: true, pageSize: 10, pageNo: 1})
+      this.fetch2(this.getPagerURL,
+        this.getDataOnComplate,
+        {ifGetColumns: true, ifGetCount: true, pageSize: 10, pageNo: 1})
     },
     methods: {
       // 数据是否有修改1
@@ -403,35 +381,45 @@
         }
         return flag
       },
-      getDataOnComplate (data) {
-        if (data === null) {
-          this.$alert('网络错误，请刷新（F5）后重试。', '错误提示', {
-            confirmButtonText: '知道了。',
-            type: 'error'
-          })
-          return
+      conversionType (type) {
+        if (type === 'FLOAT') {
+          return 'INT'
+        } else if (type === 'CHAR' || type === 'VARCHAR') {
+          return 'STRING'
+        } else {
+          return type
         }
-        if (data.errorCode !== 0) {
-          this.$alert('服务器错误，' + data.message, '错误提示', {
-            confirmButtonText: '知道了。',
-            type: 'error'
-          })
-          return
-        }
-        let column = JSON.parse(data.entity.columnsJsonStr)
-        for (let i = 0; i < column.length; i++) {
+      },
+      // data回调数据  api调用类型url states数据操作对象
+      getDataOnComplate (data, ...states) {
+        if (!this.checkResults(data)) return
+        let columnsJsonStr = JSON.parse(data.entity.columnsJsonStr)
+        let columns = columnsJsonStr.columns
+        for (let i = 0; i < columns.length; i++) {
           let colObj = {}
-          colObj.key = column[i].name
-          colObj.prop = column[i].name
-          colObj.label = column[i].flowchart
-          colObj.noenull = column[i].notnull
-          colObj.visible = column[i].visible
+          colObj.key = columns[i].name
+          colObj.prop = columns[i].name
+          colObj.label = columns[i].flowchart
+          colObj.noenull = columns[i].notnull
+          colObj.visible = columns[i].visible
           colObj.search = true
-          colObj.type = column[i].type
-          colObj.editable = column[i].editable
+          colObj.editable = columns[i].editable
+          colObj.referenceTable = columns[i].referenceTable
+          colObj.referenceTableName = columns[i].referenceTableName
+          colObj.loading = false
+          if (colObj.referenceTable === '') {
+            colObj.type = this.conversionType(columns[i].type)
+          } else {
+            // 从服务器获取依赖对象存入数组
+            colObj.type = 'OBJECT'
+          }
+          colObj.editable = columns[i].editable
           colObj.sortable = true
-          if (column[i].enumvalues.length > 1) {
-            colObj.filters.push({text: column[i].enumvalueDescribes[i], value: column[i].enumvalues[i]})
+          colObj.filters = []
+          if (columns[i].enumvalues.length > 1) {
+            for (let j = 0; j < columns[i].enumvalues.length; j++) {
+              colObj.filters.push({text: columns[i].enumvalueDescribes[j], value: columns[i].enumvalues[j]})
+            }
           }
           this.tableCol.push(colObj)
         }
@@ -442,14 +430,15 @@
           this.tableData.push(data.entity.list[i])
         }
       },
-      fetch (url, onComplate, params = {}, method = 'POST') {
-        if (typeof onComplete !== 'function') {
+      fetch (url, onComplate, params, ...states) {
+        if (typeof onComplate !== 'function') {
+          console.log('不是函数', typeof onComplete)
           return
         }
         reqwest({
           url: url,
-          method: method,
-          crossDpmain: true,
+          method: 'POST',
+          crossDomain: true,
           data: {
             ...params
           },
@@ -457,7 +446,7 @@
         })
         .then((data) => {
           if (data.status === 200) {
-            onComplate(data)
+            onComplate(data, states)
           } else {
             onComplate(null)
           }
@@ -467,21 +456,22 @@
           onComplate(null)
         })
       },
-      fetch2 (url, onComplate, params = {}, method = 'POST') {
+      fetch2 (url, onComplate, params, ...states) {
         if (typeof onComplate !== 'function') {
+          console.log('不是函数', typeof onComplete)
           return
         }
         reqwest({
           url: url,
-          method: method,
-          crossDpmain: true,
+          method: 'POST',
+          crossDomain: true,
           data: JSON.stringify(params),
           dataType: 'json',
           contentType: 'application/json;charset=utf-8'
         })
         .then((data) => {
           if (data.status === 200) {
-            onComplate(data)
+            onComplate(data, states)
           } else {
             onComplate(null)
           }
@@ -494,6 +484,7 @@
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {
         this.AdvancedSearchValue1 = ''
+        this.currentSelectItem1 = selectItem
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
             if (this.tableCol[i].type) {
@@ -507,6 +498,7 @@
       // 高级搜索选项一下拉列表框
       handleSecondColumnChange (selectItem) {
         this.AdvancedSearchValue2 = ''
+        this.currentSelectItem2 = selectItem
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
             if (this.tableCol[i].type) {
@@ -542,11 +534,9 @@
         }
         if (val.length > 1) {
           this.editCOl = '批量编辑'
-          this.disableCol = '批量禁用'
           this.deleteCol = '批量删除'
         } else {
           this.editCOl = '编辑'
-          this.disableCol = '禁用'
           this.deleteCol = '删除'
         }
       },
@@ -579,39 +569,82 @@
         this.createVisible = true
         this.createForm = {}
         for (let i = 0; i < this.tableCol.length; i++) {
-          let key = this.tableCol[i].key
-          let label = this.tableCol[i].label
-          let type = this.tableCol[i].type
-          let filters = []
-          if (type === 'ENUM') {
-            filters = this.tableCol[i].filters.slice(0)
+          if (this.tableCol[i].editable) {
+            let temp = {}
+            Object.assign(temp, this.tableCol[i], {value: ''})
+            this.$set(this.createForm, i, temp)
           }
-          this.$set(this.createForm, i, { key: key, label: label, filters: filters, type: type, value: '' })
+        }
+      },
+      getServerObj (item) {
+        let url = customGetPagerURL(item.referenceTableName)
+        if (item.filters.length === 0) {
+          this.fetch2(url, this.getServerObjOnComplate, {ifGetColumns: true, ifGetCount: true}, item)
+        }
+      },
+      getServerObjOnComplate (data, ...states) {
+        if (!this.checkResults(data)) return
+        let columnsJsonStr = JSON.parse(data.entity.columnsJsonStr)
+        let columns = columnsJsonStr.columns
+        let names = []
+        for (let i = 0; i < columns.length; i++) {
+          if (columns[i].readableIdentifier) {
+            names.push(columns[i].name)
+          }
+        }
+        for (let i = 0; i < data.entity.list.length; i++) {
+          let name = ''
+          for (let j = 0; j < names.length; j++) {
+            if (name === '') {
+              name = data.entity.list[i][names[j]]
+            } else {
+              name = name + '/' + names[j]
+              name = data.entity.list[i][names[j]]
+            }
+          }
+          console.log(data.entity.list[i].uid, '---', name)
+          for (var key in states[0]) {
+            states[0][key].filters.push({ value: data.entity.list[i].uid, text: name })
+          }
         }
       },
       // 取消创建表格行
       handleCreateCancel () {
         this.createVisible = false
       },
-      // 创建表格行提交
+      // 创建单行表格行提交
       handleCreateSubmit () {
         this.createLoading = true
+        let params = {}
+        for (var i in this.createForm) {
+          let key = this.createForm[i].key
+          if (this.createForm[i].type === 'OBJECT') {
+            key = key + 'uid'
+          }
+          params[key] = this.createForm[i].value
+        }
+        this.fetch(this.createURL, this.createComplate, params)
       },
-      // 编辑表格行
+      createComplate (data) {
+        this.createLoading = false
+        this.createVisible = false
+        if (!this.checkResults(data)) return
+        this.$message({
+          type: 'success',
+          message: '创建成功!'
+        })
+      },
+      // 单行编辑表格行
       handleEditCOl () {
         if (this.multipleSelection.length === 1) {
           this.singleEditVisible = true
           this.singleEditForm = {}
           for (let i = 0; i < this.tableCol.length; i++) {
-            let key = this.tableCol[i].key
-            let label = this.tableCol[i].label
-            let type = this.tableCol[i].type
-            let filters = []
-            if (type === 'ENUM') {
-              filters = this.tableCol[i].filters.slice(0)
+            if (this.tableCol[i].editable) {
+              let temp = {}
+              Object.assign(temp, this.tableCol[i], {value: this.multipleSelection[0][this.tableCol[i].key]})
+              this.$set(this.singleEditForm, i, temp)
             }
-            let value = this.multipleSelection[0][key]
-            this.$set(this.singleEditForm, i, { key: key, label: label, filters: filters, type: type, value: value })
           }
         } else {
           this.cancelEdit = true
@@ -638,10 +671,24 @@
       // 单行编辑提交
       handleSingleEditSubmit () {
         this.editLoading = true
+        let params = {}
+        for (var i in this.singleEditForm) {
+          let key = this.singleEditForm[i].key
+          if (this.singleEditForm[i].type === 'OBJECT') {
+            key = key + 'uid'
+          }
+          params[key] = this.singleEditForm[i].value
+        }
+        this.fetch(this.updateURL, this.SingleEditComplate, params)
       },
-      // 禁用表格行
-      handleDisableCol () {
-        console.log('禁用行')
+      SingleEditComplate (data) {
+        this.editLoading = false
+        this.singleEditVisible = false
+        if (!this.checkResults(data)) return
+        this.$message({
+          type: 'success',
+          message: '修改成功!'
+        })
       },
       // 删除表格行
       handleDeleteCol () {
@@ -650,30 +697,74 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          if (this.multipleSelection.length === 1) {
+            this.fetch(this.deleteURL, this.onDeleteComplate, { uid: this.multipleSelection[0].uid })
+          } else {
+            let params = []
+            for (let i = 0; i < this.multipleSelection.length; i++) {
+              params.push({ uid: this.multipleSelection[i].uid })
+            }
+            this.fetch2(this.batchDeleteURL, this.onDeleteComplate, params)
+          }
         }).catch(() => {
           this.$message({
             type: 'info',
             message: '已取消删除'
           })
         })
+      },
+      onDeleteComplate (data) {
+        if (!this.checkResults(data)) return
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      },
+      checkResults (data) {
+        if (data === null) {
+          this.$alert('网络错误，请刷新（F5）后重试。', '错误提示', {
+            confirmButtonText: '知道了。',
+            type: 'error'
+          })
+          console.log('错误')
+          return false
+        }
+        if (data.errorCode !== 0) {
+          this.$alert('服务器错误，' + data.message, '错误提示', {
+            confirmButtonText: '知道了。',
+            type: 'error'
+          })
+          console.log('错误')
+          return false
+        }
+        console.log('获取数据成功')
+        return true
+      },
+      // 根据行打值返回枚举类型的名称
+      enumDescribes (row, col, key) {
+        if (col.type === 'ENUM') {
+          for (let i = 0; i < col.filters.length; i++) {
+            if (col.filters[i].value === row[col.key]) {
+              return col.filters[i].text
+            }
+          }
+        }
       }
     },
     computed: {
       getEnumTypeOption1 () {
-        for (var key in this.tableCol) {
-          if (this.tableCol[key].type === this.AdvancedSearchType1) {
-            return this.tableCol[key].filters
+        let Col = this.tableCol
+        for (var key in Col) {
+          if (Col[key].key === this.currentSelectItem1 && Col[key].type === this.AdvancedSearchType1) {
+            return Col[key].filters
           }
         }
       },
       getEnumTypeOption2 () {
-        for (var key in this.tableCol) {
-          if (this.tableCol[key].type === this.AdvancedSearchType2) {
-            return this.tableCol[key].filters
+        let Col = this.tableCol
+        for (var key in Col) {
+          if (Col[key].key === this.currentSelectItem2 && Col[key].type === this.AdvancedSearchType2) {
+            return Col[key].filters
           }
         }
       }
@@ -702,23 +793,6 @@
 .pagination{
   float: right;
   margin:10px 20px;    
-}
-.number-input{
-    width: 150px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: #fff;
-    background-image: none;
-    border-radius: 4px;
-    border: 1px solid #bfcbd9;
-    box-sizing: border-box;
-    color: #1f2d3d;
-    font-size: inherit;
-    height: 36px;
-    line-height: 1;
-    outline: 0;
-    padding: 3px 10px;
-    transition: border-color .2s cubic-bezier(.645,.045,.355,1);
 }
 .search{
   position:relative;

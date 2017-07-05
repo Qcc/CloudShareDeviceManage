@@ -11,7 +11,13 @@
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '/main' }">运行总览</el-breadcrumb-item>
         </el-breadcrumb>
-        <table-module v-bind:getPagerURL="getPagerURL"></table-module>
+        <table-module :getPagerURL="getPagerURL"
+          :createURL="createUser"
+          :updateURL="updateUser"
+          :deleteURL="deleteUser"
+          :batchDeleteURL="batchDeleteUser"
+          :batchUpdateURL="batchUpdateUser"
+        ></table-module>
       </el-col>
     </el-row>
   </div>
@@ -21,11 +27,16 @@
 import TopNav from '../components/TopNav.vue'
 import LeftMenu from '../components/LeftMenu.vue'
 import TableModule from '../components/TableModule.vue'
-import {getPagerUser} from '../api/api.js'
+import {getPagerUser, createUser, updateUser, deleteUser, batchUpdateUser, batchDeleteUser} from '../api/api.js'
 export default {
   data () {
     return {
-      getPagerURL: getPagerUser
+      getPagerURL: getPagerUser,
+      createUser: createUser,
+      updateUser: updateUser,
+      deleteUser: deleteUser,
+      batchDeleteUser: batchDeleteUser,
+      batchUpdateUser: batchUpdateUser
     }
   },
   methods: {
