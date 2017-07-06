@@ -97,6 +97,7 @@
     ref="multipleTable"
     :data="tableData"
     align='left'
+    v-loading="tableLoading"
     border
     stripe
     tooltip-effect="dark"
@@ -105,7 +106,6 @@
     @filter-change="handleFilterChange"
     @sort-change="handleSortChange"
     @selection-change="handleSelectionChange">
-
     <el-table-column
       :selectable="selectable"
       type="selection"
@@ -159,7 +159,11 @@
      
   </el-table>
   <div class="cloumn-continer">
-  <div v-if="propColumn" class="column-link"><a @click="dialogVisible">自定义列</a></div>
+  <div v-if="propColumn" class="column-link">
+    <a @click="moreFeatures">{{moreFeature}}</a>
+    <a v-if="moreVisible" @click="columnVisible = true">自定义列</a>
+    <a v-if="moreVisible" @click="batchModify">批量修改</a>
+  </div>
   <el-dialog title="自定义表格列" :visible.sync="columnVisible">
   <el-alert
     class="tips"
@@ -169,7 +173,59 @@
   </el-alert>
   <el-checkbox class="choice-col" v-for="item in tableCol"  :key="item.key" :label="item.label" v-model="item.visible" >{{item.label}}</el-checkbox>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="columnSubmit">确 定</el-button>
+      <el-button type="primary" @click="columnVisible = false">确 定</el-button>
+    </div>
+  </el-dialog>
+  <!--批量修改-->
+  <el-dialog  title="批量修改" :visible.sync="batchVisible">
+    <el-form :inline="true" :model="bratchForm" class="demo-form-inline">
+      <el-form-item label="预计修改"><span style="color:#FF4949">{{modLine}} </span>&nbsp;行</el-form-item><br>
+      <el-form-item label="请选择列">
+        <el-select style="width:100px" @change="bratchFormChange" v-model="bratchForm.column" placeholder="请选择">
+          <el-option
+            v-for="item in bratchForm.columns"
+            :key="item.value"
+            :label="item.text"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="修改为">
+        <!--字符串默认类型-->
+        <el-input v-if="bratchForm.type === 'STRING'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value"  placeholder="请输入..."></el-input>
+        <!--日期类型样式 -->
+        <el-date-picker v-if="bratchForm.type === 'DATE'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+        <!--数字类型样式-->
+        <el-input v-if="bratchForm.type === 'INT'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value"  type="number" placeholder="请输入..."></el-input>
+        <!--枚举类型样式-->
+        <el-select v-if="bratchForm.type === 'ENUM'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value" placeholder="请选择">
+          <el-option
+            v-for="item in bratchForm.filters"
+            :key="item.value"
+            :label="item.text"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <!--依赖对象-->
+        <el-select v-else-if="bratchForm.type === 'OBJECT'" 
+          @change="bratchValue = false"
+          v-model="bratchForm.value"
+          filterable
+          remote
+          placeholder="请输入关键词"
+          :remote-method="getServerObj(bratchForm)">
+          <el-option
+            v-for="list in bratchForm.filters"
+            :key="list.value"
+            :label="list.text"
+            :value="list.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="batchVisible = false">取 消</el-button>
+      <el-button type="primary" :disabled="bratchValue" :loading="batchLoading" @click="handleBatchSubmit">确 定</el-button>
     </div>
   </el-dialog>
   </div>
@@ -221,7 +277,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="handleSingleEditCancel">取 消</el-button>
+        <el-button @click="singleEditVisible = false">取 消</el-button>
         <el-button type="primary" :loading="editLoading" @click="handleSingleEditSubmit">确 定</el-button>
       </div>
     </el-dialog>
@@ -262,7 +318,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="handleCreateCancel">取 消</el-button>
+        <el-button @click="createVisible = false">取 消</el-button>
         <el-button type="primary" :loading="createLoading" @click="handleCreateSubmit">确 定</el-button>
       </div>
     </el-dialog>
@@ -303,9 +359,9 @@
     data () {
       return {
         tableData: [],
-        // visible是否可见、sortable是否可排序、filters筛选数据源、search是否可搜索,editable是否可编辑
-        // type 日期 date 时间 time  2017-06-23 11:39:08 字符串 string  数字 number  枚举 enum
         tableCol: [],
+        // 表格加载中
+        tableLoading: false,
         total: 0,
         currentPage: 1,
         pageSize: 10,
@@ -342,6 +398,23 @@
           value: 'OR',
           label: '或'
         }],
+        // 更多功能
+        moreFeature: '更多功能>>',
+        moreVisible: false,
+        // 批量修改
+        batchVisible: false,
+        batchLoading: false,
+        bratchDisabled: true,
+        bratchValue: true,
+        bratchForm: {
+          columns: [],
+          filters: [],
+          column: '',
+          value: '',
+          type: 'STRING',
+          referenceTableName: ''
+        },
+        modLine: 0,
         // 表格增删改查按钮
         createCOl: '创建',
         editCOl: '编辑',
@@ -372,6 +445,69 @@
       this.reloadingData({ifGetColumns: true})
     },
     methods: {
+      // 更多功能
+      moreFeatures () {
+        this.moreVisible = !this.moreVisible
+        if (this.moreVisible) {
+          this.moreFeature = '<<收起'
+        } else {
+          this.moreFeature = '更多功能>>'
+        }
+      },
+      batchModify () {
+        if (this.multipleSelection.length === 0) {
+          this.$message({
+            type: 'warning',
+            message: '请选择要修改的行!'
+          })
+          return
+        }
+        this.batchVisible = true
+        this.modLine = this.multipleSelection.length
+        this.bratchForm.columns = []
+        for (let i = 0; i < this.tableCol.length; i++) {
+          if (this.tableCol[i].editable) {
+            this.bratchForm.columns.push({value: this.tableCol[i].key,
+              text: this.tableCol[i].label
+            })
+          }
+        }
+      },
+      bratchFormChange (val) {
+        this.bratchDisabled = false
+        this.bratchForm.value = ''
+        this.bratchForm.filters = []
+        for (let i = 0; i < this.tableCol.length; i++) {
+          if (this.tableCol[i].key === val) {
+            this.bratchForm.type = this.tableCol[i].type
+            this.bratchForm.referenceTableName = this.tableCol[i].referenceTableName
+            if (this.tableCol[i].type === 'ENUM') {
+              this.bratchForm.filters = this.tableCol[i].filters
+            }
+          }
+        }
+      },
+      handleBatchSubmit () {
+        this.batchVisible = false
+        this.batchLoading = true
+        let params = []
+        let param = {}
+        param[this.bratchForm.column] = this.bratchForm.value
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          param.uid = this.multipleSelection[i].uid
+          params.push(param)
+        }
+        this.fetch2(this.batchUpdateURL, this.batchMoifyComplate, params)
+      },
+      batchMoifyComplate (data) {
+        this.batchLoading = false
+        if (!this.checkResults(data)) return
+        this.$message({
+          type: 'success',
+          message: '修改成功!'
+        })
+        this.reloadingData()
+      },
       // 数据是否有修改1
       tabledataChange (value) {
         this.rowModified = true
@@ -401,6 +537,7 @@
       },
       // data回调数据  api调用类型url states数据操作对象
       getDataOnComplate (data, ...states) {
+        this.tableLoading = false
         if (!this.checkResults(data)) return
         if (data.entity.columnsJsonStr) {
           let columnsJsonStr = JSON.parse(data.entity.columnsJsonStr)
@@ -452,7 +589,6 @@
       },
       fetch (url, onComplate, params, ...states) {
         if (typeof onComplate !== 'function') {
-          console.log('不是函数', typeof onComplete)
           return
         }
         reqwest({
@@ -472,13 +608,12 @@
           }
         })
         .fail((err, msg) => {
-          console.log(err)
+          console.log(err, msg)
           onComplate(null)
         })
       },
       fetch2 (url, onComplate, params, ...states) {
         if (typeof onComplate !== 'function') {
-          console.log('不是函数', typeof onComplete)
           return
         }
         reqwest({
@@ -497,7 +632,7 @@
           }
         })
         .fail((err, msg) => {
-          console.log(err)
+          console.log(err, msg)
           onComplate(null)
         })
       },
@@ -537,13 +672,6 @@
         this.AdvancedSearchVisible = false
         this.searchMod = 'adv-search'
       },
-      dialogVisible () {
-        this.columnVisible = true
-      },
-      // 修改表格列
-      columnSubmit () {
-        this.columnVisible = false
-      },
       // 表格多选响应
       handleSelectionChange (val) {
         this.multipleSelection = val
@@ -579,6 +707,7 @@
         }
         let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = this.filterValues
+        this.tableLoading = true
         this.fetch2(this.queryURL, this.getDataOnComplate, params)
       },
       // 分页
@@ -634,6 +763,7 @@
         let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = filters
         if (this.relationalValue) params.relationship = this.relationalValue
+        this.tableLoading = true
         this.fetch2(this.queryURL, this.getDataOnComplate, params)
       },
       // 创建表格行
@@ -680,10 +810,6 @@
         }
         this.delay = true
       },
-      // 取消创建表格行
-      handleCreateCancel () {
-        this.createVisible = false
-      },
       // 创建单行表格行提交
       handleCreateSubmit () {
         this.createLoading = true
@@ -726,6 +852,7 @@
           }
           if (this.rowModified) {
             this.batchEditLoading = true
+            this.tableLoading = true
             this.fetch2(this.batchUpdateURL, this.batchEditComplate, this.multipleSelection)
           } else {
             this.cancelEdit = true
@@ -757,10 +884,6 @@
           let line = this.multipleSelection[i].line
           this.tableData[line].editstyle = false
         }
-      },
-      // 取消单行编辑
-      handleSingleEditCancel () {
-        this.singleEditVisible = false
       },
       // 单行编辑提交
       handleSingleEditSubmit () {
@@ -800,6 +923,7 @@
             for (let i = 0; i < this.multipleSelection.length; i++) {
               params.push({ uid: this.multipleSelection[i].uid })
             }
+            this.tableLoading = true
             this.fetch2(this.batchDeleteURL, this.onDeleteComplate, params)
           }
         }).catch(() => {
@@ -824,7 +948,6 @@
             confirmButtonText: '知道了。',
             type: 'error'
           })
-          console.log('错误')
           return false
         }
         if (data.errorCode !== 0) {
@@ -832,10 +955,8 @@
             confirmButtonText: '知道了。',
             type: 'error'
           })
-          console.log('错误')
           return false
         }
-        console.log('获取数据成功')
         return true
       },
       // 根据行打值返回枚举类型的名称
@@ -854,11 +975,8 @@
         for (let i = 0; i < param.length; i++) {
           params = Object.assign(params, param[i])
         }
-        console.log(params)
-        this.fetch2(this.getPagerURL,
-        this.getDataOnComplate,
-        params
-        )
+        this.fetch2(this.getPagerURL, this.getDataOnComplate, params)
+        this.tableLoading = true
       }
     },
     computed: {
@@ -898,7 +1016,9 @@
   float: right;
   padding-right: 20px;
   margin:10px 20px;
-  background: url('../assets/ustomize.png') no-repeat  center right;
+}
+.column-link a{
+  margin-right: 5px; 
 }
 .pagination{
   float: right;
