@@ -143,7 +143,10 @@ var data = {
 		ifGetColumns: true,
 		ifJoinReference: true,
 		condition: {
-			account: 'b'
+			account: 'b',
+            gongsi:{
+                name:'xxx'
+            }
 		},
 		fuzzySearchKeyword: 'a',
 		sorter: {
