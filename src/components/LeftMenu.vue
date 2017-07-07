@@ -18,6 +18,13 @@
         <template slot="title"><i class="el-icon-setting"></i>设备管理</template>
           <el-menu-item index="devicePuton">设备投放</el-menu-item>
           <el-menu-item index="deviceOps">设备运维</el-menu-item>
+          <el-menu-item index="deviceOps">连接状态监控</el-menu-item>
+          <el-menu-item index="deviceOps">套餐配置</el-menu-item>
+          <el-menu-item index="deviceOps">设备配置</el-menu-item>
+          <el-menu-item index="deviceOps">分组管理</el-menu-item>
+          <el-menu-item index="deviceOps">订单管理</el-menu-item>
+          <el-menu-item index="deviceOps">积分管理</el-menu-item>
+          <el-menu-item index="deviceOps">设备维护记录</el-menu-item>                              
       </el-submenu>
       
       <el-submenu index="4">

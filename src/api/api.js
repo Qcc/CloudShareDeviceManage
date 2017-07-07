@@ -7,11 +7,12 @@ export function fetch (url, onComplete, params = {}, method = 'POST') {
   reqwest({
     url: url,
     method: method,
-    crossDpmain: true,
+    crossDomain: true,
+    withCredentials: true,
+    type: 'json',
     data: {
       ...params
-    },
-    type: 'json'
+    }
   })
   .then((data) => {
     if (data.status === 200) {
@@ -32,7 +33,8 @@ export function fetch2 (url, onComplete, params = {}, method = 'POST') {
   reqwest({
     url: url,
     method: method,
-    crossDpmain: true,
+    crossDomain: true,
+    withCredentials: true,
     data: JSON.stringify(params),
     dataType: 'json',
     contentType: 'application/json;charset=utf-8'
@@ -53,6 +55,12 @@ export function customGetPagerURL (obj) {
   return ROOTURL + '/CloudShareDeviceManager/public/' + obj + '/getPager.api'
 }
 export const ROOTURL = 'http://192.168.200.104:8080'
+export const login = ROOTURL + '/iDevice/public/1/login.api'
+export const logoutApi = ROOTURL + '/iDevice/public/logout.api'
+export const isLoggedIn = ROOTURL + '/iDevice/public/isLoggedIn.api'
+export const validateCodeImg = ROOTURL + '/iDevice/public/validateCodeImg.api'
+export const checkValidateCode = ROOTURL + '/iDevice/public/checkValidateCode.api'
+
 export const createUser = ROOTURL + '/CloudShareDeviceManager/public/user/create.api'
 export const updateUser = ROOTURL + '/CloudShareDeviceManager/public/user/update.api'
 export const batchUpdateUser = ROOTURL + '/CloudShareDeviceManager/public/user/batchUpdate.api'

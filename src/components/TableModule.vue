@@ -488,18 +488,18 @@
         }
       },
       handleBatchSubmit () {
-        this.batchVisible = false
         this.batchLoading = true
         let params = []
-        let param = {}
-        param[this.bratchForm.column] = this.bratchForm.value
         for (let i = 0; i < this.multipleSelection.length; i++) {
+          let param = {}
+          param[this.bratchForm.column] = this.bratchForm.value
           param.uid = this.multipleSelection[i].uid
           params.push(param)
         }
         this.fetch2(this.batchUpdateURL, this.batchMoifyComplate, params)
       },
       batchMoifyComplate (data) {
+        this.batchVisible = false
         this.batchLoading = false
         if (!this.checkResults(data)) return
         this.$message({
@@ -595,6 +595,7 @@
           url: url,
           method: 'POST',
           crossDomain: true,
+          withCredentials: true,
           data: {
             ...params
           },
@@ -620,6 +621,7 @@
           url: url,
           method: 'POST',
           crossDomain: true,
+          withCredentials: true,
           data: JSON.stringify(params),
           dataType: 'json',
           contentType: 'application/json;charset=utf-8'
