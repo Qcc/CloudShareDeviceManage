@@ -17,59 +17,70 @@
   <el-row v-if="AdvancedSearchVisible">
   <el-col :span="24">
     <div style="float:left;padding-top:15px;margin-top:15px;border-top: 1px solid #cccccc;">
-      <el-form :inline="true" :model="SearchForm">
-        <span>高级搜索 : </span>
-        <!--选项1-->
-        <el-form-item>
-          <el-select style="width:150px" @change="handleFristColumnChange" v-model="SearchForm.item1.column" placeholder="请选择列">
-            <el-option
-              v-for="item in tableCol"
-              :key="item.key"
-              :label="item.label"
-              :value="item.key">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <c-input :columns="SearchForm.item1" :getser="getServerObj(SearchForm.item1)"></c-input>
-        </el-form-item>
+      <span>高级搜索 : </span>
+      <el-select style="width:150px" @change="handleFristColumnChange" v-model="searchCloumnValue1" placeholder="请选择列">
+        <el-option
+          v-for="item in tableCol"
+          :key="item.key"
+          :label="item.label"
+          :value="item.key">
+        </el-option>
+      </el-select>
+      <!--字符串默认类型-->
+      <el-input v-if="AdvancedSearchType1 === 'STRING'" v-model="AdvancedSearchValue1" style="width:150px" placeholder="请输入..."></el-input>
+      <!--日期类型样式 -->
+      <el-date-picker style="width:210px" v-if="AdvancedSearchType1 === 'DATE'" v-model="AdvancedSearchValue1" type="datetime" placeholder="选择日期时间"></el-date-picker>
+      <!--数字类型样式-->
+      <el-input v-if="AdvancedSearchType1 === 'INT'" v-model="AdvancedSearchValue1" style="width:150px" type="number" placeholder="请输入..."></el-input>
+      <!--枚举类型样式-->
+      <el-select style="width:100px" v-if="AdvancedSearchType1 === 'ENUM'" v-model="AdvancedSearchValue1" placeholder="请选择">
+        <el-option
+          v-for="item in getEnumTypeOption1"
+          :key="item.value"
+          :label="item.text"
+          :value="item.value">
+        </el-option>
+      </el-select>
 
-        <!--高级搜索与或关系-->
-        <el-form-item>
-          <el-select v-model="SearchForm.relational.value" style="width:60px">
-            <el-option
-              v-for="item in SearchForm.relational.filters"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <!--选项2-->
-        <el-form-item>
-          <el-select style="width:150px" @change="handleSecondColumnChange" v-model="SearchForm.item2.column" placeholder="请选择列">
-            <el-option
-              v-for="item in tableCol"
-              :key="item.key"
-              :label="item.label"
-              :value="item.key">
-            </el-option>
-          </el-select>
-        </el-form-item>
+      <el-select v-model="relationalValue" style="width:60px;margin:0 15px">
+        <el-option
+          v-for="item in relationalOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
 
-        <el-form-item>
-          <c-input :columns="SearchForm.item2" :getser="getServerObj(SearchForm.item2)"></c-input>
-        </el-form-item>
-        <el-form-item>
-        </el-form-item>
-          <el-button style="margin:0 20px" type="primary" :loading="advSearchLoading" @click="handleAdvancedSearch" icon="search">搜索</el-button>
-          <a @click="hiddenAdvancedSearch" style="margin-left:10px;color:#108ee9;cursor:pointer;">收起</a>    
-      </el-form>
+      <el-select style="width:150px" @change="handleSecondColumnChange" v-model="searchCloumnValue2" placeholder="请选择列">
+        <el-option
+          v-for="item in tableCol"
+          :key="item.key"
+          :label="item.label"
+          :value="item.key">
+        </el-option>
+      </el-select>
+      <!--字符串默认类型-->
+      <el-input v-if="AdvancedSearchType2 === 'STRING'" v-model="AdvancedSearchValue2" style="width:150px" placeholder="请输入..."></el-input>
+      <!--日期类型样式 -->
+      <el-date-picker style="width:210px" v-if="AdvancedSearchType2 === 'DATE'" v-model="AdvancedSearchValue2" type="datetime" placeholder="选择日期时间"></el-date-picker>
+      <!--数字类型样式-->
+      <el-input v-if="AdvancedSearchType2 === 'INT'" v-model="AdvancedSearchValue2" style="width:150px" type="number" placeholder="请输入..."></el-input>
+      <!--枚举类型样式-->
+      <el-select style="width:100px" v-if="AdvancedSearchType2 === 'ENUM'" v-model="AdvancedSearchValue2" placeholder="请选择">
+        <el-option
+          v-for="item in getEnumTypeOption2"
+          :key="item.value"
+          :label="item.text"
+          :value="item.value">
+        </el-option>
+      </el-select>
+    <el-button style="margin:0 20px" type="primary" :loading="advSearchLoading" @click="handleAdvancedSearch" icon="search">搜索</el-button>
+    <a @click="hiddenAdvancedSearch" style="margin-left:10px;color:#108ee9;cursor:pointer;">收起</a>    
     </div>
     </el-col>
   </el-row>
   </div>
-  <div v-if="propADUQ && ADUQVisible" style="float:right;margin-bottom:10px">
+  <div v-if="propADUQ" style="float:right;margin-bottom:10px">
     <el-row>
       <el-col>
         <el-button-group>
@@ -180,12 +191,41 @@
         </el-select>
       </el-form-item>
       <el-form-item label="修改为">
-        <c-input :columns="bratchForm" :getser="getServerObj(bratchForm)"></c-input>
+        <!--字符串默认类型-->
+        <el-input v-if="bratchForm.type === 'STRING'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value"  placeholder="请输入..."></el-input>
+        <!--日期类型样式 -->
+        <el-date-picker v-if="bratchForm.type === 'DATE'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+        <!--数字类型样式-->
+        <el-input v-if="bratchForm.type === 'INT'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value"  type="number" placeholder="请输入..."></el-input>
+        <!--枚举类型样式-->
+        <el-select v-if="bratchForm.type === 'ENUM'" @change="bratchValue = false" :disabled="bratchDisabled" v-model="bratchForm.value" placeholder="请选择">
+          <el-option
+            v-for="item in bratchForm.filters"
+            :key="item.value"
+            :label="item.text"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <!--依赖对象-->
+        <el-select v-else-if="bratchForm.type === 'OBJECT'" 
+          @change="bratchValue = false"
+          v-model="bratchForm.value"
+          filterable
+          remote
+          placeholder="请输入关键词"
+          :remote-method="getServerObj(bratchForm)">
+          <el-option
+            v-for="list in bratchForm.filters"
+            :key="list.value"
+            :label="list.text"
+            :value="list.value">
+          </el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="batchVisible = false">取 消</el-button>
-      <el-button type="primary" :loading="batchLoading" @click="handleBatchSubmit">确 定</el-button>
+      <el-button type="primary" :disabled="bratchValue" :loading="batchLoading" @click="handleBatchSubmit">确 定</el-button>
     </div>
   </el-dialog>
   </div>
@@ -204,7 +244,35 @@
     <el-dialog  title="编辑" :visible.sync="singleEditVisible">
       <el-form :model="singleEditForm" label-position="right" label-width="80px">
         <el-form-item v-for="item in singleEditForm" v-bind:key="item.key" v-bind:label="item.label">
-          <c-input :columns="item" :getser="getServerObj(item)"></c-input>
+          <!--字符串类型-->
+          <el-input style="width:300px;float:left" v-if="item.type === 'STRING'"  v-model="item.value" placeholder="请输入内容"></el-input>
+          <!--日期类型样式 -->
+          <el-date-picker style="float:left"  v-else-if="item.type === 'DATE'" v-model="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+          <!--数字类型样式-->
+          <el-input style="width:150px;float:left" v-else-if="item.type === 'INT'" v-model="item.value" type="number" placeholder="请输入..."></el-input>
+          <!--枚举类型样式-->
+          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
+          <el-option
+            v-for="list in item.filters"
+            :key="list.value"
+            :label="list.text"
+            :value="list.value">
+          </el-option>
+        </el-select>
+        <!--依赖对象-->
+        <el-select style="float:left" v-else-if="item.type === 'OBJECT'" 
+          v-model="item.value"
+          filterable
+          remote
+          placeholder="请输入关键词"
+          :remote-method="getServerObj(item)"
+          :loading="item.loading">
+          <el-option
+            v-for="list in item.filters"
+            :key="list.value"
+            :label="list.text"
+            :value="list.value">
+          </el-option>
         </el-select>
         </el-form-item>
       </el-form>
@@ -217,7 +285,36 @@
     <el-dialog  title="新建" :visible.sync="createVisible">
       <el-form :model="createForm" label-position="right" label-width="80px">
         <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
-          <c-input :columns="item" :getser="getServerObj(item)"></c-input>
+          <!--字符串类型-->
+          <el-input style="width:300px;float:left" v-if="item.type === 'STRING'"  v-model="item.value" placeholder="请输入内容"></el-input>
+          <!--日期类型样式 -->
+          <el-date-picker style="float:left" v-else-if="item.type === 'DATE'" v-model.lazy="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
+          <!--数字类型样式-->
+          <el-input style="width:150px;float:left" v-else-if="item.type === 'INT'" v-model.number="item.value" type="number" placeholder="请输入..."></el-input>
+          <!--枚举类型样式-->
+          <el-select style="float:left" v-else-if="item.type === 'ENUM'" v-model="item.value" placeholder="请选择">
+            <el-option
+              v-for="list in item.filters"
+              :key="list.value"
+              :label="list.text"
+              :value="list.value"> 
+            </el-option>
+          </el-select>
+          <!--依赖对象-->
+          <el-select style="float:left" v-else-if="item.type === 'OBJECT'" 
+            v-model="item.value"
+            filterable
+            remote
+            placeholder="请输入关键词"
+            :remote-method="getServerObj(item)"
+            :loading="item.loading">
+            <el-option
+              v-for="list in item.filters"
+              :key="list.value"
+              :label="list.text"
+              :value="list.value">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -245,7 +342,6 @@
 */
   import reqwest from 'reqwest'
   import {customGetPagerURL} from '../api/api.js'
-  import CInput from './CInput.vue'
   export default {
     props: {
       createURL: {type: String},
@@ -269,8 +365,6 @@
         total: 0,
         currentPage: 1,
         pageSize: 10,
-        // 查改增删是否显示
-        ADUQVisible: true,
         // 模糊搜索值
         searchValue: '',
         searchLoading: false,
@@ -283,49 +377,36 @@
         columnVisible: false,
         searchMod: 'adv-search',
         // 搜索框对对应的类型
-        SearchForm: {
-          item1: {
-            editable: true,
-            columns: [],
-            filters: [],
-            column: '',
-            value: '',
-            type: 'STRING',
-            referenceTableName: '',
-            // 当前选中搜索的列
-            current: ''
-          },
-          item2: {
-            editable: true,
-            columns: [],
-            filters: [],
-            column: '',
-            value: '',
-            type: 'STRING',
-            referenceTableName: '',
-            // 当前选中搜索的列
-            current: ''
-          },
-          // 高级搜索与或关系选择器
-          relational: {
-            value: '',
-            filters: [{
-              value: 'AND',
-              label: '与'
-            }, {
-              value: 'OR',
-              label: '或'
-            }]
-          }
-        },
+        AdvancedSearchType1: 'STRING',
+        AdvancedSearchType2: 'STRING',
+        // 当前选中搜索打列
+        currentSelectItem1: '',
+        currentSelectItem2: '',
+        // 选择要搜索的列的值
+        searchCloumnValue1: '',
+        searchCloumnValue2: '',
+        // 高级搜索值
+        AdvancedSearchValue1: '',
+        AdvancedSearchValue2: '',
+        // 高级搜索与或关系选择器
+        relationalValue: '',
+        // 高级搜索与或关系选择器
+        relationalOptions: [{
+          value: 'AND',
+          label: '与'
+        }, {
+          value: 'OR',
+          label: '或'
+        }],
         // 更多功能
         moreFeature: '更多功能>>',
         moreVisible: false,
         // 批量修改
         batchVisible: false,
         batchLoading: false,
+        bratchDisabled: true,
+        bratchValue: true,
         bratchForm: {
-          editable: true,
           columns: [],
           filters: [],
           column: '',
@@ -381,7 +462,6 @@
           })
           return
         }
-        this.bratchForm.value = ''
         this.batchVisible = true
         this.modLine = this.multipleSelection.length
         this.bratchForm.columns = []
@@ -560,47 +640,37 @@
       },
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {
-        this.SearchForm.item1.value = ''
+        this.AdvancedSearchValue1 = ''
+        this.currentSelectItem1 = selectItem
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
             if (this.tableCol[i].type) {
-              this.SearchForm.item1.type = this.tableCol[i].type
+              this.AdvancedSearchType1 = this.tableCol[i].type
             } else {
-              this.SearchForm.item1.type = 'STRING'
+              this.AdvancedSearchType1 = 'string'
             }
-            this.SearchForm.item1.filters = []
-            if (this.tableCol[i].type === 'ENUM') {
-              this.SearchForm.item1.filters = this.tableCol[i].filters
-            }
-            this.SearchForm.item1.referenceTableName = this.tableCol[i].referenceTableName
           }
         }
       },
       // 高级搜索选项一下拉列表框
       handleSecondColumnChange (selectItem) {
-        this.SearchForm.item2.value = ''
+        this.AdvancedSearchValue2 = ''
+        this.currentSelectItem2 = selectItem
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
             if (this.tableCol[i].type) {
-              this.SearchForm.item2.type = this.tableCol[i].type
+              this.AdvancedSearchType2 = this.tableCol[i].type
             } else {
-              this.SearchForm.item2.type = 'STRING'
+              this.AdvancedSearchType2 = 'string'
             }
-            this.SearchForm.item2.filters = []
-            if (this.tableCol[i].type === 'ENUM') {
-              this.SearchForm.item2.filters = this.tableCol[i].filters
-            }
-            this.SearchForm.item2.referenceTableName = this.tableCol[i].referenceTableName
           }
         }
       },
       showAdvancedSearch () {
-        this.ADUQVisible = false
         this.AdvancedSearchVisible = true
         this.searchMod = 'search'
       },
       hiddenAdvancedSearch () {
-        this.ADUQVisible = true
         this.AdvancedSearchVisible = false
         this.searchMod = 'adv-search'
       },
@@ -711,13 +781,10 @@
         }
       },
       getServerObj (item) {
-        console.log(item)
-        if (item.referenceTableName) {
-          let url = customGetPagerURL(item.referenceTableName)
-          if (item.filters.length === 0 && this.delay) {
-            this.delay = false
-            this.fetch2(url, this.getServerObjOnComplate, {ifGetColumns: true, ifGetCount: true}, item)
-          }
+        let url = customGetPagerURL(item.referenceTableName)
+        if (item.filters.length === 0 && this.delay) {
+          this.delay = false
+          this.fetch2(url, this.getServerObjOnComplate, {ifGetColumns: true, ifGetCount: true}, item)
         }
       },
       getServerObjOnComplate (data, ...states) {
@@ -914,26 +981,23 @@
         this.tableLoading = true
       }
     },
-    // computed: {
-    //   getEnumTypeOption1 () {
-    //     let Col = this.tableCol
-    //     for (var key in Col) {
-    //       if (Col[key].key === this.currentSelectItem1 && Col[key].type === this.AdvancedSearchType1) {
-    //         return Col[key].filters
-    //       }
-    //     }
-    //   },
-    //   getEnumTypeOption2 () {
-    //     let Col = this.tableCol
-    //     for (var key in Col) {
-    //       if (Col[key].key === this.currentSelectItem2 && Col[key].type === this.AdvancedSearchType2) {
-    //         return Col[key].filters
-    //       }
-    //     }
-    //   }
-    // },
-    components: {
-      CInput
+    computed: {
+      getEnumTypeOption1 () {
+        let Col = this.tableCol
+        for (var key in Col) {
+          if (Col[key].key === this.currentSelectItem1 && Col[key].type === this.AdvancedSearchType1) {
+            return Col[key].filters
+          }
+        }
+      },
+      getEnumTypeOption2 () {
+        let Col = this.tableCol
+        for (var key in Col) {
+          if (Col[key].key === this.currentSelectItem2 && Col[key].type === this.AdvancedSearchType2) {
+            return Col[key].filters
+          }
+        }
+      }
     }
   }
 </script>

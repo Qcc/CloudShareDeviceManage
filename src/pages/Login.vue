@@ -5,14 +5,14 @@
     <el-form-item
       prop="user"
       :rules="[{ required: true, message: '请输入用户名', trigger: 'blur' }]">
-      <el-input v-model="loginForm.user" placeholder="请输入用户名">
+      <el-input autofocus v-model="loginForm.user" placeholder="请输入用户名">
         <template slot="prepend">账户</template>
       </el-input>
     </el-form-item>
     <el-form-item
       :prop="'passwd'"
       :rules="[{ required: true, message: '请输入密码', trigger: 'blur' }]">
-      <el-input v-model="loginForm.passwd" type='password' placeholder="请输入密码">
+      <el-input @keyup.enter.native = "submitForm('loginForm')" v-model="loginForm.passwd" type='password' placeholder="请输入密码">
         <template slot="prepend">密码</template>
       </el-input>
     </el-form-item>
@@ -22,7 +22,7 @@
         <el-form-item
           :prop="'validateCode'"
           :rules="[{ required: true, message: '请输入验证码', trigger: 'blur' }]">
-          <el-input :icon="icon" v-model="loginForm.validateCode" @change="validChange" placeholder="请输入验证码">
+          <el-input :icon="icon" @keyup.enter.native = "submitForm('loginForm')" v-model="loginForm.validateCode" @change="validChange" placeholder="请输入验证码">
             <template slot="prepend">验证码</template>
           </el-input>
         </el-form-item>
@@ -40,8 +40,7 @@
       <el-button type="primary"
         style="width:120px"
         :loading="loading"
-        @keyup.enter="submitForm('loginForm')"
-        @click="submitForm('loginForm')">登 录</el-button>
+        v-on:click="submitForm('loginForm')">登 录</el-button>
     </el-form-item>
   </el-form>
   <h6 style="color:#D3DCE6"> copyright@cloudshare-v1.0-20170707</h6>
