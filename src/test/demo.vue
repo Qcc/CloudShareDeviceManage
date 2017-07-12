@@ -1,39 +1,69 @@
 <template>
-<div>
-  <el-button @click="handleCreateCOl" >新建</el-button>
-  <el-dialog :visible.sync="createVisible">
-  <el-form :model="createForm" >
-    <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
-      <el-date-picker v-if="item.type === 'DATE'" v-model="item.value" type="datetime" placeholder="选择日期时间"></el-date-picker>
-    </el-form-item>
-  </el-form>
-  </el-dialog>
-</div>
+  <el-select
+    v-model='value9'
+    multiple
+    filterable
+    remote
+    placeholder='请输入关键词'
+    :remote-method='remoteMethod'
+    :loading='loading'>
+    <el-option
+      v-for='item in options4'
+      :key='item.value'
+      :label='item.label'
+      :value='item.value'>
+    </el-option>
+  </el-select>
 </template>
+
 <script>
-export default {
-  data () {
-    return {
-      createVisible: false,
-      createForm: {date: ''},
-      tableCol: [{key: 'date', prop: 'date', label: '日期', type: 'DATE', visible: false, sortable: true}]
-    }
-  },
-  methods: {
-    // 创建表格行
-    handleCreateCOl () {
-      this.createVisible = true
-      for (let i = 0; i < this.tableCol.length; i++) {
-        let key = this.tableCol[i].key
-        let label = this.tableCol[i].label
-        let type = this.tableCol[i].type
-        let filters = []
-        if (type === 'ENUM') {
-          filters = this.tableCol[i].filters.slice(0)
+  export default {
+    data () {
+      return {
+        options4: [],
+        value9: [],
+        list: [],
+        loading: false,
+        states: ['Alabama', 'Alaska', 'Arizona',
+          'Arkansas', 'California', 'Colorado',
+          'Connecticut', 'Delaware', 'Florida',
+          'Georgia', 'Hawaii', 'Idaho', 'Illinois',
+          'Indiana', 'Iowa', 'Kansas', 'Kentucky',
+          'Louisiana', 'Maine', 'Maryland',
+          'Massachusetts', 'Michigan', 'Minnesota',
+          'Mississippi', 'Missouri', 'Montana',
+          'Nebraska', 'Nevada', 'New Hampshire',
+          'New Jersey', 'New Mexico', 'New York',
+          'North Carolina', 'North Dakota', 'Ohio',
+          'Oklahoma', 'Oregon', 'Pennsylvania',
+          'Rhode Island', 'South Carolina',
+          'South Dakota', 'Tennessee', 'Texas',
+          'Utah', 'Vermont', 'Virginia',
+          'Washington', 'West Virginia', 'Wisconsin',
+          'Wyoming']
+      }
+    },
+    mounted () {
+      this.list = this.states.map(item => {
+        return { value: item, label: item }
+      })
+    },
+    methods: {
+      remoteMethod (query) {
+        console.log(query)
+        if (query !== '') {
+          this.loading = true
+          setTimeout(() => {
+            this.loading = false
+            this.options4 = this.list.filter(item => {
+              return item.label.toLowerCase()
+                .indexOf(query.toLowerCase()) > -1
+            })
+          }, 200)
+        } else {
+          this.options4 = []
         }
-        this.$set(this.createForm, i, { key: key, label: label, type: type, value: '', filters: filters })
       }
     }
   }
-}
-</script>
+  </script>

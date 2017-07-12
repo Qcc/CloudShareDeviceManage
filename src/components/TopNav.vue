@@ -35,9 +35,9 @@ export default {
       })
     },
     logoutComplate (data) {
-      if (data.status === 200 && data.errorCode === 0) {
-        this.$router.push('/')
-      }
+      if (data === null) return false
+      if (data.errorCode !== 0) return false
+      this.$router.push('/')
     }
   }
 }

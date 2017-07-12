@@ -1,38 +1,38 @@
 import reqwest from 'reqwest'
 
-export function fetch (url, onComplete, params = {}, method = 'POST') {
-  if (typeof onComplete !== 'function') {
+export function fetch (url, onComplate, params, ...states) {
+  if (typeof onComplate !== 'function') {
     return
   }
   reqwest({
     url: url,
-    method: method,
+    method: 'POST',
     crossDomain: true,
     withCredentials: true,
-    type: 'json',
     data: {
       ...params
-    }
+    },
+    type: 'json'
   })
   .then((data) => {
     if (data.status === 200) {
-      onComplete(data)
+      onComplate(data, states)
     } else {
-      onComplete(null)
+      onComplate(null)
     }
   })
   .fail((err, msg) => {
-    console.log(err)
-    onComplete(null)
+    console.log(err, msg)
+    onComplate(null)
   })
 };
-export function fetch2 (url, onComplete, params = {}, method = 'POST') {
-  if (typeof onComplete !== 'function') {
+export function fetch2 (url, onComplate, params, ...states) {
+  if (typeof onComplate !== 'function') {
     return
   }
   reqwest({
     url: url,
-    method: method,
+    method: 'POST',
     crossDomain: true,
     withCredentials: true,
     data: JSON.stringify(params),
@@ -41,18 +41,18 @@ export function fetch2 (url, onComplete, params = {}, method = 'POST') {
   })
   .then((data) => {
     if (data.status === 200) {
-      onComplete(data)
+      onComplate(data, states)
     } else {
-      onComplete(null)
+      onComplate(null)
     }
   })
   .fail((err, msg) => {
-    console.log(err)
-    onComplete(null)
+    console.log(err, msg)
+    onComplate(null)
   })
 };
-export function customGetPagerURL (obj) {
-  return ROOTURL + '/CloudShareDeviceManager/public/' + obj + '/getPager.api'
+export function customQueryPagerURL (obj) {
+  return ROOTURL + '/iDevice/protected/' + obj + '/queryPager.api'
 }
 export const ROOTURL = 'http://192.168.200.104:8080'
 export const login = ROOTURL + '/iDevice/public/1/login.api'
@@ -61,14 +61,14 @@ export const isLoggedIn = ROOTURL + '/iDevice/public/isLoggedIn.api'
 export const validateCodeImg = ROOTURL + '/iDevice/public/validateCodeImg.api'
 export const checkValidateCode = ROOTURL + '/iDevice/public/checkValidateCode.api'
 
-export const createUser = ROOTURL + '/CloudShareDeviceManager/public/user/create.api'
-export const updateUser = ROOTURL + '/CloudShareDeviceManager/public/user/update.api'
-export const batchUpdateUser = ROOTURL + '/CloudShareDeviceManager/public/user/batchUpdate.api'
-export const readUser = ROOTURL + '/CloudShareDeviceManager/public/user/read.api'
-export const deleteUser = ROOTURL + '/CloudShareDeviceManager/public/user/delete.api'
-export const batchDeleteUser = ROOTURL + '/CloudShareDeviceManager/public/user/batchDelete.api'
-export const getCountUser = ROOTURL + '/CloudShareDeviceManager/public/user/getCount.api'
-export const getPagerUser = ROOTURL + '/CloudShareDeviceManager/public/user/getPager.api'
-export const queryCountUser = ROOTURL + '/CloudShareDeviceManager/public/user/queryCount.api'
-export const queryPagerUser = ROOTURL + '/CloudShareDeviceManager/public/user/queryPager.api'
+export const createUser = ROOTURL + '/iDevice/protected/user/create.api'
+export const updateUser = ROOTURL + '/iDevice/protected/user/update.api'
+export const batchUpdateUser = ROOTURL + '/iDevice/protected/user/batchUpdate.api'
+export const readUser = ROOTURL + '/iDevice/protected/user/read.api'
+export const deleteUser = ROOTURL + '/iDevice/protected/user/delete.api'
+export const batchDeleteUser = ROOTURL + '/iDevice/protected/user/batchDelete.api'
+export const getCountUser = ROOTURL + '/iDevice/protected/user/getCount.api'
+export const getPagerUser = ROOTURL + '/iDevice/protected/user/getPager.api'
+export const queryCountUser = ROOTURL + '/iDevice/protected/user/queryCount.api'
+export const queryPagerUser = ROOTURL + '/iDevice/protected/user/queryPager.api'
 

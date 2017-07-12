@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-show="islogin">
     <top-nav></top-nav>
     <el-row>
       <el-col :span="5" style="margin-left:-20px">
@@ -36,7 +36,9 @@ import {
   deleteUser,
   batchUpdateUser,
   batchDeleteUser,
-  queryPagerUser
+  queryPagerUser,
+  isLoggedIn,
+  fetch
 } from '../api/api.js'
 export default {
   data () {
@@ -47,11 +49,29 @@ export default {
       deleteUser: deleteUser,
       batchDeleteUser: batchDeleteUser,
       batchUpdateUser: batchUpdateUser,
-      queryPagerUser: queryPagerUser
+      queryPagerUser: queryPagerUser,
+      islogin: false
     }
   },
+  created: function () {
+    fetch(isLoggedIn, this.isLoggedInCompalte, {})
+  },
   methods: {
-
+    isLoggedInCompalte (data) {
+      if (data === null) return false
+      if (data.errorCode !== 0) return false
+      if (data.entity) {
+        this.islogin = true
+      } else {
+        this.$alert('您还未登录，请点击按钮返回重试！', '错误提示', {
+          confirmButtonText: '知道了。',
+          type: 'error',
+          callback: action => {
+            this.$router.push('/')
+          }
+        })
+      }
+    }
   },
   components: {
     TopNav,

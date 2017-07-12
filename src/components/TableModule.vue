@@ -31,7 +31,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <c-input :columns="SearchForm.item1" :getser="getServerObj(SearchForm.item1)"></c-input>
+          <c-input :columns="SearchForm.item1" :getser="getServerObj"></c-input>
         </el-form-item>
 
         <!--高级搜索与或关系-->
@@ -58,7 +58,7 @@
         </el-form-item>
 
         <el-form-item>
-          <c-input :columns="SearchForm.item2" :getser="getServerObj(SearchForm.item2)"></c-input>
+          <c-input :columns="SearchForm.item2" :getser="getServerObj"></c-input>
         </el-form-item>
         <el-form-item>
         </el-form-item>
@@ -110,36 +110,7 @@
       v-bind:prop="col.prop"
       v-bind:label="col.label" >
       <template scope="scope">
-        <!--字符串类型-->
-        <el-input v-if="scope.row.editstyle && col.type === 'STRING'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请输入内容"></el-input>
-        <!--日期类型样式 -->
-        <el-date-picker style="width:210px" v-else-if="scope.row.editstyle && col.type === 'DATE'" @change="tabledataChange" v-model="scope.row[col.key]" type="datetime" placeholder="选择日期时间"></el-date-picker>
-        <!--数字类型样式-->
-        <el-input v-else-if="scope.row.editstyle && col.type === 'INT'" @change="tabledataChange" v-model="scope.row[col.key]" type="number" placeholder="请输入..."></el-input>
-        <!--枚举类型样式-->
-        <el-select style="width:100px" v-else-if="scope.row.editstyle && col.type === 'ENUM'" @change="tabledataChange" v-model="scope.row[col.key]" placeholder="请选择">
-          <el-option
-            v-for="item in col.filters"
-            :key="item.value"
-            :label="item.text"
-            :value="item.value">
-          </el-option>
-        </el-select>
-        <!--依赖对象-->
-        <el-select style="float:left" v-else-if="scope.row.editstyle && col.type === 'OBJECT'" 
-          v-model="scope.row[col.key]"
-          @change="tabledataChange"
-          filterable
-          remote
-          placeholder="请输入关键词"
-          :remote-method="getServerObj(col)">
-          <el-option
-            v-for="list in col.filters"
-            :key="list.value"
-            :label="list.text"
-            :value="list.value">
-          </el-option>
-        </el-select>
+        <c-input v-if="scope.row.editstyle" :columns="col" :row="scope.row" :getser="getServerObj"></c-input>
         <!--枚举类型显示为选项-->
         <span v-else-if="!scope.row.editstyle && col.type === 'ENUM'">{{enumDescribes(scope.row, col, col.key)}}</span>
         <span v-else-if="!scope.row.editstyle">{{scope.row[col.key]}}</span>
@@ -180,7 +151,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="修改为">
-        <c-input :columns="bratchForm" :getser="getServerObj(bratchForm)"></c-input>
+        <c-input :columns="bratchForm" :getser="getServerObj"></c-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -204,7 +175,7 @@
     <el-dialog  title="编辑" :visible.sync="singleEditVisible">
       <el-form :model="singleEditForm" label-position="right" label-width="80px">
         <el-form-item v-for="item in singleEditForm" v-bind:key="item.key" v-bind:label="item.label">
-          <c-input :columns="item" :getser="getServerObj(item)"></c-input>
+          <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-select>
         </el-form-item>
       </el-form>
@@ -217,7 +188,7 @@
     <el-dialog  title="新建" :visible.sync="createVisible">
       <el-form :model="createForm" label-position="right" label-width="80px">
         <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
-          <c-input :columns="item" :getser="getServerObj(item)"></c-input>
+          <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -243,8 +214,7 @@
 ** updateURL 更新 API
 ** queryURL 查询API
 */
-  import reqwest from 'reqwest'
-  import {customGetPagerURL} from '../api/api.js'
+  import {customQueryPagerURL, fetch, fetch2} from '../api/api.js'
   import CInput from './CInput.vue'
   export default {
     props: {
@@ -290,8 +260,10 @@
             filters: [],
             column: '',
             value: '',
+            count: 0,
             type: 'STRING',
             referenceTableName: '',
+            loading: false,
             // 当前选中搜索的列
             current: ''
           },
@@ -301,8 +273,10 @@
             filters: [],
             column: '',
             value: '',
+            count: 0,
             type: 'STRING',
             referenceTableName: '',
+            loading: false,
             // 当前选中搜索的列
             current: ''
           },
@@ -330,8 +304,10 @@
           filters: [],
           column: '',
           value: '',
+          count: 0,
           type: 'STRING',
-          referenceTableName: ''
+          referenceTableName: '',
+          loading: false
         },
         modLine: 0,
         // 表格增删改查按钮
@@ -354,8 +330,6 @@
         createLoading: false,
         // 数据是否有修改
         rowModified: false,
-        // 获取对象类型 缓冲
-        delay: true,
         // 表格筛选
         filterValues: {}
       }
@@ -416,7 +390,7 @@
           param.uid = this.multipleSelection[i].uid
           params.push(param)
         }
-        this.fetch2(this.batchUpdateURL, this.batchMoifyComplate, params)
+        fetch2(this.batchUpdateURL, this.batchMoifyComplate, params)
       },
       batchMoifyComplate (data) {
         this.batchVisible = false
@@ -475,6 +449,7 @@
             colObj.referenceTable = columns[i].referenceTable
             colObj.referenceTableName = columns[i].referenceTableName
             colObj.loading = false
+            colObj.count = 0
             if (colObj.referenceTable === '') {
               colObj.type = this.conversionType(columns[i].type)
             } else {
@@ -506,57 +481,6 @@
         }
         if (this.searchLoading) this.searchLoading = false
         if (this.advSearchLoading) this.advSearchLoading = false
-      },
-      fetch (url, onComplate, params, ...states) {
-        if (typeof onComplate !== 'function') {
-          return
-        }
-        reqwest({
-          url: url,
-          method: 'POST',
-          crossDomain: true,
-          withCredentials: true,
-          data: {
-            ...params
-          },
-          type: 'json'
-        })
-        .then((data) => {
-          if (data.status === 200) {
-            onComplate(data, states)
-          } else {
-            onComplate(null)
-          }
-        })
-        .fail((err, msg) => {
-          console.log(err, msg)
-          onComplate(null)
-        })
-      },
-      fetch2 (url, onComplate, params, ...states) {
-        if (typeof onComplate !== 'function') {
-          return
-        }
-        reqwest({
-          url: url,
-          method: 'POST',
-          crossDomain: true,
-          withCredentials: true,
-          data: JSON.stringify(params),
-          dataType: 'json',
-          contentType: 'application/json;charset=utf-8'
-        })
-        .then((data) => {
-          if (data.status === 200) {
-            onComplate(data, states)
-          } else {
-            onComplate(null)
-          }
-        })
-        .fail((err, msg) => {
-          console.log(err, msg)
-          onComplate(null)
-        })
       },
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {
@@ -640,7 +564,7 @@
         let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = this.filterValues
         this.tableLoading = true
-        this.fetch2(this.queryURL, this.getDataOnComplate, params)
+        fetch2(this.queryURL, this.getDataOnComplate, params)
       },
       // 分页
       handleSizeChange (value) {
@@ -696,7 +620,7 @@
         params.filter = filters
         if (this.relationalValue) params.relationship = this.relationalValue
         this.tableLoading = true
-        this.fetch2(this.queryURL, this.getDataOnComplate, params)
+        fetch2(this.queryURL, this.getDataOnComplate, params)
       },
       // 创建表格行
       handleCreateCOl () {
@@ -710,14 +634,17 @@
           }
         }
       },
-      getServerObj (item) {
-        console.log(item)
+      // 获取对象类型的更多页
+      getServerObj (item, pageNO, keyword) {
+        // 传入pagenNO可获取更多数据
         if (item.referenceTableName) {
-          let url = customGetPagerURL(item.referenceTableName)
-          if (item.filters.length === 0 && this.delay) {
-            this.delay = false
-            this.fetch2(url, this.getServerObjOnComplate, {ifGetColumns: true, ifGetCount: true}, item)
-          }
+          let queryURL = customQueryPagerURL(item.referenceTableName)
+          // 默认获取20行
+          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 3, pageNO: pageNO}
+          params.filter = {}
+          params.filter[item.key + 'List'] = []
+          params.filter[item.key + 'List'].push(keyword)
+          fetch2(queryURL, this.getServerObjOnComplate, params, item, pageNO)
         }
       },
       getServerObjOnComplate (data, ...states) {
@@ -739,11 +666,11 @@
               name = name + '/' + names[j]
             }
           }
-          for (var key in states[0]) {
-            states[0][key].filters.push({ value: data.entity.list[i].uid, text: name })
-          }
+          states[0][0].filters.push({ value: data.entity.list[i].uid, text: name })
         }
-        this.delay = true
+        states[0][0].loading = false
+        // 未查看的行=当前页码×每页条数 如果大于0说明有剩余行未显示，则可加载
+        states[0][0].count = data.entity.count - states[0][1] * 3
       },
       // 创建单行表格行提交
       handleCreateSubmit () {
@@ -756,7 +683,7 @@
           }
           params[key] = this.createForm[i].value
         }
-        this.fetch(this.createURL, this.createComplate, params)
+        fetch(this.createURL, this.createComplate, params)
       },
       createComplate (data) {
         this.createLoading = false
@@ -788,7 +715,7 @@
           if (this.rowModified) {
             this.batchEditLoading = true
             this.tableLoading = true
-            this.fetch2(this.batchUpdateURL, this.batchEditComplate, this.multipleSelection)
+            fetch2(this.batchUpdateURL, this.batchEditComplate, this.multipleSelection)
           } else {
             this.cancelEdit = true
           }
@@ -831,7 +758,7 @@
           }
           params[key] = this.singleEditForm[i].value
         }
-        this.fetch(this.updateURL, this.SingleEditComplate, params)
+        fetch(this.updateURL, this.SingleEditComplate, params)
       },
       SingleEditComplate (data) {
         this.editLoading = false
@@ -852,14 +779,14 @@
         }).then(() => {
           this.deleteLoading = true
           if (this.multipleSelection.length === 1) {
-            this.fetch(this.deleteURL, this.onDeleteComplate, { uid: this.multipleSelection[0].uid })
+            fetch(this.deleteURL, this.onDeleteComplate, { uid: this.multipleSelection[0].uid })
           } else {
             let params = []
             for (let i = 0; i < this.multipleSelection.length; i++) {
               params.push({ uid: this.multipleSelection[i].uid })
             }
             this.tableLoading = true
-            this.fetch2(this.batchDeleteURL, this.onDeleteComplate, params)
+            fetch2(this.batchDeleteURL, this.onDeleteComplate, params)
           }
         }).catch(() => {
           this.$message({
@@ -910,28 +837,10 @@
         for (let i = 0; i < param.length; i++) {
           params = Object.assign(params, param[i])
         }
-        this.fetch2(this.getPagerURL, this.getDataOnComplate, params)
+        fetch2(this.getPagerURL, this.getDataOnComplate, params)
         this.tableLoading = true
       }
     },
-    // computed: {
-    //   getEnumTypeOption1 () {
-    //     let Col = this.tableCol
-    //     for (var key in Col) {
-    //       if (Col[key].key === this.currentSelectItem1 && Col[key].type === this.AdvancedSearchType1) {
-    //         return Col[key].filters
-    //       }
-    //     }
-    //   },
-    //   getEnumTypeOption2 () {
-    //     let Col = this.tableCol
-    //     for (var key in Col) {
-    //       if (Col[key].key === this.currentSelectItem2 && Col[key].type === this.AdvancedSearchType2) {
-    //         return Col[key].filters
-    //       }
-    //     }
-    //   }
-    // },
     components: {
       CInput
     }
@@ -969,5 +878,12 @@
 .adv-search{
   position:absolute;
   margin-bottom:10px;
+}
+.object-more{
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	line-height: 40px;
 }
 </style>
