@@ -9,16 +9,16 @@
       <el-col :span="19" style="margin-left:20px">  
         <el-breadcrumb style="margin:15px 0" separator="/">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '/main' }">运行总览</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: '/main' }">伙伴管理</el-breadcrumb-item>
         </el-breadcrumb>
         <table-module 
-          :getPagerURL="getPagerURL"
-          :createURL="createUser"
-          :updateURL="updateUser"
-          :deleteURL="deleteUser"
-          :batchDeleteURL="batchDeleteUser"
-          :batchUpdateURL="batchUpdateUser"
-          :queryURL = "queryPagerUser"
+          :getPagerURL="getPagerCompany"
+          :createURL="createCompany"
+          :updateURL="updateCompany"
+          :deleteURL="deleteCompany"
+          :batchDeleteURL="batchDeleteCompany"
+          :batchUpdateURL="batchUpdateCompany"
+          :queryURL = "queryPagerCompany"
         ></table-module>
       </el-col>
     </el-row>
@@ -26,30 +26,30 @@
 </template>
 
 <script>
-import TopNav from '../components/TopNav.vue'
-import LeftMenu from '../components/LeftMenu.vue'
-import TableModule from '../components/TableModule.vue'
+import TopNav from '../../components/TopNav.vue'
+import LeftMenu from '../../components/LeftMenu.vue'
+import TableModule from '../../components/TableModule.vue'
 import {
-  getPagerUser,
-  createUser,
-  updateUser,
-  deleteUser,
-  batchUpdateUser,
-  batchDeleteUser,
-  queryPagerUser,
+  createCompany,
+  getPagerCompany,
+  updateCompany,
+  deleteCompany,
+  batchDeleteCompany,
+  batchUpdateCompany,
+  queryPagerCompany,
   isLoggedIn,
   fetch
-} from '../api/api.js'
+} from '../../api/api.js'
 export default {
   data () {
     return {
-      getPagerURL: getPagerUser,
-      createUser: createUser,
-      updateUser: updateUser,
-      deleteUser: deleteUser,
-      batchDeleteUser: batchDeleteUser,
-      batchUpdateUser: batchUpdateUser,
-      queryPagerUser: queryPagerUser,
+      createCompany: createCompany,
+      getPagerCompany: getPagerCompany,
+      updateCompany: updateCompany,
+      deleteCompany: deleteCompany,
+      batchDeleteCompany: batchDeleteCompany,
+      batchUpdateCompany: batchUpdateCompany,
+      queryPagerCompany: queryPagerCompany,
       islogin: false
     }
   },

@@ -8,36 +8,13 @@ const HotelManagement = r => require.ensure([], () => r(require('../pages/HotelM
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
-    {
-      path: '/',
-      name: 'Login',
-      component: Login
-    },
-    {
-      path: '/demo',
-      name: 'Demo',
-      component: Demo
-    },
-    {
-      path: '/login',
-      name: 'Login',
-      component: Login
-    },
-    {
-      path: '/main',
-      name: 'Main',
-      component: Main
-    },
-    {
-      path: '/feedback',
-      name: 'Feedback',
-      component: Feedback
-    },
-    {
-      path: '/hotelManagement',
-      name: 'HotelManagement',
-      component: HotelManagement
-    }
+    {path: '/', name: 'Login', component: Login},
+    {path: '/HotelManagement', name: 'HotelManagement', component: HotelManagement},
+    {path: '/login', name: 'Login', component: Login},
+    {path: '/main', name: 'Main', component: Main},
+    {path: '/feedback', name: 'Feedback', component: Feedback},
+    {path: '*', name: 'NotFound', component: Demo}
   ]
 })

@@ -6,8 +6,8 @@
         <div style="float:left;">
           <span>搜索数据 : </span>
             <div style="width:350px;display:inline-block">
-              <el-input placeholder="请输入内容" v-model="searchValue">
-                <el-button slot="append" :loading="searchLoading" @click="handleSearch" icon="search">搜索</el-button>
+              <el-input @keyup.enter.native="handleSearch" placeholder="请输入内容" v-model="searchValue">
+                <el-button slot="append" :loading="searchLoading"  @click="handleSearch" icon="search">搜索</el-button>
               </el-input>
             </div>
         <a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
@@ -21,7 +21,7 @@
         <span>高级搜索 : </span>
         <!--选项1-->
         <el-form-item>
-          <el-select style="width:150px" @change="handleFristColumnChange" v-model="SearchForm.item1.column" placeholder="请选择列">
+          <el-select style="width:150px" @change="handleFristColumnChange" v-model="SearchForm.item1.f_column" placeholder="请选择列">
             <el-option
               v-for="item in tableCol"
               :key="item.key"
@@ -47,7 +47,7 @@
         </el-form-item>
         <!--选项2-->
         <el-form-item>
-          <el-select style="width:150px" @change="handleSecondColumnChange" v-model="SearchForm.item2.column" placeholder="请选择列">
+          <el-select style="width:150px" @change="handleSecondColumnChange" v-model="SearchForm.item2.f_column" placeholder="请选择列">
             <el-option
               v-for="item in tableCol"
               :key="item.key"
@@ -110,7 +110,7 @@
       v-bind:prop="col.prop"
       v-bind:label="col.label" >
       <template scope="scope">
-        <c-input v-if="scope.row.editstyle" :columns="col" :row="scope.row" :getser="getServerObj"></c-input>
+        <c-input :change="tabledataChange" v-if="scope.row.editstyle" :columns="col" :row="scope.row" :getser="getServerObj"></c-input>
         <!--枚举类型显示为选项-->
         <span v-else-if="!scope.row.editstyle && col.type === 'ENUM'">{{enumDescribes(scope.row, col, col.key)}}</span>
         <span v-else-if="!scope.row.editstyle">{{scope.row[col.key]}}</span>
@@ -122,7 +122,7 @@
   <div v-if="propColumn" class="column-link">
     <a @click="moreFeatures">{{moreFeature}}</a>
     <a v-if="moreVisible" @click="columnVisible = true">自定义列</a>
-    <a v-if="moreVisible" @click="batchModify">批量修改</a>
+    <a v-if="moreVisible && propADUQ" @click="batchModify">批量修改</a>
   </div>
   <el-dialog title="自定义表格列" :visible.sync="columnVisible">
   <el-alert
@@ -141,9 +141,9 @@
     <el-form :inline="true" :model="bratchForm" class="demo-form-inline">
       <el-form-item label="预计修改"><span style="color:#FF4949">{{modLine}} </span>&nbsp;行</el-form-item><br>
       <el-form-item label="请选择列">
-        <el-select style="width:100px" @change="bratchFormChange" v-model="bratchForm.column" placeholder="请选择">
+        <el-select style="width:100px" @change="bratchFormChange" v-model="bratchForm.f_column" placeholder="请选择">
           <el-option
-            v-for="item in bratchForm.columns"
+            v-for="item in bratchForm.f_columns"
             :key="item.value"
             :label="item.text"
             :value="item.value">
@@ -254,32 +254,8 @@
         searchMod: 'adv-search',
         // 搜索框对对应的类型
         SearchForm: {
-          item1: {
-            editable: true,
-            columns: [],
-            filters: [],
-            column: '',
-            value: '',
-            count: 0,
-            type: 'STRING',
-            referenceTableName: '',
-            loading: false,
-            // 当前选中搜索的列
-            current: ''
-          },
-          item2: {
-            editable: true,
-            columns: [],
-            filters: [],
-            column: '',
-            value: '',
-            count: 0,
-            type: 'STRING',
-            referenceTableName: '',
-            loading: false,
-            // 当前选中搜索的列
-            current: ''
-          },
+          item1: {},
+          item2: {},
           // 高级搜索与或关系选择器
           relational: {
             value: '',
@@ -298,17 +274,7 @@
         // 批量修改
         batchVisible: false,
         batchLoading: false,
-        bratchForm: {
-          editable: true,
-          columns: [],
-          filters: [],
-          column: '',
-          value: '',
-          count: 0,
-          type: 'STRING',
-          referenceTableName: '',
-          loading: false
-        },
+        bratchForm: {},
         modLine: 0,
         // 表格增删改查按钮
         createCOl: '创建',
@@ -355,29 +321,41 @@
           })
           return
         }
-        this.bratchForm.value = ''
-        this.batchVisible = true
         this.modLine = this.multipleSelection.length
-        this.bratchForm.columns = []
-        for (let i = 0; i < this.tableCol.length; i++) {
-          if (this.tableCol[i].editable) {
-            this.bratchForm.columns.push({value: this.tableCol[i].key,
-              text: this.tableCol[i].label
-            })
+        if (!this.bratchForm.key) {
+          for (var i in this.tableCol) {
+            if (this.tableCol[i].editable) {
+              for (var key in this.tableCol[i]) {
+                this.$set(this.bratchForm, key, this.tableCol[i][key])
+              }
+              break
+            }
+          }
+          for (let n = 0; n < this.tableCol.length; n++) {
+            if (this.tableCol[n].editable) {
+              this.bratchForm.f_columns.push({value: this.tableCol[n].key,
+                text: this.tableCol[n].label
+              })
+            }
           }
         }
+        this.bratchForm.f_value = ''
+        this.bratchForm.f_column = ''
+        this.batchVisible = true
       },
       bratchFormChange (val) {
         this.bratchDisabled = false
-        this.bratchForm.value = ''
+        this.bratchForm.f_value = ''
         this.bratchForm.filters = []
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].key === val) {
             this.bratchForm.type = this.tableCol[i].type
-            this.bratchForm.referenceTableName = this.tableCol[i].referenceTableName
-            if (this.tableCol[i].type === 'ENUM') {
-              this.bratchForm.filters = this.tableCol[i].filters
+            this.bratchForm.filters = this.tableCol[i].filters
+            if (this.bratchForm.type === 'OBJECT') {
+              this.bratchForm.referenceTableName = this.tableCol[i].referenceTableName
+              this.getServerObj(this.bratchForm)
             }
+            break
           }
         }
       },
@@ -386,7 +364,7 @@
         let params = []
         for (let i = 0; i < this.multipleSelection.length; i++) {
           let param = {}
-          param[this.bratchForm.column] = this.bratchForm.value
+          param[this.bratchForm.f_column] = this.bratchForm.f_value
           param.uid = this.multipleSelection[i].uid
           params.push(param)
         }
@@ -448,8 +426,6 @@
             colObj.editable = columns[i].editable
             colObj.referenceTable = columns[i].referenceTable
             colObj.referenceTableName = columns[i].referenceTableName
-            colObj.loading = false
-            colObj.count = 0
             if (colObj.referenceTable === '') {
               colObj.type = this.conversionType(columns[i].type)
             } else {
@@ -459,6 +435,13 @@
             colObj.editable = columns[i].editable
             colObj.sortable = true
             colObj.filters = []
+            // 添加备用属性，非服务器回传,添加 f_ 前缀
+            colObj.f_column = ''
+            colObj.f_value = ''
+            colObj.f_count = 0
+            colObj.f_loading = false
+            colObj.f_columns = []
+            colObj.f_readable = ''
             if (columns[i].enumvalues.length > 1) {
               for (let j = 0; j < columns[i].enumvalues.length; j++) {
                 colObj.filters.push({text: columns[i].enumvalueDescribes[j], value: columns[i].enumvalues[j]})
@@ -484,37 +467,33 @@
       },
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {
-        this.SearchForm.item1.value = ''
+        this.SearchForm.item1.f_value = ''
+        this.SearchForm.item1.filters = []
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
-            if (this.tableCol[i].type) {
-              this.SearchForm.item1.type = this.tableCol[i].type
-            } else {
-              this.SearchForm.item1.type = 'STRING'
+            this.SearchForm.item1.type = this.tableCol[i].type
+            this.SearchForm.item1.filters = this.tableCol[i].filters
+            if (this.SearchForm.item1.type === 'OBJECT') {
+              this.SearchForm.item1.referenceTableName = this.tableCol[i].referenceTableName
+              this.getServerObj(this.SearchForm.item1)
             }
-            this.SearchForm.item1.filters = []
-            if (this.tableCol[i].type === 'ENUM') {
-              this.SearchForm.item1.filters = this.tableCol[i].filters
-            }
-            this.SearchForm.item1.referenceTableName = this.tableCol[i].referenceTableName
+            break
           }
         }
       },
       // 高级搜索选项一下拉列表框
       handleSecondColumnChange (selectItem) {
-        this.SearchForm.item2.value = ''
+        this.SearchForm.item2.f_value = ''
+        this.SearchForm.item2.filters = []
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
-            if (this.tableCol[i].type) {
-              this.SearchForm.item2.type = this.tableCol[i].type
-            } else {
-              this.SearchForm.item2.type = 'STRING'
+            this.SearchForm.item2.type = this.tableCol[i].type
+            this.SearchForm.item2.filters = this.tableCol[i].filters
+            if (this.SearchForm.item2.type === 'OBJECT') {
+              this.SearchForm.item2.referenceTableName = this.tableCol[i].referenceTableName
+              this.getServerObj(this.SearchForm.item2)
             }
-            this.SearchForm.item2.filters = []
-            if (this.tableCol[i].type === 'ENUM') {
-              this.SearchForm.item2.filters = this.tableCol[i].filters
-            }
-            this.SearchForm.item2.referenceTableName = this.tableCol[i].referenceTableName
+            break
           }
         }
       },
@@ -522,11 +501,25 @@
         this.ADUQVisible = false
         this.AdvancedSearchVisible = true
         this.searchMod = 'search'
+        if (!this.SearchForm.item1.key || !this.SearchForm.item2.key) {
+          for (var i in this.tableCol) {
+            if (this.tableCol[i].editable) {
+              for (var key in this.tableCol[i]) {
+                this.$set(this.SearchForm.item1, key, this.tableCol[i][key])
+                this.$set(this.SearchForm.item2, key, this.tableCol[i][key])
+              }
+              break
+            }
+          }
+        }
       },
       hiddenAdvancedSearch () {
         this.ADUQVisible = true
         this.AdvancedSearchVisible = false
         this.searchMod = 'adv-search'
+        this.SearchForm.item1 = {}
+        this.SearchForm.item2 = {}
+        this.SearchForm.relational.value = ''
       },
       // 表格多选响应
       handleSelectionChange (val) {
@@ -590,35 +583,35 @@
       },
       // 高级搜索 发起请求
       handleAdvancedSearch () {
-        if (this.searchCloumnValue1 === '' &&
-            this.AdvancedSearchValue1 === '' ||
-            this.searchCloumnValue1 === '' &&
-            this.AdvancedSearchValue1 === '') {
+        if ((this.SearchForm.item1.f_value === '' ||
+            this.SearchForm.item1.f_column === '') &&
+            (this.SearchForm.item2.f_value === '' ||
+            this.SearchForm.item2.f_column === '')) {
           this.$message({
             type: 'warning',
-            message: '至少选择一项!'
+            message: '请至少选择一项!'
           })
           return
         }
-        // this.advSearchLoading = true
+        this.advSearchLoading = true
         let filters = {}
-        if (this.AdvancedSearchValue1) {
+        if (this.SearchForm.item1.f_value !== '') {
           let value1 = []
-          value1.push(this.AdvancedSearchValue1)
-          filters[this.searchCloumnValue1 + 'List'] = value1
+          value1.push(this.SearchForm.item1.f_value)
+          filters[this.SearchForm.item1.f_column + 'List'] = value1
         }
-        if (this.AdvancedSearchValue2) {
-          if (this.searchCloumnValue1 === this.searchCloumnValue2) {
-            filters[this.searchCloumnValue1 + 'List'].push(this.AdvancedSearchValue2)
+        if (this.SearchForm.item2.f_value !== '') {
+          if (this.SearchForm.item1.f_column === this.SearchForm.item2.f_column) {
+            filters[this.SearchForm.item1.f_column + 'List'].push(this.SearchForm.item2.f_value)
           } else {
             let value2 = []
-            value2.push(this.AdvancedSearchValue2)
-            filters[this.searchCloumnValue2 + 'List'] = value2
+            value2.push(this.SearchForm.item2.f_value)
+            filters[this.SearchForm.item2.f_column + 'List'] = value2
           }
         }
         let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = filters
-        if (this.relationalValue) params.relationship = this.relationalValue
+        if (this.SearchForm.relational.value) params.filter.relationship = this.SearchForm.relational.value
         this.tableLoading = true
         fetch2(this.queryURL, this.getDataOnComplate, params)
       },
@@ -628,22 +621,20 @@
         this.createForm = {}
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].editable) {
-            let temp = {}
-            Object.assign(temp, this.tableCol[i], {value: ''})
-            this.$set(this.createForm, i, temp)
+            this.$set(this.createForm, i, this.tableCol[i])
           }
         }
       },
       // 获取对象类型的更多页
-      getServerObj (item, pageNO, keyword) {
+      getServerObj (item, pageNO = 1, keyword = '') {
         // 传入pagenNO可获取更多数据
         if (item.referenceTableName) {
           let queryURL = customQueryPagerURL(item.referenceTableName)
           // 默认获取20行
           let params = {ifGetCount: true, ifGetColumns: true, pageSize: 3, pageNO: pageNO}
           params.filter = {}
-          params.filter[item.key + 'List'] = []
-          params.filter[item.key + 'List'].push(keyword)
+          params.filter[item.f_readable] = '%' + keyword + '%'
+          params.filter[item.f_readable + 'ComparisonOperator'] = 'like'
           fetch2(queryURL, this.getServerObjOnComplate, params, item, pageNO)
         }
       },
@@ -655,8 +646,10 @@
         for (let i = 0; i < columns.length; i++) {
           if (columns[i].readableIdentifier) {
             names.push(columns[i].name)
+            states[0][0].f_readable = columns[i].name
           }
         }
+        states[0][0].filters = []
         for (let i = 0; i < data.entity.list.length; i++) {
           let name = ''
           for (let j = 0; j < names.length; j++) {
@@ -668,20 +661,20 @@
           }
           states[0][0].filters.push({ value: data.entity.list[i].uid, text: name })
         }
-        states[0][0].loading = false
+        states[0][0].f_loading = false
         // 未查看的行=当前页码×每页条数 如果大于0说明有剩余行未显示，则可加载
-        states[0][0].count = data.entity.count - states[0][1] * 3
+        states[0][0].f_count = data.entity.count - states[0][1] * 3
       },
       // 创建单行表格行提交
       handleCreateSubmit () {
-        this.createLoading = true
+        // this.createLoading = true
         let params = {}
         for (var i in this.createForm) {
           let key = this.createForm[i].key
           if (this.createForm[i].type === 'OBJECT') {
             key = key + 'uid'
           }
-          params[key] = this.createForm[i].value
+          params[key] = this.createForm[i].f_value
         }
         fetch(this.createURL, this.createComplate, params)
       },
@@ -702,9 +695,8 @@
           this.singleEditForm = {}
           for (let i = 0; i < this.tableCol.length; i++) {
             if (this.tableCol[i].editable) {
-              let temp = {}
-              Object.assign(temp, this.tableCol[i], {value: this.multipleSelection[0][this.tableCol[i].key]})
-              this.$set(this.singleEditForm, i, temp)
+              this.$set(this.singleEditForm, i, this.tableCol[i])
+              this.singleEditForm[i].f_value = this.multipleSelection[0][this.tableCol[i].key]
             }
           }
         } else {
@@ -813,7 +805,7 @@
           return false
         }
         if (data.errorCode !== 0) {
-          this.$alert('服务器错误，' + data.message, '错误提示', {
+          this.$alert('当前页面发生错误，' + data.message, '错误提示', {
             confirmButtonText: '知道了。',
             type: 'error'
           })
