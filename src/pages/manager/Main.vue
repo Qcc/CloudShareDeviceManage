@@ -1,6 +1,6 @@
 <template>
   <div v-show="islogin">
-    <top-nav></top-nav>
+    <top-nav :role="currentUser"></top-nav>
     <el-row>
       <el-col :span="5" style="margin-left:-20px">
         <left-Menu :manager="true" activeItem="main">
@@ -50,7 +50,8 @@ export default {
       batchDeleteCompany: batchDeleteCompany,
       batchUpdateCompany: batchUpdateCompany,
       queryPagerCompany: queryPagerCompany,
-      islogin: false
+      islogin: false,
+      currentUser: '',
     }
   },
   created: function () {
@@ -62,6 +63,7 @@ export default {
       if (data.errorCode !== 0) return false
       if (data.entity) {
         this.islogin = true
+        this.currentUser = this.connverRole(data.entity)
       } else {
         this.$alert('您还未登录，请点击按钮返回重试！', '错误提示', {
           confirmButtonText: '知道了。',
@@ -70,6 +72,15 @@ export default {
             this.$router.push('/')
           }
         })
+      }
+    },
+    connverRole (id) {
+      switch (id) {
+        case 2026226681: return '云享管理员'
+        case 2031278906: return '云享运维员'
+        case -2139060392: return '伙伴管理员'
+        case -2134008167: return '伙伴运维员'
+        case 1233636: return '顾客'        
       }
     }
   },

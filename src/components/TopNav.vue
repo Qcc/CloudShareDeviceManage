@@ -2,7 +2,7 @@
   <div class="top-continner">
     <i class="logo"></i>
     <ul class="top-menu">
-      <li class="menu-item">控制台</li>
+      <li class="menu-item">{{role}}</li>
       <li class="menu-item user" @click="logout">注销</li>            
     </ul>
   </div>
@@ -13,6 +13,12 @@ import {
   fetch
 } from '../api/api.js'
 export default {
+  props: {
+    role: {
+      type: String,
+      default: ''
+    }
+  },
   data () {
     return {
       activeIndex: '1',

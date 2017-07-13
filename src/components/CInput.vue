@@ -75,6 +75,7 @@
 	<el-input
 		v-if="!this.row && columns.editable && columns.type === 'STRING'"
 		clearable
+    :disabled="disabled"
 		@change="change"
 		v-model="columns.f_value"
 		placeholder="请输入内容...">
@@ -83,6 +84,7 @@
 	<el-date-picker
 		v-else-if="!this.row &&  columns.editable && columns.type === 'DATE'"
 		clearable
+    :disabled="disabled"
 		@change="change"
 		v-model.lazy="columns.f_value"
 		type="datetime"
@@ -92,6 +94,7 @@
 	<el-input
 		v-else-if="!this.row && columns.editable && columns.type === 'INT'"
 		clearable
+    :disabled="disabled"
 		@change="change"
 		v-model.number="columns.f_value"
 		type="number"
@@ -101,6 +104,7 @@
 	<el-input
 		v-else-if="!this.row && columns.editable && columns.type === 'PASSWORD'"
 		clearable
+    :disabled="disabled"
 		@change="change"
 		v-model.number="columns.f_value"
 		type="password"
@@ -110,6 +114,7 @@
 	<el-select
 		v-else-if="!this.row && columns.editable && columns.type === 'ENUM'"
 		clearable
+    :disabled="disabled"
 		@change="change"
 		v-model="columns.f_value"
 		placeholder="请选择...">
@@ -125,6 +130,7 @@
 		v-else-if="!this.row && columns.editable && columns.type === 'OBJECT'" 
 	  v-model="columns.f_value"
 	  filterable
+    :disabled="disabled"
 		clearable
 		@change="change"
 	  remote
@@ -165,6 +171,10 @@
         default: function () {
           return null
         }
+      },
+      disabled: {
+        type: Boolean,
+        default: false
       }
     },
     data () {

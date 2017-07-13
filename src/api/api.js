@@ -55,6 +55,8 @@ export function customQueryPagerURL (obj) {
   return ROOTURL + '/iDevice/protected/' + obj + '/queryPager.api'
 }
 export const ROOTURL = 'http://192.168.200.104:8080'
+export const BASICURL = 'http://192.168.200.104:8080/iDevice/protected/'
+
 export const login = ROOTURL + '/iDevice/public/1/login.api'
 export const logoutApi = ROOTURL + '/iDevice/public/logout.api'
 export const isLoggedIn = ROOTURL + '/iDevice/public/isLoggedIn.api'

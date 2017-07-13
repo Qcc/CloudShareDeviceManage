@@ -31,7 +31,7 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <c-input :columns="SearchForm.item1" :getser="getServerObj"></c-input>
+          <c-input :columns="SearchForm.item1" :disabled="SearchForm.fDis" :getser="getServerObj"></c-input>
         </el-form-item>
 
         <!--高级搜索与或关系-->
@@ -58,7 +58,7 @@
         </el-form-item>
 
         <el-form-item>
-          <c-input :columns="SearchForm.item2" :getser="getServerObj"></c-input>
+          <c-input :columns="SearchForm.item2" :disabled="SearchForm.sDis" :getser="getServerObj"></c-input>
         </el-form-item>
         <el-form-item>
         </el-form-item>
@@ -138,9 +138,9 @@
   </el-dialog>
   <!--批量修改-->
   <el-dialog  title="批量修改" :visible.sync="batchVisible">
-    <el-form :inline="true" :model="bratchForm" class="demo-form-inline">
+    <el-form :inline="true" :model="bratchForm" ref="bratchForm" :rules="bratchFormRules" class="demo-form-inline">
       <el-form-item label="预计修改"><span style="color:#FF4949">{{modLine}} </span>&nbsp;行</el-form-item><br>
-      <el-form-item label="请选择列">
+      <el-form-item label="请选择列" prop="f_column" >
         <el-select style="width:100px" @change="bratchFormChange" v-model="bratchForm.f_column" placeholder="请选择">
           <el-option
             v-for="item in bratchForm.f_columns"
@@ -150,13 +150,13 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="修改为">
-        <c-input :columns="bratchForm" :getser="getServerObj"></c-input>
+      <el-form-item label="修改为" prop="f_value" >
+        <c-input :columns="bratchForm" :disabled="bratchDis" :getser="getServerObj"></c-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="batchVisible = false">取 消</el-button>
-      <el-button type="primary" :loading="batchLoading" @click="handleBatchSubmit">确 定</el-button>
+      <el-button type="primary" :loading="batchLoading" @click="handleBatchSubmit('bratchForm')">确 定</el-button>
     </div>
   </el-dialog>
   </div>
@@ -173,7 +173,7 @@
     </el-pagination>
     <!--单行编辑-->
     <el-dialog  title="编辑" :visible.sync="singleEditVisible">
-      <el-form :model="singleEditForm" label-position="right" label-width="80px">
+      <el-form :model="singleEditForm" :inline="true" label-position="left" label-width="80px">
         <el-form-item v-for="item in singleEditForm" v-bind:key="item.key" v-bind:label="item.label">
           <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-select>
@@ -186,7 +186,7 @@
     </el-dialog>
     <!--新建记录-->
     <el-dialog  title="新建" :visible.sync="createVisible">
-      <el-form :model="createForm" label-position="right" label-width="80px">
+      <el-form :model="createForm" :inline="true" label-position="left" label-width="80px">
         <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
           <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-form-item>
@@ -206,25 +206,17 @@
 ** propADUQ  增删改查
 ** propPagination  分页
 ** propColumn  自定义列
-**
-// API
-** getPagerURL 获取正页
-** createURL 新建API
-** deleteURL 删除 API
-** updateURL 更新 API
-** queryURL 查询API
+** fetchObj 获取数据对象
+** JoinOther 联合查询对象名称数组
 */
-  import {customQueryPagerURL, fetch, fetch2} from '../api/api.js'
+  import {BASICURL, fetch, fetch2} from '../api/api.js'
   import CInput from './CInput.vue'
   export default {
     props: {
-      createURL: {type: String},
-      deleteURL: {type: String},
-      batchDeleteURL: {type: String},
-      updateURL: {type: String},
-      batchUpdateURL: {type: String},
-      queryURL: {type: String},
-      getPagerURL: {type: String},
+      fetchObj: {type: String, required: true},
+      // 传入需要联合查询的对象名称
+      JoinOther: {type: Array},
+      // 自定义功能 搜索 增删改查 分页 自定义列
       propSearch: {type: Boolean, default: true},
       propADUQ: {type: Boolean, default: true},
       propPagination: {type: Boolean, default: true},
@@ -256,6 +248,9 @@
         SearchForm: {
           item1: {},
           item2: {},
+          // 第一列不选 第二列不可操作
+          fDis: true,
+          sDis: true,
           // 高级搜索与或关系选择器
           relational: {
             value: '',
@@ -275,6 +270,10 @@
         batchVisible: false,
         batchLoading: false,
         bratchForm: {},
+        bratchFormRules: {
+          f_column: [{ required: true, message: '请选择要修改的列', trigger: 'change' }]
+        },
+        bratchDis: true,
         modLine: 0,
         // 表格增删改查按钮
         createCOl: '创建',
@@ -301,7 +300,7 @@
       }
     },
     created: function () {
-      this.reloadingData({ifGetColumns: true})
+      this.reloadingData()
     },
     methods: {
       // 更多功能
@@ -314,6 +313,7 @@
         }
       },
       batchModify () {
+        this.bratchDis = true
         if (this.multipleSelection.length === 0) {
           this.$message({
             type: 'warning',
@@ -347,6 +347,7 @@
         this.bratchDisabled = false
         this.bratchForm.f_value = ''
         this.bratchForm.filters = []
+        this.bratchDis = false
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].key === val) {
             this.bratchForm.type = this.tableCol[i].type
@@ -359,16 +360,20 @@
           }
         }
       },
-      handleBatchSubmit () {
-        this.batchLoading = true
-        let params = []
-        for (let i = 0; i < this.multipleSelection.length; i++) {
-          let param = {}
-          param[this.bratchForm.f_column] = this.bratchForm.f_value
-          param.uid = this.multipleSelection[i].uid
-          params.push(param)
-        }
-        fetch2(this.batchUpdateURL, this.batchMoifyComplate, params)
+      handleBatchSubmit (batchForm) {
+        this.$refs[batchForm].validate((valid) => {
+          if (valid) {
+            this.batchLoading = true
+            let params = []
+            for (let i = 0; i < this.multipleSelection.length; i++) {
+              let param = {}
+              param[this.bratchForm.f_column] = this.bratchForm.f_value
+              param.uid = this.multipleSelection[i].uid
+              params.push(param)
+            }
+            fetch2(BASICURL + this.fetchObj + '/batchUpdate.api', this.batchMoifyComplate, params)
+          }
+        })
       },
       batchMoifyComplate (data) {
         this.batchVisible = false
@@ -411,54 +416,98 @@
       getDataOnComplate (data, ...states) {
         this.tableLoading = false
         if (!this.checkResults(data)) return
-        if (data.entity.columnsJsonStr) {
-          let columnsJsonStr = JSON.parse(data.entity.columnsJsonStr)
-          let columns = columnsJsonStr.columns
-          this.tableCol = []
-          for (let i = 0; i < columns.length; i++) {
-            let colObj = {}
-            colObj.key = columns[i].name
-            colObj.prop = columns[i].name
-            colObj.label = columns[i].flowchart
-            colObj.noenull = columns[i].notnull
-            colObj.visible = columns[i].visible
-            colObj.search = true
-            colObj.editable = columns[i].editable
-            colObj.referenceTable = columns[i].referenceTable
-            colObj.referenceTableName = columns[i].referenceTableName
-            if (colObj.referenceTable === '') {
-              colObj.type = this.conversionType(columns[i].type)
+        // 联合查询columnsJsonStr为数组，非联合查询columnsJsonStr为对象
+        let allCol = data.entity.columnsJsonStr
+        // 表格原始列
+        let columns = []
+        // 联合查询列
+        let JoinColumn = []
+        if (this.JoinOther) {
+          for (var i in allCol) {
+            let allColer = JSON.parse(allCol[i])
+            console.log('allColer', i, allColer)
+            if (allColer.name === this.fetchObj) {
+              for (var j in allColer.columns) {
+                columns.push(allColer.columns[j])
+              }
             } else {
-              // 从服务器获取依赖对象存入数组
-              colObj.type = 'OBJECT'
-            }
-            colObj.editable = columns[i].editable
-            colObj.sortable = true
-            colObj.filters = []
-            // 添加备用属性，非服务器回传,添加 f_ 前缀
-            colObj.f_column = ''
-            colObj.f_value = ''
-            colObj.f_count = 0
-            colObj.f_loading = false
-            colObj.f_columns = []
-            colObj.f_readable = ''
-            if (columns[i].enumvalues.length > 1) {
-              for (let j = 0; j < columns[i].enumvalues.length; j++) {
-                colObj.filters.push({text: columns[i].enumvalueDescribes[j], value: columns[i].enumvalues[j]})
+              for (var k in allColer.columns) {
+                if (allColer.columns[k].readableIdentifier) {
+                  allColer.columns[k].f_tableName = allColer.name
+                  allColer.columns[k].f_flowchart = allColer.flowchart
+                  JoinColumn.push(allColer.columns[k])
+                }
               }
             }
-            this.tableCol.push(colObj)
           }
+        } else {
+          columns = JSON.parse(allCol).columns
+        }
+        console.log('columns', columns)
+        console.log('list', data.entity.list)
+        this.tableCol = []
+        for (let i = 0; i < columns.length; i++) {
+          let colObj = {}
+          colObj.key = columns[i].name
+          colObj.prop = columns[i].name
+          colObj.noenull = columns[i].notnull
+          colObj.visible = columns[i].visible
+          colObj.search = true
+          colObj.editable = columns[i].editable
+          colObj.referenceTable = columns[i].referenceTable
+          colObj.referenceTableName = columns[i].referenceTableName
+          if (colObj.referenceTable === '') {
+            colObj.type = this.conversionType(columns[i].type)
+            colObj.label = columns[i].flowchart
+          } else {
+            // 从服务器获取依赖对象存入数组
+            colObj.type = 'OBJECT'
+            for (var n in JoinColumn) {
+              if (colObj.referenceTableName === JoinColumn[n].f_tableName) {
+                colObj.label = JoinColumn[n].f_flowchart + '.' + JoinColumn[n].flowchart
+              }
+            }
+          }
+          colObj.editable = columns[i].editable
+          colObj.sortable = true
+          colObj.filters = []
+          // 添加备用属性，非服务器回传,添加 f_ 前缀
+          colObj.f_column = ''
+          colObj.f_value = ''
+          colObj.f_count = 0
+          colObj.f_loading = false
+          colObj.f_columns = []
+          colObj.f_readable = ''
+          if (columns[i].enumvalues.length > 1) {
+            for (let j = 0; j < columns[i].enumvalues.length; j++) {
+              colObj.filters.push({text: columns[i].enumvalueDescribes[j], value: columns[i].enumvalues[j]})
+            }
+          }
+          this.tableCol.push(colObj)
         }
         if (data.entity.count) {
           this.total = data.entity.count
         }
+        console.log(1)
         //  添加是否编辑状态与行号
         this.tableData = []
         if (data.entity.list) {
           for (let i = 0; i < data.entity.list.length; i++) {
             data.entity.list[i].editstyle = false
             data.entity.list[i].line = i
+            console.log(2)
+            for (var q in data.entity.list[i]) {
+              console.log(3)
+              for (var y in JoinColumn) {
+                console.log(4)
+                if (q === JoinColumn[y].f_tableName) {
+                  console.log('mingch成为 ', data.entity.list[i][q])
+                  if (data.entity.list[i][q]) {
+                    data.entity.list[i][q] = data.entity.list[i][q][JoinColumn[y].name]
+                  }
+                }
+              }
+            }
             this.tableData.push(data.entity.list[i])
           }
         }
@@ -469,6 +518,7 @@
       handleFristColumnChange (selectItem) {
         this.SearchForm.item1.f_value = ''
         this.SearchForm.item1.filters = []
+        this.SearchForm.fDis = false
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
             this.SearchForm.item1.type = this.tableCol[i].type
@@ -485,6 +535,7 @@
       handleSecondColumnChange (selectItem) {
         this.SearchForm.item2.f_value = ''
         this.SearchForm.item2.filters = []
+        this.SearchForm.sDis = false
         for (var i in this.tableCol) {
           if (this.tableCol[i].key === selectItem) {
             this.SearchForm.item2.type = this.tableCol[i].type
@@ -516,6 +567,8 @@
       hiddenAdvancedSearch () {
         this.ADUQVisible = true
         this.AdvancedSearchVisible = false
+        this.SearchForm.fDis = true
+        this.SearchForm.sDis = true
         this.searchMod = 'adv-search'
         this.SearchForm.item1 = {}
         this.SearchForm.item2 = {}
@@ -557,7 +610,7 @@
         let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = this.filterValues
         this.tableLoading = true
-        fetch2(this.queryURL, this.getDataOnComplate, params)
+        fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
       },
       // 分页
       handleSizeChange (value) {
@@ -613,7 +666,7 @@
         params.filter = filters
         if (this.SearchForm.relational.value) params.filter.relationship = this.SearchForm.relational.value
         this.tableLoading = true
-        fetch2(this.queryURL, this.getDataOnComplate, params)
+        fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
       },
       // 创建表格行
       handleCreateCOl () {
@@ -629,13 +682,12 @@
       getServerObj (item, pageNO = 1, keyword = '') {
         // 传入pagenNO可获取更多数据
         if (item.referenceTableName) {
-          let queryURL = customQueryPagerURL(item.referenceTableName)
           // 默认获取20行
-          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 3, pageNO: pageNO}
+          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 20, pageNO: pageNO}
           params.filter = {}
           params.filter[item.f_readable] = '%' + keyword + '%'
           params.filter[item.f_readable + 'ComparisonOperator'] = 'like'
-          fetch2(queryURL, this.getServerObjOnComplate, params, item, pageNO)
+          fetch2(BASICURL + item.referenceTableName + '/queryPager.api', this.getServerObjOnComplate, params, item, pageNO)
         }
       },
       getServerObjOnComplate (data, ...states) {
@@ -663,7 +715,7 @@
         }
         states[0][0].f_loading = false
         // 未查看的行=当前页码×每页条数 如果大于0说明有剩余行未显示，则可加载
-        states[0][0].f_count = data.entity.count - states[0][1] * 3
+        states[0][0].f_count = data.entity.count - states[0][1] * 20
       },
       // 创建单行表格行提交
       handleCreateSubmit () {
@@ -676,7 +728,7 @@
           }
           params[key] = this.createForm[i].f_value
         }
-        fetch(this.createURL, this.createComplate, params)
+        fetch(BASICURL + this.fetchObj + '/create.api', this.createComplate, params)
       },
       createComplate (data) {
         this.createLoading = false
@@ -707,7 +759,7 @@
           if (this.rowModified) {
             this.batchEditLoading = true
             this.tableLoading = true
-            fetch2(this.batchUpdateURL, this.batchEditComplate, this.multipleSelection)
+            fetch2(BASICURL + this.fetchObj + '/batchUpdate.api', this.batchEditComplate, this.multipleSelection)
           } else {
             this.cancelEdit = true
           }
@@ -748,9 +800,10 @@
           if (this.singleEditForm[i].type === 'OBJECT') {
             key = key + 'uid'
           }
-          params[key] = this.singleEditForm[i].value
+          params[key] = this.singleEditForm[i].f_value
         }
-        fetch(this.updateURL, this.SingleEditComplate, params)
+        params.uid = this.multipleSelection[0].uid
+        fetch(BASICURL + this.fetchObj + '/update.api', this.SingleEditComplate, params)
       },
       SingleEditComplate (data) {
         this.editLoading = false
@@ -771,14 +824,14 @@
         }).then(() => {
           this.deleteLoading = true
           if (this.multipleSelection.length === 1) {
-            fetch(this.deleteURL, this.onDeleteComplate, { uid: this.multipleSelection[0].uid })
+            fetch(BASICURL + this.fetchObj + '/delete.api', this.onDeleteComplate, { uid: this.multipleSelection[0].uid })
           } else {
             let params = []
             for (let i = 0; i < this.multipleSelection.length; i++) {
               params.push({ uid: this.multipleSelection[i].uid })
             }
             this.tableLoading = true
-            fetch2(this.batchDeleteURL, this.onDeleteComplate, params)
+            fetch2(BASICURL + this.fetchObj + '/batchDelete.api', this.onDeleteComplate, params)
           }
         }).catch(() => {
           this.$message({
@@ -798,16 +851,16 @@
       },
       checkResults (data) {
         if (data === null) {
-          this.$alert('网络错误，请刷新（F5）后重试。', '错误提示', {
-            confirmButtonText: '知道了。',
-            type: 'error'
+          this.$notify.error({
+            title: '提示',
+            message: '网络错误，请刷新（F5）后重试。'
           })
           return false
         }
         if (data.errorCode !== 0) {
-          this.$alert('当前页面发生错误，' + data.message, '错误提示', {
-            confirmButtonText: '知道了。',
-            type: 'error'
+          this.$notify.error({
+            title: '错误',
+            message: '当前页面发生错误，' + data.message
           })
           return false
         }
@@ -825,11 +878,19 @@
       },
       // 重新获取表格行数据
       reloadingData (...param) {
-        let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
         for (let i = 0; i < param.length; i++) {
           params = Object.assign(params, param[i])
         }
-        fetch2(this.getPagerURL, this.getDataOnComplate, params)
+        if (this.JoinOther) {
+          params.ifJoinReference = true
+          // params.condition = {company: {}}
+          params.condition = {}
+          for (var i in this.JoinOther) {
+            params.condition[this.JoinOther[i]] = {}
+          }
+        }
+        fetch2(BASICURL + this.fetchObj + '/getPager.api', this.getDataOnComplate, params)
         this.tableLoading = true
       }
     },

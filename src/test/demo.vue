@@ -4,7 +4,7 @@
     multiple
     filterable
     remote
-    placeholder='请输入关键词'
+    placeholder='Not Found'
     :remote-method='remoteMethod'
     :loading='loading'>
     <el-option
