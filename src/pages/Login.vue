@@ -97,7 +97,7 @@ export default {
         })
         return false
       }
-      this.$router.push('Main/' + data.entity)
+      this.$router.push(data.entity + '/default')
     },
     refreshValidateCode () {
       var img = document.getElementById('validCode')

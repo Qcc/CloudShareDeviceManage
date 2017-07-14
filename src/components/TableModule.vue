@@ -214,13 +214,18 @@
   export default {
     props: {
       fetchObj: {type: String, required: true},
-      // 传入需要联合查询的对象名称
+      // // 传入需要联合查询的对象名称
       JoinOther: {type: Array},
       // 自定义功能 搜索 增删改查 分页 自定义列
       propSearch: {type: Boolean, default: true},
       propADUQ: {type: Boolean, default: true},
       propPagination: {type: Boolean, default: true},
       propColumn: {type: Boolean, default: true}
+    },
+    watch: {
+      '$route' (to, from) {
+        this.reloadingData()
+      }
     },
     data () {
       return {
@@ -301,6 +306,7 @@
     },
     created: function () {
       this.reloadingData()
+      console.log('chushihua')
     },
     methods: {
       // 更多功能
@@ -425,7 +431,6 @@
         if (this.JoinOther) {
           for (var i in allCol) {
             let allColer = JSON.parse(allCol[i])
-            console.log('allColer', i, allColer)
             if (allColer.name === this.fetchObj) {
               for (var j in allColer.columns) {
                 columns.push(allColer.columns[j])
@@ -443,8 +448,6 @@
         } else {
           columns = JSON.parse(allCol).columns
         }
-        console.log('columns', columns)
-        console.log('list', data.entity.list)
         this.tableCol = []
         for (let i = 0; i < columns.length; i++) {
           let colObj = {}
@@ -488,20 +491,15 @@
         if (data.entity.count) {
           this.total = data.entity.count
         }
-        console.log(1)
         //  添加是否编辑状态与行号
         this.tableData = []
         if (data.entity.list) {
           for (let i = 0; i < data.entity.list.length; i++) {
             data.entity.list[i].editstyle = false
             data.entity.list[i].line = i
-            console.log(2)
             for (var q in data.entity.list[i]) {
-              console.log(3)
               for (var y in JoinColumn) {
-                console.log(4)
                 if (q === JoinColumn[y].f_tableName) {
-                  console.log('mingch成为 ', data.entity.list[i][q])
                   if (data.entity.list[i][q]) {
                     data.entity.list[i][q] = data.entity.list[i][q][JoinColumn[y].name]
                   }
@@ -799,8 +797,10 @@
           let key = this.singleEditForm[i].key
           if (this.singleEditForm[i].type === 'OBJECT') {
             key = key + 'uid'
+            params[key] = this.singleEditForm[i].f_value
+          } else {
+            params[key] = this.singleEditForm[i].f_value
           }
-          params[key] = this.singleEditForm[i].f_value
         }
         params.uid = this.multipleSelection[0].uid
         fetch(BASICURL + this.fetchObj + '/update.api', this.SingleEditComplate, params)

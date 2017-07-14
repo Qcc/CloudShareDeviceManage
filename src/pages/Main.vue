@@ -1,9 +1,9 @@
 <template>
   <div v-show="islogin">
-    <top-nav :role="currentUser"></top-nav>
+    <top-nav :role="curUserName"></top-nav>
     <el-row>
       <el-col :span="5" style="margin-left:-20px">
-        <left-Menu :manager="true" activeItem="main">
+        <left-Menu :curUserId="curUserId" :activeItem="activeItem">
         </left-Menu>
       </el-col>
       <el-col :span="19" style="margin-left:20px">  
@@ -11,7 +11,8 @@
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '?list=1001' }">运行总览</el-breadcrumb-item>
         </el-breadcrumb>
-        <table-module :fetchObj = "'user'" :JoinOther="['company']"></table-module>
+        <!--<table-module :fetchObj = "'user'" :JoinOther="['company']"></table-module>-->
+        <router-view :fetchObj = "fetchObj" :JoinOther="JoinOther"></router-view>
       </el-col>
     </el-row>
   </div>
@@ -20,23 +21,59 @@
 <script>
 import TopNav from '../components/TopNav.vue'
 import LeftMenu from '../components/LeftMenu.vue'
-import TableModule from '../components/TableModule.vue'
+// import TableModule from '../components/TableModule.vue'
 import {isLoggedIn, fetch} from '../api/api.js'
 export default {
+  watch: {
+    '$route' (to, from) {
+      let path = to.path.split('/')
+      let index = path[path.length - 1]
+      this.activeItem = index
+      let main = ''
+      let join = []
+      switch (index) {
+        case 'userManager':
+          main = 'user'
+          join.push('company')
+          break
+        case 'partnerManager':
+          main = 'company'
+          join.push('company')
+          break
+        case 'deviceManager':
+          main = 'shebei'
+          join.push('company')
+          break
+        case 'combo':
+          main = 'taocan'
+          join.push('company')
+          break
+        case 'orderManager':
+          main = 'dingdan'
+          join.push('guke', 'shebei', 'taocan', 'weixindingdan')
+          break
+        case 'point':
+          main = 'jifenmingxi'
+          join.push('dingdan')
+          break
+      }
+      this.fetchObj = main
+      this.JoinOther = join
+    }
+  },
   data () {
     return {
       islogin: false,
-      currentUser: ''
+      curUserName: '',
+      curUserId: 0,
+      activeItem: 'deviceManager',
+      fetchObj: '',
+      JoinOther: []
     }
   },
   created: function () {
     fetch(isLoggedIn, this.isLoggedInCompalte, {})
-    console.log('routerID', this.$route.params, 'routerQuery', this.$route.query)
-  },
-  watch: {
-    '$route' (to, from) {
-      console.log('to', to, 'from', from)
-    }
+    this.getRouterPath(this.$route)
   },
   methods: {
     isLoggedInCompalte (data) {
@@ -44,7 +81,8 @@ export default {
       if (data.errorCode !== 0) return false
       if (data.entity) {
         this.islogin = true
-        this.currentUser = this.connverRole(data.entity)
+        this.curUserId = data.entity
+        this.curUserName = this.connverRole(data.entity)
       } else {
         this.$alert('您还未登录，请点击按钮返回重试！', '错误提示', {
           confirmButtonText: '知道了。',
@@ -63,12 +101,47 @@ export default {
         case -2134008167: return '伙伴运维员'
         case 1233636: return '顾客'
       }
+    },
+    getRouterPath (route) {
+      let path = route.path.split('/')
+      let index = path[path.length - 1]
+      let main = ''
+      let join = []
+      switch (index) {
+        case 'userManager':
+          main = 'user'
+          join.push('company')
+          break
+        case 'partnerManager':
+          main = 'company'
+          join.push('company')
+          break
+        case 'deviceManager':
+          main = 'shebei'
+          join.push('company')
+          break
+        case 'combo':
+          main = 'taocan'
+          join.push('company')
+          break
+        case 'orderManager':
+          main = 'dingdan'
+          join.push('guke', 'shebei', 'taocan', 'weixindingdan')
+          break
+        case 'point':
+          main = 'jifenmingxi'
+          join.push('dingdan')
+          break
+      }
+      this.fetchObj = main
+      this.JoinOther = join
+      this.activeItem = index
     }
   },
   components: {
     TopNav,
-    LeftMenu,
-    TableModule
+    LeftMenu
+    // TableModule
   }
 }
 </script>
