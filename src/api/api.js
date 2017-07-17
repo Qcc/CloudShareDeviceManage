@@ -84,3 +84,5 @@ export const getCountCompany = ROOTURL + '/iDevice/protected/company/getCount.ap
 export const getPagerCompany = ROOTURL + '/iDevice/protected/company/getPager.api'
 export const queryCountCompany = ROOTURL + '/iDevice/protected/company/queryCount.api'
 export const queryPagerCompany = ROOTURL + '/iDevice/protected/company/queryPager.api'
+// 修改密码
+export const modPassword = ROOTURL + '/iDevice/public/modifyPassword.api'

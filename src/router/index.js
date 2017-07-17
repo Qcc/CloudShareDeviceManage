@@ -2,9 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 const Demo = r => require.ensure([], () => r(require('../test/demo.vue')), 'Demo')
 const Login = r => require.ensure([], () => r(require('../pages/Login.vue')), 'Login')
-// const topNva = r => require.ensure([], () => r(require('../components/TopNav.vue')), 'Main')
-// const LeftMenu = r => require.ensure([], () => r(require('../components/LeftMenu.vue')), 'Main')
 const TableModule = r => require.ensure([], () => r(require('../components/TableModule.vue')), 'Main')
+const RunningSys = r => require.ensure([], () => r(require('../components/RunningSys.vue')), 'RunningSys')
 const Main = r => require.ensure([], () => r(require('../pages/Main.vue')), 'Main')
 Vue.use(Router)
 
@@ -17,7 +16,7 @@ export default new Router({
     {path: '/:id',
       component: Main,
       children: [
-        {path: 'default', component: Demo},
+        {path: 'default', component: RunningSys},
         {path: 'userManager', component: TableModule},
         {path: 'partnerManager', component: TableModule},
         {path: 'deviceManager', component: TableModule},

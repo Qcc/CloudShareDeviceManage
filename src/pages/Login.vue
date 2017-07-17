@@ -12,7 +12,7 @@
     <el-form-item
       :prop="'passwd'"
       :rules="[{ required: true, message: '请输入密码', trigger: 'change' }]">
-      <el-input @keyup.enter.native.trim = "submitForm('loginForm')" v-model="loginForm.passwd" type='password' placeholder="请输入密码">
+      <el-input @keyup.enter.native = "submitForm('loginForm')" v-model="loginForm.passwd" type='password' placeholder="请输入密码">
         <template slot="prepend">密码</template>
       </el-input>
     </el-form-item>
@@ -22,7 +22,7 @@
         <el-form-item
           :prop="'validateCode'"
           :rules="[{ required: true, message: '请输入验证码', trigger: 'change' }]">
-          <el-input :icon="icon" @keyup.enter.native.trim = "submitForm('loginForm')" v-model="loginForm.validateCode" @change="validChange" placeholder="请输入验证码">
+          <el-input :icon="icon" @keyup.enter.native = "submitForm('loginForm')" v-model="loginForm.validateCode" @change="validChange" placeholder="请输入验证码">
             <template slot="prepend">验证码</template>
           </el-input>
         </el-form-item>
@@ -40,7 +40,7 @@
       <el-button type="primary"
         style="width:120px"
         :loading="loading"
-        v-on:click.trim="submitForm('loginForm')">登 录</el-button>
+        v-on:click="submitForm('loginForm')">登 录</el-button>
     </el-form-item>
   </el-form>
   <h6 style="color:#D3DCE6"> copyright@cloudshare-v1.0-20170707</h6>
@@ -97,7 +97,22 @@ export default {
         })
         return false
       }
-      this.$router.push(data.entity + '/default')
+      let item = 0
+      switch (data.entity) {
+        case 2026226681:
+          item = 101
+          break
+        case 2031278906:
+          item = 201
+          break
+        case -2139060392:
+          item = 301
+          break
+        case -2134008167:
+          item = 401
+          break
+      }
+      this.$router.push(data.entity + '/default?item=' + item)
     },
     refreshValidateCode () {
       var img = document.getElementById('validCode')

@@ -2,11 +2,11 @@
   <el-row >
   <el-col :span="24">
     <el-menu 
-      v-bind:router='true'
-      :default-openeds = "openedSubmenu(curUserId)"
+      @open="handleOpen"
+      @close="handleClose"      
+      :default-openeds = "openedMenu"
       :default-active = "activeItem"
-      :open="handleOpen"
-      :close="handleClose"
+      @select = "handleSelect"
       class="el-menu-vertical-demo">
       <!--云享管理员菜单-->
       <el-submenu v-if="curUserId === 2026226681" index="101">
@@ -99,40 +99,51 @@
 <script>
 export default {
   props: {
-    // 默认打开打菜单项
-    activeItem: {
-      type: String,
-      default: ''
-    },
     // 当前伙伴ID
     curUserId: {
       type: Number
     }
   },
-  methods: {
-    openedSubmenu (curUserId) {
-      let openMenu = []
-      switch (curUserId) {
-        case 2026226681:
-          openMenu.push('101')
-          break
-        case 2031278906:
-          openMenu.push('201')
-          break
-        case -2139060392:
-          openMenu.push('301')
-          break
-        case -2134008167:
-          openMenu.push('401')
-          break
+  data () {
+    return {
+      activeItem: '',
+      openedMenu: []
+    }
+  },
+  created: function () {
+    let path = this.$route.path.split('/')
+    let index = path[path.length - 1]
+    this.activeItem = index
+    for (var key in this.$route.query) {
+      if (typeof this.$route.query[key] === 'string') {
+        this.openedMenu.push(this.$route.query[key])
+      } else if (typeof this.$route.query[key] === 'object') {
+        for (var i in this.$route.query[key]) {
+          this.openedMenu.push(this.$route.query[key][i])
+        }
       }
-      return openMenu
-    },
+    }
+  },
+  methods: {
     handleOpen (index, path) {
-      console.log(index, path)
+      let item = 0
+      item = this.openedMenu.indexOf(index)
+      if (item === -1) {
+        this.openedMenu.push(index)
+      }
+      this.$router.push({query: {item: this.openedMenu}})
     },
     handleClose (index, path) {
-      console.log(index, path)
+      let item = 0
+      item = this.openedMenu.indexOf(index)
+      if (item !== -1) {
+        this.openedMenu.splice(item, 1)
+      }
+      this.$router.push({query: {item: this.openedMenu}})
+    },
+    handleSelect (index, path) {
+      let query = this.$route.query
+      this.$router.push({path: '/' + this.curUserId + '/' + index, query: query})
     }
   }
 }
