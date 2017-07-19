@@ -16,8 +16,7 @@
     </ul>
     <el-dialog
       title="修改密码"
-      :visible.sync="modPWDVisible"
-      :before-close="CancelModOwd">
+      :visible.sync="modPWDVisible">
       <el-form  :rules="rules" ref="pwdForm"  :model="modPwd">
         <el-form-item label="当前密码" prop="pwd">
           <el-input v-model="modPwd.pwd" type="Password" placeholder="请输入当前密码"></el-input>
@@ -36,8 +35,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" >
-        <el-button @click="modPWDVisible = false">取 消</el-button>
-        <el-button type="primary" @click="modPwdSubmit('pwdForm')">确 定</el-button>
+        <el-button @click="CancelModOwd('pwdForm')">取 消</el-button>
+        <el-button type="primary" :loading="modLoading" @click="modPwdSubmit('pwdForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -81,10 +80,10 @@ export default {
         ],
         newPwd: [
           { required: true, message: '请输入新密码', trigger: 'change' },
-          { min: 6, max: 15, message: '新密码太短，长度应在 6 到 15 个字符', trigger: 'blur' }
+          { min: 6, max: 15, message: '新密码不安全，至少需要6位以上', trigger: 'blur' }
         ],
         newPwd2: [
-          { required: true, message: '请输入新密码', trigger: 'change' },
+          { required: true, message: '请再次输入新密码', trigger: 'change' },
           { validator: validatePass2, trigger: 'blur' }
         ],
         code: [
@@ -93,14 +92,17 @@ export default {
       },
       icon: '',
       validateCodeImg: validateCodeImg,
-      logins: 0
+      logins: 0,
+      modLoading: false
     }
   },
   methods: {
-    CancelModOwd () {
-      console.log('quxiaoxiugai')
+    CancelModOwd (pwdForm) {
+      this.modPWDVisible = false
+      this.$refs[pwdForm].resetFields()
     },
     modPwdSubmit (pwdForm) {
+      this.modLoading = true
       this.logins++
       this.$refs[pwdForm].validate((valid) => {
         if (valid) {
@@ -113,6 +115,7 @@ export default {
       })
     },
     modPwdComplate (data) {
+      this.modLoading = false
       if (data.entity) {
         console.log(data)
       }
@@ -138,7 +141,10 @@ export default {
     logoutComplate (data) {
       if (data === null) return false
       if (data.errorCode !== 0) return false
-      this.$router.push('/')
+      let path = this.$route.path.split('/')
+      let login = path[path.length - 2]
+      console.log(login)
+      this.$router.push({path: '/iDevice/' + login + '/login'})
     },
     refreshValidateCode () {
       var img = document.getElementById('validCode')

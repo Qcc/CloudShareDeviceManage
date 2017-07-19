@@ -12,7 +12,9 @@
           <el-breadcrumb-item :to="{ path: '?list=1001' }">运行总览</el-breadcrumb-item>
         </el-breadcrumb>
         <!--<table-module :fetchObj = "'user'" :JoinOther="['company']"></table-module>-->
-        <router-view :fetchObj = "fetchObj" :JoinOther="JoinOther"></router-view>
+        <router-view :fetchObj = "fetchObj"
+          :JoinOther="JoinOther"
+          :propADUQ="propADUQ"></router-view>
       </el-col>
     </el-row>
   </div>
@@ -26,49 +28,20 @@ import {isLoggedIn, fetch} from '../api/api.js'
 export default {
   watch: {
     '$route' (to, from) {
-      let path = to.path.split('/')
-      let index = path[path.length - 1]
-      this.activeItem = index
-      let main = ''
-      let join = []
-      switch (index) {
-        case 'userManager':
-          main = 'user'
-          join.push('company')
-          break
-        case 'partnerManager':
-          main = 'company'
-          join.push('company')
-          break
-        case 'deviceManager':
-          main = 'shebei'
-          join.push('company')
-          break
-        case 'combo':
-          main = 'taocan'
-          join.push('company')
-          break
-        case 'orderManager':
-          main = 'dingdan'
-          join.push('guke', 'shebei', 'taocan', 'weixindingdan')
-          break
-        case 'point':
-          main = 'jifenmingxi'
-          join.push('dingdan')
-          break
-      }
-      this.fetchObj = main
-      this.JoinOther = join
+      this.getRouterPath(to)
     }
   },
   data () {
     return {
       islogin: false,
+      // 顶部导航栏组件 props
       curUserName: '',
       curUserId: 0,
       activeItem: 'deviceManager',
+      // 表格组件props
       fetchObj: '',
-      JoinOther: []
+      JoinOther: [],
+      propADUQ: true
     }
   },
   created: function () {
@@ -84,13 +57,7 @@ export default {
         this.curUserId = data.entity
         this.curUserName = this.connverRole(data.entity)
       } else {
-        this.$alert('您还未登录，请点击按钮返回重试！', '错误提示', {
-          confirmButtonText: '知道了。',
-          type: 'error',
-          callback: action => {
-            this.$router.push('/')
-          }
-        })
+        this.$router.push('/')
       }
     },
     connverRole (id) {
@@ -107,6 +74,7 @@ export default {
       let index = path[path.length - 1]
       let main = ''
       let join = []
+      this.propADUQ = true
       switch (index) {
         case 'userManager':
           main = 'user'
@@ -125,12 +93,23 @@ export default {
           join.push('company')
           break
         case 'orderManager':
+          this.propADUQ = false
           main = 'dingdan'
           join.push('guke', 'shebei', 'taocan', 'weixindingdan')
           break
         case 'point':
+          this.propADUQ = false
           main = 'jifenmingxi'
           join.push('dingdan')
+          break
+        case 'performance':
+          this.propADUQ = false
+          main = 'company'
+          join.push('company')
+          break
+        case 'comboGroup':
+          main = 'taocanzu'
+          join.push('company')
           break
       }
       this.fetchObj = main

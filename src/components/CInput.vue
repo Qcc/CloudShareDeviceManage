@@ -10,7 +10,7 @@
 	</el-input>
 	<!--日期类型样式 -->
 	<el-date-picker
-		v-else-if="this.row &&  columns.editable && columns.type === 'DATE'"
+		v-else-if="this.row &&  columns.editable && columns.type === 'DATETIME'"
 		clearable
 		@change="change"
 		v-model.lazy="row[columns.key]"
@@ -82,7 +82,7 @@
 	</el-input>
 	<!--日期类型样式 -->
 	<el-date-picker
-		v-else-if="!this.row &&  columns.editable && columns.type === 'DATE'"
+		v-else-if="!this.row &&  columns.editable && columns.type === 'DATETIME'"
 		clearable
     :disabled="disabled"
 		@change="change"

@@ -48,10 +48,10 @@
 </template>
 <script>
 import {
-  login,
   validateCodeImg,
   checkValidateCode,
-  fetch
+  fetch,
+  ROOTURL
 } from '../api/api.js'
 export default {
   data () {
@@ -72,8 +72,15 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          let path = this.$route.path.split('/')
+          let url = ''
+          if (path[2]) {
+            url = ROOTURL + '/iDevice/public/' + path[2] + '/login.api'
+          } else {
+            url = ROOTURL + '/iDevice/public/1/login.api'
+          }
           this.loading = true
-          fetch(login, this.loginComplate, this.loginForm)
+          fetch(url, this.loginComplate, this.loginForm)
         } else {
           return false
         }
@@ -112,7 +119,9 @@ export default {
           item = 401
           break
       }
-      this.$router.push(data.entity + '/default?item=' + item)
+      let login = this.$route.path.indexOf('login')
+      let path = this.$route.path.substr(0, login - 1)
+      this.$router.push(path + '/default' + '?item=' + item)
     },
     refreshValidateCode () {
       var img = document.getElementById('validCode')

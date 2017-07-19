@@ -16,7 +16,7 @@
               </el-col>
             </el-row>
             <el-row :gutter="10"><el-col :span="6">
-              <span class="wel-house"> 设备总数 : </span><span>{{device}}</span>
+              <span class="wel-house"> 投放设备总数 : </span><span>{{device}}</span>
               </el-col>
               <el-col :span="17">
                 <el-progress :text-inside="true" :stroke-width="18" :percentage="75"></el-progress>                  
@@ -50,11 +50,13 @@
             </el-select>
           </div>
           <div class="use-content">
+            <el-progress type="circle" :percentage="33" status="success"></el-progress>            
             <el-progress type="circle" :percentage="55"></el-progress>
             <el-progress type="circle" :percentage="100" status="success"></el-progress>
             <el-progress type="circle" :percentage="30" status="exception"></el-progress>
             <div>
               <span>使用次数 ：</span><span>{{use}}</span> /
+              <span>使用率 ：</span><span>{{uselv}}%</span> /
               <span>累计收费 ：</span><span>{{money}}</span> /
               <span>注册会员 ：</span><span>{{vip}}</span>              
             </div>
@@ -102,6 +104,7 @@ export default {
       users: 2681,
       allVip: 3200,
       use: 3520,
+      uselv: 22.6,
       money: 165200,
       vip: 3200
     }

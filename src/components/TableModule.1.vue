@@ -1,8 +1,9 @@
 <template>
 <div>
-  <el-row style="margin-bottom:10px">
-    <el-col v-if="propSearch" :span="13">
-        <div style="float:left">
+  <div v-bind:class="searchMod" v-if="propSearch">
+  <el-row>
+    <el-col :span="24">
+        <div style="float:left;">
           <span>搜索数据 : </span>
             <div style="width:350px;display:inline-block">
               <el-input @keyup.enter.native="handleSearch" placeholder="请输入内容" v-model="searchValue">
@@ -12,18 +13,11 @@
         <a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
         </div>
     </el-col>
-    <el-col :span="11" v-if="propADUQ && ADUQVisible" >
-        <el-button-group style="float:right">
-          <el-button @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
-          <el-button @click="handleEditCOl" :plain="true" :loading="batchEditLoading" :disabled="disabled" type="info" icon="edit">{{editCOl}}</el-button>
-          <el-button @click="handleCancelEditCOl" v-if="cancelEdit" :plain="true" type="warning" icon="d-arrow-left">{{cancelEditCOl}}</el-button>
-          <el-button @click="handleDeleteCol" :plain="true" :loading="deleteLoading" :disabled="disabled" type="danger" icon="delete" >{{deleteCol}}</el-button>
-        </el-button-group>
-      </el-col>
   </el-row>
   <el-row v-if="AdvancedSearchVisible">
-    <el-col :span="24" style="padding-top:15px;margin-top:5px;border-top: 1px solid #cccccc;">
-      <el-form style="float:left;" :inline="true" :model="SearchForm">
+  <el-col :span="24">
+    <div style="float:left;padding-top:15px;margin-top:15px;border-top: 1px solid #cccccc;">
+      <el-form :inline="true" :model="SearchForm">
         <span>高级搜索 : </span>
         <!--选项1-->
         <el-form-item>
@@ -39,6 +33,7 @@
         <el-form-item>
           <c-input :columns="SearchForm.item1" :disabled="SearchForm.fDis" :getser="getServerObj"></c-input>
         </el-form-item>
+
         <!--高级搜索与或关系-->
         <el-form-item>
           <el-select v-model="SearchForm.relational.value" style="width:60px">
@@ -61,6 +56,7 @@
             </el-option>
           </el-select>
         </el-form-item>
+
         <el-form-item>
           <c-input :columns="SearchForm.item2" :disabled="SearchForm.sDis" :getser="getServerObj"></c-input>
         </el-form-item>
@@ -69,8 +65,23 @@
           <el-button style="margin:0 20px" type="primary" :loading="advSearchLoading" @click="handleAdvancedSearch" icon="search">搜索</el-button>
           <a @click="hiddenAdvancedSearch" style="margin-left:10px;color:#108ee9;cursor:pointer;">收起</a>    
       </el-form>
+    </div>
     </el-col>
   </el-row>
+  </div>
+  <div v-if="propADUQ && ADUQVisible" style="float:right;margin-bottom:10px">
+    <el-row>
+      <el-col>
+        <el-button-group>
+          <el-button @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
+          <el-button @click="handleEditCOl" :plain="true" :loading="batchEditLoading" :disabled="disabled" type="info" icon="edit">{{editCOl}}</el-button>
+          <el-button @click="handleCancelEditCOl" v-if="cancelEdit" :plain="true" type="warning" icon="d-arrow-left">{{cancelEditCOl}}</el-button>
+          <el-button @click="handleDeleteCol" :plain="true" :loading="deleteLoading" :disabled="disabled" type="danger" icon="delete" >{{deleteCol}}</el-button>
+        </el-button-group>
+      </el-col>
+    </el-row>
+  </div>
+ 
   <el-table
     ref="multipleTable"
     :data="tableData"
@@ -715,7 +726,6 @@
           }
           params[key] = this.createForm[i].f_value
         }
-        if (this.fetchObj === 'user') params.password = params.account
         fetch(BASICURL + this.fetchObj + '/create.api', this.createComplate, params)
       },
       createComplate (data) {
@@ -913,6 +923,14 @@
 .pagination{
   float: right;
   margin:10px 20px;    
+}
+.search{
+  position:relative;
+  margin-bottom:10px;
+}
+.adv-search{
+  position:absolute;
+  margin-bottom:10px;
 }
 .object-more{
 	display: inline-block;
