@@ -204,7 +204,7 @@
     props: {
       fetchObj: {type: String, required: true},
       // // 传入需要联合查询的对象名称
-      JoinOther: {type: Array},
+      JoinOther: {type: Object},
       // 自定义功能 搜索 增删改查 分页 自定义列
       propSearch: {type: Boolean, default: true},
       propADUQ: {type: Boolean, default: true},
@@ -295,7 +295,6 @@
     },
     created: function () {
       this.reloadingData()
-      console.log('chushihua')
     },
     methods: {
       // 更多功能
@@ -409,6 +408,7 @@
       },
       // data回调数据  api调用类型url states数据操作对象
       getDataOnComplate (data, ...states) {
+        // console.log('allColer', data)
         this.tableLoading = false
         if (!this.checkResults(data)) return
         // 联合查询columnsJsonStr为数组，非联合查询columnsJsonStr为对象
@@ -417,18 +417,20 @@
         let columns = []
         // 联合查询列
         let JoinColumn = []
-        if (this.JoinOther) {
+        if (!this.isEmptyObject(this.JoinOther)) {
           for (var i in allCol) {
             let allColer = JSON.parse(allCol[i])
+            console.log("=========allColer========", allColer)
             if (allColer.name === this.fetchObj) {
               for (var j in allColer.columns) {
                 columns.push(allColer.columns[j])
               }
             } else {
               for (var k in allColer.columns) {
-                if (allColer.columns[k].readableIdentifier) {
+                if (allColer.columns[k].readableIdentifier !== '') {
                   allColer.columns[k].f_tableName = allColer.name
-                  allColer.columns[k].f_flowchart = allColer.flowchart
+                  // allColer.columns[k].f_flowchart = allColer.flowchart
+                  allColer.columns[k].f_flowchart = allColer.columns[k].readableIdentifier                  
                   JoinColumn.push(allColer.columns[k])
                 }
               }
@@ -456,7 +458,8 @@
             colObj.type = 'OBJECT'
             for (var n in JoinColumn) {
               if (colObj.referenceTableName === JoinColumn[n].f_tableName) {
-                colObj.label = JoinColumn[n].f_flowchart + '.' + JoinColumn[n].flowchart
+                colObj.label = JoinColumn[n].f_flowchart             
+                // colObj.label = JoinColumn[n].f_flowchart + '.' + JoinColumn[n].flowchart
               }
             }
           }
@@ -488,6 +491,7 @@
             data.entity.list[i].line = i
             for (var q in data.entity.list[i]) {
               for (var y in JoinColumn) {
+                // 查找那些字段是联合查询的对象 显示该对象的name字段
                 if (q === JoinColumn[y].f_tableName) {
                   if (data.entity.list[i][q]) {
                     data.entity.list[i][q] = data.entity.list[i][q][JoinColumn[y].name]
@@ -586,15 +590,30 @@
         sorter[val.prop + 'Direction'] = order
         this.reloadingData({sorter: sorter})
       },
+      // 判断对象是否为空
+      isEmptyObject(e) {  
+        var t;  
+        for (t in e)  
+            return !1;  
+        return !0  
+      }, 
       // 筛选
       handleFilterChange (filters) {
+        console.log(filters)
         for (let key in filters) {
           this.filterValues[key + 'List'] = filters[key]
           if (filters[key].length === 0) {
             delete this.filterValues[key + 'List']
           }
         }
-        let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        if (!this.isEmptyObject(this.JoinOther)) {
+          params.ifJoinReference = true
+          params.condition = {}
+          for (var i in this.JoinOther) {
+            params.condition[this.JoinOther[i]] = {}
+          }
+        }
         params.filter = this.filterValues
         this.tableLoading = true
         fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
@@ -872,12 +891,13 @@
         for (let i = 0; i < param.length; i++) {
           params = Object.assign(params, param[i])
         }
-        if (this.JoinOther) {
+        if (!this.isEmptyObject(this.JoinOther)) {
           params.ifJoinReference = true
           // params.condition = {company: {}}
           params.condition = {}
+          console.log('订单', this.JoinOther)
           for (var i in this.JoinOther) {
-            params.condition[this.JoinOther[i]] = {}
+            params.condition[i] = this.JoinOther[i]
           }
         }
         fetch2(BASICURL + this.fetchObj + '/getPager.api', this.getDataOnComplate, params)

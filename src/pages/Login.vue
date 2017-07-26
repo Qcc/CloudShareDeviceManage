@@ -51,6 +51,8 @@ import {
   validateCodeImg,
   checkValidateCode,
   fetch,
+  login,
+  loginhref,
   ROOTURL
 } from '../api/api.js'
 export default {
@@ -61,6 +63,7 @@ export default {
         passwd: '',
         validateCode: ''
       },
+      isActive: null,
       loading: false,
       // 登录错误次数 超过3次需要验证码
       logins: 0,
@@ -75,9 +78,9 @@ export default {
           let path = this.$route.path.split('/')
           let url = ''
           if (path[2]) {
-            url = ROOTURL + '/iDevice/public/' + path[2] + '/login.api'
+            url = loginhref + path[2] + '/login.api'
           } else {
-            url = ROOTURL + '/iDevice/public/1/login.api'
+            url = login
           }
           this.loading = true
           fetch(url, this.loginComplate, this.loginForm)
@@ -121,6 +124,7 @@ export default {
       }
       let login = this.$route.path.indexOf('login')
       let path = this.$route.path.substr(0, login - 1)
+      console.log(path + '/default' + '?item=' + item)
       this.$router.push(path + '/default' + '?item=' + item)
     },
     refreshValidateCode () {

@@ -1,6 +1,6 @@
 <template>
   <div v-show="islogin">
-    <top-nav :role="curUserName"></top-nav>
+    <top-nav :role="curUserName" :account="currentAccount"></top-nav>
     <el-row>
       <el-col :span="5" style="margin-left:-20px">
         <left-Menu :curUserId="curUserId" :activeItem="activeItem">
@@ -14,7 +14,9 @@
         <!--<table-module :fetchObj = "'user'" :JoinOther="['company']"></table-module>-->
         <router-view :fetchObj = "fetchObj"
           :JoinOther="JoinOther"
-          :propADUQ="propADUQ"></router-view>
+          :propADUQ="propADUQ"
+          style="margin-right:10px"
+          ></router-view>
       </el-col>
     </el-row>
   </div>
@@ -33,14 +35,18 @@ export default {
   },
   data () {
     return {
+      // 是否登录
       islogin: false,
+      // 是否不活动
+      isActive: null,
       // 顶部导航栏组件 props
       curUserName: '',
+      currentAccount: '',
       curUserId: 0,
       activeItem: 'deviceManager',
       // 表格组件props
       fetchObj: '',
-      JoinOther: [],
+      JoinOther: {},
       propADUQ: true
     }
   },
@@ -54,10 +60,13 @@ export default {
       if (data.errorCode !== 0) return false
       if (data.entity) {
         this.islogin = true
-        this.curUserId = data.entity
-        this.curUserName = this.connverRole(data.entity)
+        this.currentAccount = data.entity.account
+        this.curUserId = data.entity.role
+        this.curUserName = this.connverRole(data.entity.role)
       } else {
-        this.$router.push('/')
+        let path = this.$route.path.split('/')
+        let login = path[path.length - 2]
+        this.$router.push({path: '/idev/' + login + '/login'})
       }
     },
     connverRole (id) {
@@ -73,47 +82,56 @@ export default {
       let path = route.path.split('/')
       let index = path[path.length - 1]
       let main = ''
-      let join = []
       this.propADUQ = true
       switch (index) {
         case 'userManager':
-          main = 'user'
-          join.push('company')
+          this.fetchObj = 'user'
+          this.JoinOther.company = {}
           break
         case 'partnerManager':
-          main = 'company'
-          join.push('company')
+          this.fetchObj = 'company'
+          this.JoinOther.company = {}
           break
         case 'deviceManager':
-          main = 'shebei'
-          join.push('company')
+          this.fetchObj = 'shebei'
+          this.JoinOther.shebeibianhao = {}
+          this.JoinOther.taocanzu = {}
+          this.JoinOther.company = {}
+          break
+        case 'deviceId':
+          this.fetchObj = 'shebeibianhao'
           break
         case 'combo':
-          main = 'taocan'
-          join.push('company')
+          this.fetchObj = 'taocan'
+          this.JoinOther.taocanzu = {}
           break
         case 'orderManager':
           this.propADUQ = false
-          main = 'dingdan'
-          join.push('guke', 'shebei', 'taocan', 'weixindingdan')
+          this.fetchObj = 'dingdan'
+          this.JoinOther.guke = {}
+          this.JoinOther.weixindingdan = {}
+          this.JoinOther.shebei = {gongsi: {},shebeibianhao: {}}
+          this.JoinOther.taocan = {taocanzu: {}}
           break
         case 'point':
           this.propADUQ = false
-          main = 'jifenmingxi'
-          join.push('dingdan')
+          this.fetchObj = 'jifenmingxi'
+          this.JoinOther.dingdan = {}
           break
         case 'performance':
           this.propADUQ = false
-          main = 'company'
-          join.push('company')
+          this.fetchObj = 'company'
+          this.JoinOther.company = {}
           break
         case 'comboGroup':
-          main = 'taocanzu'
-          join.push('company')
+          this.fetchObj = 'taocanzu'
+          this.JoinOther.company = {}
+          break
+        case 'guke':
+          this.propADUQ = false
+          this.fetchObj = 'guke'
           break
       }
-      this.fetchObj = main
-      this.JoinOther = join
       this.activeItem = index
     }
   },

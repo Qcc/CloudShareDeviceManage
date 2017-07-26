@@ -1,13 +1,18 @@
 <template>
   <el-row >
   <el-col :span="24">
+    <el-radio-group v-model="isCollapse">
+      <el-radio-button :label="false">展开</el-radio-button>
+      <el-radio-button :label="true">收起</el-radio-button>
+    </el-radio-group>
     <el-menu 
       @open="handleOpen"
+      theme="dark"
+      :collapse="isCollapse"
       @close="handleClose"      
       :default-openeds = "openedMenu"
       :default-active = "activeItem"
-      @select = "handleSelect"
-      class="el-menu-vertical-demo">
+      @select = "handleSelect">
       <!--云享管理员菜单-->
       <el-submenu v-if="curUserId === 2026226681" index="101">
         <template slot="title"><i class="el-icon-information"></i>系统信息</template>
@@ -24,6 +29,7 @@
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="104">
         <template slot="title"><i class="el-icon-setting"></i>设备管理</template>
+          <el-menu-item index="deviceId">编号管理</el-menu-item>          
           <el-menu-item index="deviceManager">设备管理</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="105">
@@ -31,6 +37,7 @@
           <el-menu-item index="combo">套餐配置</el-menu-item>
           <el-menu-item index="comboGroup">套餐组配置</el-menu-item>          
           <el-menu-item index="orderManager">订单管理</el-menu-item>
+          <el-menu-item index="guke">消费者</el-menu-item>          
           <el-menu-item index="point">积分管理</el-menu-item>
           <el-menu-item index="performance">业绩统计</el-menu-item>
       </el-submenu>
@@ -45,12 +52,14 @@
       </el-submenu>
       <el-submenu v-if="curUserId === 2031278906" index="203">
         <template slot="title"><i class="el-icon-setting"></i>设备管理</template>
+          <el-menu-item index="deviceId">编号管理</el-menu-item> 
           <el-menu-item index="deviceManager">设备管理</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2031278906" index="204">
         <template slot="title"><i class="el-icon-circle-check"></i>运维管理</template>
           <el-menu-item index="combo">套餐配置</el-menu-item>
           <el-menu-item index="orderManager">订单管理</el-menu-item>
+          <el-menu-item index="guke">消费者</el-menu-item> 
           <el-menu-item index="point">积分管理</el-menu-item>
           <el-menu-item index="performance">业绩统计</el-menu-item>
       </el-submenu>
@@ -69,6 +78,7 @@
       </el-submenu>
       <el-submenu v-if="curUserId === -2139060392" index="304">
         <template slot="title"><i class="el-icon-circle-check"></i>运维管理</template>
+        <el-menu-item index="guke">消费者</el-menu-item> 
           <el-menu-item index="performance">业绩统计</el-menu-item>
       </el-submenu>
       <!--伙伴员工菜单-->
@@ -86,6 +96,7 @@
       </el-submenu>
       <el-submenu v-if="curUserId === -2134008167" index="404">
         <template slot="title"><i class="el-icon-circle-check"></i>运维管理</template>
+          <el-menu-item index="guke">消费者</el-menu-item> 
           <el-menu-item index="performance">业绩统计</el-menu-item>
       </el-submenu>
     </el-menu>
@@ -103,7 +114,8 @@ export default {
   data () {
     return {
       activeItem: '',
-      openedMenu: []
+      openedMenu: [],
+      isCollapse: true
     }
   },
   created: function () {
@@ -146,6 +158,3 @@ export default {
   }
 }
 </script>
-<style>
-
-</style>

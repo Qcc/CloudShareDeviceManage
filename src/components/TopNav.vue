@@ -5,7 +5,7 @@
       <li class="menu-item">{{role}}</li>
       <li class="menu-item user" ><el-dropdown trigger="click" @command="handleLogout">
       <span class="dropdown-link">
-        账户<i class="el-icon-caret-bottom el-icon--right"></i>
+        账户({{account}})<i class="el-icon-caret-bottom el-icon--right"></i>
       </span>
       <el-dropdown-menu  slot="dropdown">
         <el-dropdown-item command="1">修改密码</el-dropdown-item>
@@ -52,6 +52,10 @@ import {
 export default {
   props: {
     role: {
+      type: String,
+      default: ''
+    },
+    account: {
       type: String,
       default: ''
     }
@@ -143,8 +147,7 @@ export default {
       if (data.errorCode !== 0) return false
       let path = this.$route.path.split('/')
       let login = path[path.length - 2]
-      console.log(login)
-      this.$router.push({path: '/iDevice/' + login + '/login'})
+      this.$router.push({path: '/idev/' + login + '/login'})
     },
     refreshValidateCode () {
       var img = document.getElementById('validCode')
@@ -197,6 +200,7 @@ export default {
     background-color: #475669;
   }
   .user{
+    width: 120px;
     float:right;
     margin-right: 20px;
   }

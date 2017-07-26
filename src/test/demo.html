@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <textarea name="" id="text" cols="30" rows="10">23333</textarea>
+
+  <button id="save" type="button">保存</button>
+  <script>
+    var ikey = 0;
+    var imouse = 0;
+    var itime = 60 * 10;
+    document.body.onmousemove = function() {
+      imouse = 1;
+    }
+    document.body.onkeydown = function() {
+      ikey = 1;
+    }
+    var ierval = window.setInterval(function() {
+      if (imouse) {
+        imouse = 0;
+        window.alert("鼠标移动过");
+      }
+      if (ikey) {
+        ikey = 0;
+        window.alert("键盘敲击过");
+      }
+      itime -= 1;
+      if (itime <= 0) {
+        window.clearInterval(ierval);
+      }
+    }, 1000);
+  </script>
+</body>
+
+</html>
