@@ -6,36 +6,387 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui@1.4.0/lib/theme-default/index.css">
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui@1.4.0/lib/index.js"></script>
 </head>
 
 <body>
-  <textarea name="" id="text" cols="30" rows="10">23333</textarea>
-
-  <button id="save" type="button">保存</button>
+  <div id="app">
+    <el-button @click="clickme"></el-button>
+  </div>
   <script>
-    var ikey = 0;
-    var imouse = 0;
-    var itime = 60 * 10;
-    document.body.onmousemove = function() {
-      imouse = 1;
+    var Main = {
+      data() {
+        return {
+          data: {
+            data: {
+              "status": 200,
+              "errorCode": 0,
+              "message": "Success",
+              "moreInfo": null,
+              "entity": {
+                "count": 2,
+                "list": [{
+                  "uid": 1,
+                  "zhifushijian": "2017-07-26 14:12:00",
+                  "state": 1,
+                  "zhifuleixing": 1,
+                  "feiyong": 1,
+                  "guke": {
+                    "uid": 1,
+                    "weixinnicheng": "aaa",
+                    "weixinOpenID": "aaa",
+                    "jifen": null,
+                    "shifouzhuce": null,
+                    "zhuceshijian": null,
+                    "shifoudenglu": null,
+                    "denglushijian": null,
+                    "xingming": null,
+                    "shoujihao": null,
+                    "mima": null,
+                    "shifouguanzhuweixingongzhonghao": null,
+                    "guanzhushijian": null,
+                    "quxiaoguanzhushijian": null
+                  },
+                  "shebei": {
+                    "uid": 1,
+                    "wangkadizhi": "FFFFFFFFFF00",
+                    "zhuangtai": 0,
+                    "shebeibianhao": {
+                      "uid": 1,
+                      "bianhao": "111111",
+                      "zhuangtai": 1
+                    },
+                    "taocanzu": {
+                      "uid": 1,
+                      "mingcheng": "套餐组a",
+                      "company": {
+                        "uid": 1,
+                        "mingcheng": "cloudshare",
+                        "lianxiren": null,
+                        "dianhua": null,
+                        "dizhi": null,
+                        "state": null,
+                        "leixing": null,
+                        "company": null,
+                        "companyuid": null
+                      },
+                      "companyuid": null
+                    },
+                    "gongsi": {
+                      "uid": 1,
+                      "mingcheng": "cloudshare",
+                      "lianxiren": null,
+                      "dianhua": null,
+                      "dizhi": null,
+                      "state": null,
+                      "leixing": null,
+                      "company": null,
+                      "companyuid": null
+                    },
+                    "bushufangjian": "101号",
+                    "toufangzhuangtai": 1,
+                    "dengjishijian": null,
+                    "xintiaoshijian": null,
+                    "jianlilianjieshijian": null,
+                    "duankailianjieshijian": null,
+                    "shebeibianhaouid": null,
+                    "taocanzuuid": null,
+                    "gongsiuid": null
+                  },
+                  "taocan": {
+                    "uid": 1,
+                    "mingcheng": "1分钟",
+                    "jishi": 60,
+                    "feiyong": 1,
+                    "taocanzu": {
+                      "uid": 1,
+                      "mingcheng": "套餐组a",
+                      "company": {
+                        "uid": 1,
+                        "mingcheng": "cloudshare",
+                        "lianxiren": null,
+                        "dianhua": null,
+                        "dizhi": null,
+                        "state": null,
+                        "leixing": null,
+                        "company": null,
+                        "companyuid": null
+                      },
+                      "companyuid": null
+                    },
+                    "taocanzuuid": null
+                  },
+                  "weixindingdan": null,
+                  "gukeuid": null,
+                  "shebeiuid": null,
+                  "taocanuid": null,
+                  "weixindingdanuid": null
+                }, {
+                  "uid": 2,
+                  "zhifushijian": "2017-07-25 14:12:00",
+                  "state": 1,
+                  "zhifuleixing": 1,
+                  "feiyong": 1,
+                  "guke": {
+                    "uid": 2,
+                    "weixinnicheng": "bbb",
+                    "weixinOpenID": "bbb",
+                    "jifen": null,
+                    "shifouzhuce": null,
+                    "zhuceshijian": null,
+                    "shifoudenglu": null,
+                    "denglushijian": null,
+                    "xingming": null,
+                    "shoujihao": null,
+                    "mima": null,
+                    "shifouguanzhuweixingongzhonghao": null,
+                    "guanzhushijian": null,
+                    "quxiaoguanzhushijian": null
+                  },
+                  "shebei": {
+                    "uid": 2,
+                    "wangkadizhi": "FFFFFFFFFF01",
+                    "zhuangtai": 1,
+                    "shebeibianhao": {
+                      "uid": 2,
+                      "bianhao": "111112",
+                      "zhuangtai": 2
+                    },
+                    "taocanzu": {
+                      "uid": 2,
+                      "mingcheng": "套餐组b",
+                      "company": {
+                        "uid": 1,
+                        "mingcheng": "cloudshare",
+                        "lianxiren": null,
+                        "dianhua": null,
+                        "dizhi": null,
+                        "state": null,
+                        "leixing": null,
+                        "company": null,
+                        "companyuid": null
+                      },
+                      "companyuid": null
+                    },
+                    "gongsi": {
+                      "uid": 1,
+                      "mingcheng": "cloudshare",
+                      "lianxiren": null,
+                      "dianhua": null,
+                      "dizhi": null,
+                      "state": null,
+                      "leixing": null,
+                      "company": null,
+                      "companyuid": null
+                    },
+                    "bushufangjian": "208号",
+                    "toufangzhuangtai": 0,
+                    "dengjishijian": null,
+                    "xintiaoshijian": null,
+                    "jianlilianjieshijian": null,
+                    "duankailianjieshijian": null,
+                    "shebeibianhaouid": null,
+                    "taocanzuuid": null,
+                    "gongsiuid": null
+                  },
+                  "taocan": {
+                    "uid": 5,
+                    "mingcheng": "50分钟",
+                    "jishi": 3000,
+                    "feiyong": 2,
+                    "taocanzu": {
+                      "uid": 2,
+                      "mingcheng": "套餐组b",
+                      "company": {
+                        "uid": 1,
+                        "mingcheng": "cloudshare",
+                        "lianxiren": null,
+                        "dianhua": null,
+                        "dizhi": null,
+                        "state": null,
+                        "leixing": null,
+                        "company": null,
+                        "companyuid": null
+                      },
+                      "companyuid": null
+                    },
+                    "taocanzuuid": null
+                  },
+                  "weixindingdan": null,
+                  "gukeuid": null,
+                  "shebeiuid": null,
+                  "taocanuid": null,
+                  "weixindingdanuid": null
+                }],
+                "columnsJsonStr": ["{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"支付时间即创建时间\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_zhifushijian\",\"flowchart\":\"支付时间\",\"name\":\"zhifushijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"订单时间\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"新建\",\"完结\"],\"enumvalues\":[0,1],\"field\":\"f_state\",\"flowchart\":\"状态\",\"name\":\"state\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"积分支付订单\",\"微信支付订单\"],\"enumvalues\":[1,2],\"field\":\"f_zhifuleixing\",\"flowchart\":\"支付类型\",\"name\":\"zhifuleixing\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"单位为分。积分与现金是1分对1点的关系\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_feiyong\",\"flowchart\":\"费用\",\"name\":\"feiyong\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"MONEY\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_guke\",\"flowchart\":\"顾客\",\"name\":\"guke\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"顾客\",\"referenceTableName\":\"guke\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_shebei\",\"flowchart\":\"设备\",\"name\":\"shebei\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"设备\",\"referenceTableName\":\"shebei\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_taocan\",\"flowchart\":\"套餐\",\"name\":\"taocan\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"套餐\",\"referenceTableName\":\"taocan\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_weixindingdan\",\"flowchart\":\"微信订单\",\"name\":\"weixindingdan\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"微信订单\",\"referenceTableName\":\"weixindingdan\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"订单\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"dingdan\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_weixinnicheng\",\"flowchart\":\"微信昵称\",\"name\":\"weixinnicheng\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"昵称\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":128,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_weixinOpenID\",\"flowchart\":\"微信OpenID\",\"name\":\"weixinOpenID\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"CHAR\",\"typelen\":28,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_jifen\",\"flowchart\":\"积分\",\"name\":\"jifen\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"未注册\",\"注册\"],\"enumvalues\":[0,1],\"field\":\"f_shifouzhuce\",\"flowchart\":\"是否注册\",\"name\":\"shifouzhuce\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_zhuceshijian\",\"flowchart\":\"注册时间\",\"name\":\"zhuceshijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"未登录\",\"登录\"],\"enumvalues\":[0,1],\"field\":\"f_shifoudenglu\",\"flowchart\":\"是否登录\",\"name\":\"shifoudenglu\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_denglushijian\",\"flowchart\":\"登录时间\",\"name\":\"denglushijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_xingming\",\"flowchart\":\"姓名\",\"name\":\"xingming\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":32,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"注册时输入，手机号同时作为登录帐户名\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_shoujihao\",\"flowchart\":\"手机号\",\"name\":\"shoujihao\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":20,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_mima\",\"flowchart\":\"密码\",\"name\":\"mima\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"PASSWORD\",\"typelen\":32,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"未观注\",\"观注\"],\"enumvalues\":[0,1],\"field\":\"f_shifouguanzhuweixingongzhonghao\",\"flowchart\":\"是否观注微信公众号\",\"name\":\"shifouguanzhuweixingongzhonghao\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_guanzhushijian\",\"flowchart\":\"观注时间\",\"name\":\"guanzhushijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"只要这个字段不为空，就表示该用户曾经关注过，可以依此推算是否是第一次观注公众号\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_quxiaoguanzhushijian\",\"flowchart\":\"取消观注时间\",\"name\":\"quxiaoguanzhushijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"顾客\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"guke\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_wangkadizhi\",\"flowchart\":\"网卡地址\",\"name\":\"wangkadizhi\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"设备MAC地址\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"CHAR\",\"typelen\":12,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[\"离线\",\"在线\",\"工作中\"],\"enumvalues\":[0,1,2],\"field\":\"f_zhuangtai\",\"flowchart\":\"状态\",\"name\":\"zhuangtai\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_shebeibianhao\",\"flowchart\":\"设备编号\",\"name\":\"shebeibianhao\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"设备编号\",\"referenceTableName\":\"shebeibianhao\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_taocanzu\",\"flowchart\":\"套餐组\",\"name\":\"taocanzu\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"套餐组\",\"referenceTableName\":\"taocanzu\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_gongsi\",\"flowchart\":\"公司\",\"name\":\"gongsi\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"公司\",\"referenceTableName\":\"company\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_bushufangjian\",\"flowchart\":\"部署房间\",\"name\":\"bushufangjian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":32,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"只有投放状态是已投放的，伙伴才能看到\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"未投放\",\"已投放\"],\"enumvalues\":[0,1],\"field\":\"f_toufangzhuangtai\",\"flowchart\":\"投放状态\",\"name\":\"toufangzhuangtai\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"设备与服务器第一次建立连接时间\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_dengjishijian\",\"flowchart\":\"登记时间\",\"name\":\"dengjishijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"设备与服务器最近一次握手的时间\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_xintiaoshijian\",\"flowchart\":\"心跳时间\",\"name\":\"xintiaoshijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"设备与服务器建立tcp连接的时间\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_jianlilianjieshijian\",\"flowchart\":\"建立连接时间\",\"name\":\"jianlilianjieshijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"设备与服务器断开tcp连接的时间\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_duankailianjieshijian\",\"flowchart\":\"断开连接时间\",\"name\":\"duankailianjieshijian\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"DATETIME\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"设备\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"shebei\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"前期先采用6位随机数字，不能让用户随便猜\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_bianhao\",\"flowchart\":\"编号\",\"name\":\"bianhao\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"设备编号\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":10,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"未分配\",\"已分配\"],\"enumvalues\":[0,1],\"field\":\"f_zhuangtai\",\"flowchart\":\"状态\",\"name\":\"zhuangtai\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"设备编号\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"shebeibianhao\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_mingcheng\",\"flowchart\":\"名称\",\"name\":\"mingcheng\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"公司名称\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":64,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_lianxiren\",\"flowchart\":\"联系人\",\"name\":\"lianxiren\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":16,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_dianhua\",\"flowchart\":\"电话\",\"name\":\"dianhua\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":11,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_dizhi\",\"flowchart\":\"地址\",\"name\":\"dizhi\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":256,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"禁用\",\"正常\"],\"enumvalues\":[0,1],\"field\":\"f_state\",\"flowchart\":\"状态\",\"name\":\"state\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[\"云享\",\"代理商\"],\"enumvalues\":[1,2],\"field\":\"f_leixing\",\"flowchart\":\"类型\",\"name\":\"leixing\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"ENUM\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_company\",\"flowchart\":\"公司\",\"name\":\"company\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"公司\",\"referenceTableName\":\"company\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"公司\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"company\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_mingcheng\",\"flowchart\":\"名称\",\"name\":\"mingcheng\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"套餐名称\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":32,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"以秒为单位\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_jishi\",\"flowchart\":\"计时\",\"name\":\"jishi\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"以分为单位\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_feiyong\",\"flowchart\":\"费用\",\"name\":\"feiyong\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_taocanzu\",\"flowchart\":\"套餐组\",\"name\":\"taocanzu\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"套餐组\",\"referenceTableName\":\"taocanzu\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"套餐\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"taocan\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_mingcheng\",\"flowchart\":\"名称\",\"name\":\"mingcheng\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"套餐组名称\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":64,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"fk_company\",\"flowchart\":\"公司\",\"name\":\"company\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"核心业务数据库\",\"referenceTable\":\"公司\",\"referenceTableName\":\"company\",\"type\":\"\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"核心业务数据库\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"套餐组\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"taocanzu\",\"services\":[],\"table\":\"\"}",
+                  "{\"canDelete\":true,\"columns\":[{\"AI\":true,\"ai\":1,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":false,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_uid\",\"flowchart\":\"唯一标识\",\"name\":\"uid\",\"notnull\":true,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":false,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_openid\",\"flowchart\":\"openid\",\"name\":\"openid\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"CHAR\",\"typelen\":28,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_out_trade_no\",\"flowchart\":\"商户订单号\",\"name\":\"out_trade_no\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"商户订单号\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":32,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_transactionid\",\"flowchart\":\"交易订单号\",\"name\":\"transactionid\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"CHAR\",\"typelen\":28,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_time_end\",\"flowchart\":\"支付完成时间\",\"name\":\"time_end\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"CHAR\",\"typelen\":15,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_attach\",\"flowchart\":\"附加数据\",\"name\":\"attach\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"VARCHAR\",\"typelen\":128,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"},{\"AI\":false,\"ai\":0,\"canDisable\":false,\"comment\":\"\",\"defaultValue\":\"\",\"editable\":true,\"enumvalueDescribes\":[],\"enumvalues\":[],\"field\":\"f_fee\",\"flowchart\":\"费用\",\"name\":\"fee\",\"notnull\":false,\"prop\":\"\",\"readableIdentifier\":\"\",\"referenceLinkage\":false,\"referenceSchema\":\"\",\"referenceTable\":\"\",\"referenceTableName\":\"\",\"type\":\"INT\",\"typelen\":0,\"visible\":true,\"weakReferenceSchema\":\"\",\"weakReferenceTable\":\"\",\"weakReferenceTableName\":\"\"}],\"defaultIfJoinReference\":false,\"flowchart\":\"微信订单\",\"interfaces\":[],\"isFirstColumnInCurrentForLoop\":false,\"isVirtualObject\":false,\"name\":\"weixindingdan\",\"services\":[],\"table\":\"\"}"
+                ]
+              }
+            }
+          }
+        }
+      },
+      methods: {
+        clickme() {
+          getDataOnComplate(this.data)
+        },
+        conversionType(type) {
+          if (type === 'FLOAT') {
+            return 'INT'
+          } else if (type === 'CHAR' || type === 'VARCHAR') {
+            return 'STRING'
+          } else {
+            return type
+          }
+        },
+        defineCol(srcCol) {
+          let col = {}
+          col.key = srcCol.name
+          col.prop = srcCol.name
+          col.noenull = srcCol.notnull
+          col.visible = srcCol.visible
+          col.search = true
+          col.editable = srcCol.editable
+          col.referenceTable = srcCol.referenceTable
+          col.referenceTableName = srcCol.referenceTableName
+
+          col.editable = srcCol.editable
+          col.sortable = true
+          col.filters = []
+            // 添加备用属性，非服务器回传,添加 f_ 前缀
+          col.f_column = ''
+          col.f_value = ''
+          col.f_count = 0
+          col.f_loading = false
+          col.f_columns = []
+          col.f_readable = ''
+          if (srcCol.enumvalues.length > 1) {
+            for (let j = 0; j < srcCol.enumvalues.length; j++) {
+              col.filters.push({
+                text: srcCol.enumvalueDescribes[j],
+                value: srcCol.enumvalues[j]
+              })
+            }
+          }
+          col.type = this.conversionType(srcCol.type)
+          col.label = srcCol.flowchart
+          return col;
+        },
+        dependCol(tableCol, tableData, datas, models, joins, srcCol, destCol, tableChain) {
+          let tableModel;
+          for (let i = 0; i < models.length; i++) {
+            if (models[i].name == srcCol.referenceTableName) {
+              tableModel = models[i];
+              break;
+            }
+          }
+          for (let i = 0; i < tableModel.columns.length; i++) {
+            if (tableModel.columns[i].readableIdentifier.length > 0) {
+              destCol.type = this.conversionType(tableModel.columns[i].type)
+              destCol.label = tableModel.columns[i].readableIdentifier
+              let fullName = '';
+              for (let j = 0; j < tableChain.length; j++) {
+                fullName += tableChain[j].name + ".";
+              }
+              fullName += tableModel.columns[i].name;
+              destCol.prop = fullName;
+              destCol.key = fullName;
+              tableCol.push(destCol);
+
+              for (var t = 0; t < datas.length; t++) {
+                if (datas[t]) {
+                  tableData[t][fullName] = datas[t][tableModel.columns[i].name];
+                }
+              }
+            }
+            if (tableModel.columns[i].referenceTable.length > 0) {
+              if (typeof joins[tableModel.columns[i].referenceTableName] !== "undefined") {
+                let _tableChain = [];
+                for (let t = 0; t < tableChain.length; t++) {
+                  _tableChain.push(tableChain[t]);
+                }
+                _tableChain.push(tableModel.columns[i].referenceTableName);
+
+                let _datas = [];
+                for (var t = 0; t < datas.length; t++) {
+                  _datas.push(datas[tableModel.columns[i].name]);
+                }
+
+                this.dependCol(tableCol, tableData, _datas, models, joins[tableModel.columns[i].referenceTableName], tableModel.columns[i], destCol, _tableChain);
+              }
+            }
+          }
+        },
+        // data回调数据  api调用类型url states数据操作对象
+        getDataOnComplate(data) {
+          // console.log('allColer', data)
+          this.tableLoading = false
+          if (!this.checkResults(data)) return
+
+          if (data.entity.count) {
+            this.total = data.entity.count
+          }
+
+          //case1: 联合查询
+          if (!this.isEmptyObject(this.JoinOther)) {
+            //解决所有对象模型，并查找主对象
+            let models = [];
+            let mainModel;
+            for (var i in data.entity.columnsJsonStr) {
+              let a = JSON.parse(data.entity.columnsJsonStr[i]);
+              models.push(a);
+              if (a.name == this.fetchObj) {
+                mainModel = a;
+              }
+            }
+
+            //转换模型到Table显示的行和列
+            this.tableCol = [];
+            this.tableData = data.entity.list;
+            for (let i = 0; i < mainModel.columns.length; i++) {
+
+              let col = this.defineCol(mainModel.columns[i]);
+
+              if (mainModel.columns[i].referenceTable.length < 1) {
+                this.tableCol.push(col);
+              } else {
+                if (typeof this.JoinOther[mainModel.columns[i].referenceTableName] !== "undefined") {
+                  let datas = [];
+                  for (var t = 0; t < this.tableData.length; t++) {
+                    datas.push(this.tableData[t][mainModel.columns[i].name]);
+                  }
+                  this.dependCol(this.tableCol, this.tableData, datas, models, this.JoinOther[mainModel.columns[i].referenceTableName], mainModel.columns[i], col, []);
+                }
+              }
+            }
+          }
+          //case2: 非联合查询
+          else {
+            let col = this.defineCol(JSON.parse(data.entity.columnsJsonStr[0]));
+            this.tableCol.push(col);
+          }
+
+          //添加是否编辑状态与行号
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.tableData[i].editstyle = false
+            this.tableData[i].line = i
+          }
+
+          if (this.searchLoading) this.searchLoading = false
+          if (this.advSearchLoading) this.advSearchLoading = false
+        }
+      }
     }
-    document.body.onkeydown = function() {
-      ikey = 1;
-    }
-    var ierval = window.setInterval(function() {
-      if (imouse) {
-        imouse = 0;
-        window.alert("鼠标移动过");
-      }
-      if (ikey) {
-        ikey = 0;
-        window.alert("键盘敲击过");
-      }
-      itime -= 1;
-      if (itime <= 0) {
-        window.clearInterval(ierval);
-      }
-    }, 1000);
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
   </script>
 </body>
 

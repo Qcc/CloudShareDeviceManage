@@ -1,13 +1,15 @@
 <template>
   <div v-show="islogin">
-    <top-nav :role="curUserName" :account="currentAccount"></top-nav>
+    <top-nav :role="curUserName" :account="currentAccount" ></top-nav>
     <el-row>
-      <el-col :span="5" style="margin-left:-20px">
-        <left-Menu :curUserId="curUserId" :activeItem="activeItem">
-        </left-Menu>
+      <el-col :span="menuWidth" style="margin-left:-20px">
+        <left-Menu :curUserId="curUserId" :activeItem="activeItem" :collpase="isCollpase"></left-Menu>
       </el-col>
-      <el-col :span="19" style="margin-left:20px">  
+      <el-col :span="contentWidth" style="margin-left:20px">
         <el-breadcrumb style="margin:15px 0" separator="/">
+          <el-tooltip effect="dark" :content="tips" placement="bottom">
+            <el-breadcrumb-item ><a @click="collpaseMenu">{{collpaseName}}</a></el-breadcrumb-item>        
+          </el-tooltip>
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '?list=1001' }">运行总览</el-breadcrumb-item>
         </el-breadcrumb>
@@ -43,6 +45,11 @@ export default {
       curUserName: '',
       currentAccount: '',
       curUserId: 0,
+      collpaseName: '<<',
+      isCollpase: false,
+      menuWidth: 5,
+      contentWidth: 19,
+      tips: '收起菜单',
       activeItem: 'deviceManager',
       // 表格组件props
       fetchObj: '',
@@ -55,6 +62,20 @@ export default {
     this.getRouterPath(this.$route)
   },
   methods: {
+    collpaseMenu() {
+      this.isCollpase = !this.isCollpase;
+      if(this.isCollpase){
+        this.menuWidth = 1;
+        this.contentWidth = 23;
+        this.collpaseName = '>>'
+        this.tips= '展开菜单'
+      } else {
+        this.menuWidth = 5;
+        this.contentWidth = 19;
+        this.collpaseName = '<<'
+        this.tips= '收起菜单'        
+      }
+    },
     isLoggedInCompalte (data) {
       if (data === null) return false
       if (data.errorCode !== 0) return false
@@ -81,7 +102,8 @@ export default {
     getRouterPath (route) {
       let path = route.path.split('/')
       let index = path[path.length - 1]
-      let main = ''
+      this.fetchObj = ''
+      this.JoinOther = {}
       this.propADUQ = true
       switch (index) {
         case 'userManager':
@@ -96,7 +118,7 @@ export default {
           this.fetchObj = 'shebei'
           this.JoinOther.shebeibianhao = {}
           this.JoinOther.taocanzu = {}
-          this.JoinOther.company = {}
+          this.JoinOther.gongsi = {}
           break
         case 'deviceId':
           this.fetchObj = 'shebeibianhao'
@@ -116,7 +138,7 @@ export default {
         case 'point':
           this.propADUQ = false
           this.fetchObj = 'jifenmingxi'
-          this.JoinOther.dingdan = {}
+          this.JoinOther.dingdan = { guke: {} }
           break
         case 'performance':
           this.propADUQ = false

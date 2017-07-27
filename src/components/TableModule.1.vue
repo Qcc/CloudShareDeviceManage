@@ -406,158 +406,111 @@
           return type
         }
       },
-      defineCol(srcCol) {
-        let col = {}
-        col.key = srcCol.name
-        col.prop = srcCol.name
-        col.noenull = srcCol.notnull
-        col.visible = srcCol.visible
-        col.search = true
-        col.editable = srcCol.editable
-        col.referenceTable = srcCol.referenceTable
-        col.referenceTableName = srcCol.referenceTableName
-        col.editable = srcCol.editable
-        col.sortable = true
-        col.filters = []
-          // 添加备用属性，非服务器回传,添加 f_ 前缀
-        col.f_column = ''
-        col.f_value = ''
-        col.f_count = 0
-        col.f_loading = false
-        col.f_columns = []
-        col.f_readable = ''
-        col.type = this.conversionType(srcCol.type)
-        if(col.type === 'ENUM'){
-          if (srcCol.enumvalues.length > 1) {
-            for (let j = 0; j < srcCol.enumvalues.length; j++) {
-              col.filters.push({
-                text: srcCol.enumvalueDescribes[j],
-                value: srcCol.enumvalues[j]
-              })
-            }
-          }
-        }
-        col.label = srcCol.flowchart
-        return col;
-      },
-      dependCol(datas, models, joins, srcCol, tableChain) {
-        console.log('joins',joins)
-        let tableModel;
-        for (let i = 0; i < models.length; i++) {
-          if (models[i].name == srcCol.referenceTableName) {
-            tableModel = models[i];
-            break;
-          }
-        }
-      
-        console.log('dependCol - tableModel',tableModel.name,'tableCol',this.tableCol)
-      
-        // if(typeof tableModel == 'undefined')
-        //   return;
-
-        for (let i = 0; i < tableModel.columns.length; i++) {
-          if (tableModel.columns[i].readableIdentifier.length > 0) {
-            let destCol = this.defineCol(tableModel.columns[i]);
-          
-            destCol.type = this.conversionType(tableModel.columns[i].type)
-            destCol.label = tableModel.columns[i].readableIdentifier
-            let fullName = '';
-            for (let j = 0; j < tableChain.length; j++) {
-              fullName += tableChain[j] + ".";
-            }
-            fullName += tableModel.name + "." + tableModel.columns[i].name;
-            console.log('fullName',fullName,this.tableCol)
-            destCol.prop = fullName;
-            destCol.key = fullName;
-            this.tableCol.push(destCol);
-console.log('tableCol',this.tableCol )
-            for (var t = 0; t < datas.length; t++) {
-              if (datas[t]) {
-                this.tableData[t][fullName] = datas[t][tableModel.columns[i].name];
-              } else {
-                this.tableData[t][fullName] = null;
+      // data回调数据  api调用类型url states数据操作对象
+      getDataOnComplate (data, ...states) {
+        // console.log('allColer', data)
+        this.tableLoading = false
+        if (!this.checkResults(data)) return
+        // 联合查询columnsJsonStr为数组，非联合查询columnsJsonStr为对象
+        let allCol = data.entity.columnsJsonStr
+        // 表格原始列
+        let columns = []
+        // 联合查询列
+        let JoinColumn = []
+        if (!this.isEmptyObject(this.JoinOther)) {
+          for (var i in allCol) {
+            let allColer = JSON.parse(allCol[i])
+            console.log("=========allColer========", allColer)
+            if (allColer.name === this.fetchObj) {
+              for (var j in allColer.columns) {
+                columns.push(allColer.columns[j])
+              }
+            } else {
+              for (var k in allColer.columns) {
+                if (allColer.columns[k].readableIdentifier !== '') {
+                  allColer.columns[k].f_tableName = allColer.name
+                  // allColer.columns[k].f_flowchart = allColer.flowchart
+                  allColer.columns[k].f_flowchart = allColer.columns[k].readableIdentifier                  
+                  JoinColumn.push(allColer.columns[k])
+                  columns.push(allColer.columns[k])
+                }
               }
             }
           }
-          if (tableModel.columns[i].referenceTable.length > 0) {
-            if (typeof joins[tableModel.columns[i].name] !== "undefined") {
-              let _tableChain = [];
-              for (let t = 0; t < tableChain.length; t++) {
-                _tableChain.push(tableChain[t]);
-              }
-              _tableChain.push(tableModel.name);
-            
-              console.log('tableModel.columns[i]',tableModel.columns[i])
-              let _datas = [];
-              for (var t = 0; t < datas.length; t++) {
-                _datas.push(datas[t][tableModel.columns[i].name]);
-              }
-            
-          this.dependCol(_datas, models, joins[tableModel.columns[i].name], tableModel.columns[i], _tableChain);
-        }
-      }
-    }
-  },
-  // data回调数据  api调用类型url states数据操作对象
-  getDataOnComplate(data) {
-    // console.log('allColer', data)
-    this.tableLoading = false
-    this.tableCol = [];
-    if (!this.checkResults(data)) return
-    this.tableData = data.entity.list;
-    if (data.entity.count) {
-      this.total = data.entity.count
-    }
-    //case1: 联合查询
-    if (!this.isEmptyObject(this.JoinOther)) {
-      //解决所有对象模型，并查找主对象
-      let models = [];
-      let mainModel;
-      console.log('data.entity.columnsJsonStr', data.entity.columnsJsonStr)
-      for (var i in data.entity.columnsJsonStr) {
-        let a = JSON.parse(data.entity.columnsJsonStr[i]);
-        models.push(a);
-        if (a.name == this.fetchObj) {
-          mainModel = a;
-        }
-      }
-     console.log('models', models)
-      //转换模型到Table显示的行和列
-      for (let i = 0; i < mainModel.columns.length; i++) {
-
-        let col = this.defineCol(mainModel.columns[i]);
-
-        if (mainModel.columns[i].referenceTable.length < 1) {
-          this.tableCol.push(col);
         } else {
-          if (typeof this.JoinOther[mainModel.columns[i].name] !== "undefined") {
-            let datas = [];
-            for (var t = 0; t < this.tableData.length; t++) {
-              datas.push(this.tableData[t][mainModel.columns[i].name]);
-            }            
-            this.dependCol(datas, models, this.JoinOther[mainModel.columns[i].name], mainModel.columns[i], []);
+          columns = JSON.parse(allCol).columns
+        }
+        console.log('this.tableCol', columns)        
+        this.tableCol = []
+        for (let i = 0; i < columns.length; i++) {
+          let colObj = {}
+          colObj.key = columns[i].name
+          //对应行数据名称
+          colObj.prop = columns[i].name
+          colObj.noenull = columns[i].notnull
+          colObj.visible = columns[i].visible
+          colObj.search = true
+          colObj.editable = columns[i].editable
+          colObj.referenceTable = columns[i].referenceTable
+          colObj.referenceTableName = columns[i].referenceTableName
+          if (colObj.referenceTable === '') {
+            colObj.type = this.conversionType(columns[i].type)
+            //对应列名称
+            colObj.label = columns[i].flowchart
+          } else {
+            // 从服务器获取依赖对象存入数组
+            colObj.type = 'OBJECT'
+            for (var n in JoinColumn) {
+              if (colObj.referenceTableName === JoinColumn[n].f_tableName) {
+                // colObj.label = JoinColumn[n].f_flowchart             
+                colObj.label = JoinColumn[n].f_flowchart + '.' + JoinColumn[n].flowchart
+                // colObj.label = JoinColumn[n].f_tableName + '.' + JoinColumn[n].flowchart                
+              }
+            }
+          }
+          colObj.editable = columns[i].editable
+          colObj.sortable = true
+          colObj.filters = []
+          // 添加备用属性，非服务器回传,添加 f_ 前缀
+          colObj.f_column = ''
+          colObj.f_value = ''
+          colObj.f_count = 0
+          colObj.f_loading = false
+          colObj.f_columns = []
+          colObj.f_readable = ''
+          if (columns[i].enumvalues.length > 1) {
+            for (let j = 0; j < columns[i].enumvalues.length; j++) {
+              colObj.filters.push({text: columns[i].enumvalueDescribes[j], value: columns[i].enumvalues[j]})
+            }
+          }
+          this.tableCol.push(colObj)
+        }
+        if (data.entity.count) {
+          this.total = data.entity.count
+        }
+        console.log('data.entity.list', data.entity.list)
+        //  添加是否编辑状态与行号
+        this.tableData = []
+        if (data.entity.list) {
+          for (let i = 0; i < data.entity.list.length; i++) {
+            data.entity.list[i].editstyle = false
+            data.entity.list[i].line = i
+            for (var q in data.entity.list[i]) {
+              for (var y in JoinColumn) {
+                // 查找那些字段是联合查询的对象 显示该对象的name字段
+                if (q === JoinColumn[y].f_tableName) {
+                  if (data.entity.list[i][q]) {
+                    data.entity.list[i][q] = data.entity.list[i][q][JoinColumn[y].name]
+                  }
+                }
+              }
+            }
+            this.tableData.push(data.entity.list[i])
           }
         }
-      }
-    }
-    //case2: 非联合查询
-    else {
-      let model = JSON.parse(data.entity.columnsJsonStr[0]);
-      console.log('model',model)
-      for(let i = 0; i < model.columns.length; i++) {
-        this.tableCol.push(this.defineCol(model.columns[i]));
-      }
-    }
-
-    //添加是否编辑状态与行号
-    for (let i = 0; i < this.tableData.length; i++) {
-      this.tableData[i].editstyle = false
-      this.tableData[i].line = i
-    }
-    console.log('tableData',this.tableData,this.tableCol)
-    if (this.searchLoading) this.searchLoading = false
-    if (this.advSearchLoading) this.advSearchLoading = false
-  },
+        if (this.searchLoading) this.searchLoading = false
+        if (this.advSearchLoading) this.advSearchLoading = false
+      },
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {
         this.SearchForm.item1.f_value = ''
@@ -652,6 +605,7 @@ console.log('tableCol',this.tableCol )
       }, 
       // 筛选
       handleFilterChange (filters) {
+        console.log(filters)
         for (let key in filters) {
           this.filterValues[key + 'List'] = filters[key]
           if (filters[key].length === 0) {
@@ -661,9 +615,9 @@ console.log('tableCol',this.tableCol )
         let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
         if (!this.isEmptyObject(this.JoinOther)) {
           params.ifJoinReference = true
-          params.joinCondition = {}
+          params.condition = {}
           for (var i in this.JoinOther) {
-            params.joinCondition[i] = this.JoinOther[i]
+            params.condition[this.JoinOther[i]] = {}
           }
         }
         params.filter = this.filterValues
@@ -722,13 +676,6 @@ console.log('tableCol',this.tableCol )
         }
         let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = filters
-        if (!this.isEmptyObject(this.JoinOther)) {
-          params.ifJoinReference = true
-          params.joinCondition = {}
-          for (var i in this.JoinOther) {
-            params.joinCondition[i] = this.JoinOther[i]
-          }
-        }
         if (this.SearchForm.relational.value) params.filter.relationship = this.SearchForm.relational.value
         this.tableLoading = true
         fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
@@ -954,7 +901,7 @@ console.log('tableCol',this.tableCol )
           params.ifJoinReference = true
           // params.condition = {company: {}}
           params.condition = {}
-          console.log('reloadingData-condition', this.JoinOther)
+          console.log('condition', this.JoinOther)
           for (var i in this.JoinOther) {
             params.condition[i] = this.JoinOther[i]
           }

@@ -15,7 +15,7 @@ export default {
 		size: {type: Number, default:150, required: false},
 		bgcolor:{type: String, default:'#fff', required: false},
 		fgcolor:{type: String, default:'#000', required: false},
-		pgcolor:{type: String, default:'#000', required: false},
+		pgcolor:{type: String, default:'#d09409', required: false},
 		image: {type: String, default:'', required: false},
   },
   data () {
@@ -31,13 +31,13 @@ export default {
       this.qrnode = new Qr({
         correctLevel: 0,
 	      render: 'canvas',
-	      text: 'http://www.alipay.com/',
-	      size: 200,
-	      pdground: '#00aaee',
-	      image : 'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png',
-	      imageSize:30
-	      // render: 'canvas',
+	      text: this.text,
+	      size: this.size,
+        background: this.bgcolor,
+        foreground: this.fgcolor,
+	      pdground: this.pgcolor,
 	      // correctLevel: 0,
+	      // render: 'canvas',
 	      // text: this.text,
 	      // size: this.size,
 	      // background: this.bgcolor,
