@@ -426,7 +426,11 @@
         col.f_loading = false
         col.f_columns = []
         col.f_readable = ''
-        col.type = this.conversionType(srcCol.type)
+        if (col.referenceTable === '') {
+          col.type = this.conversionType(srcCol.type)
+        } else {
+          col.type = 'OBJECT'
+        }
         if(col.type === 'ENUM'){
           if (srcCol.enumvalues.length > 1) {
             for (let j = 0; j < srcCol.enumvalues.length; j++) {
@@ -441,7 +445,7 @@
         return col;
       },
       dependCol(datas, models, joins, srcCol, tableChain) {
-        console.log('joins',joins)
+        // console.log('datas',datas,'\nmodels',models,'\njoins',joins,'\nsrcCol',srcCol,'\ntableChain',tableChain)
         let tableModel;
         for (let i = 0; i < models.length; i++) {
           if (models[i].name == srcCol.referenceTableName) {
@@ -449,28 +453,30 @@
             break;
           }
         }
-      
-        console.log('dependCol - tableModel',tableModel.name,'tableCol',this.tableCol)
-      
+        // console.log('dependCol - tableModel',tableModel.name,'tableCol',this.tableCol)
         // if(typeof tableModel == 'undefined')
         //   return;
-
         for (let i = 0; i < tableModel.columns.length; i++) {
           if (tableModel.columns[i].readableIdentifier.length > 0) {
             let destCol = this.defineCol(tableModel.columns[i]);
-          
-            destCol.type = this.conversionType(tableModel.columns[i].type)
+            //if (destCol.referenceTable === '') {
+            //  destCol.type = this.conversionType(tableModel.columns[i].type)
+            //} else {
+              destCol.type = 'OBJECT'
+            //}
+            destCol.f_tableName = tableModel.name
+            console.log('tableModel',tableModel)
             destCol.label = tableModel.columns[i].readableIdentifier
             let fullName = '';
             for (let j = 0; j < tableChain.length; j++) {
               fullName += tableChain[j] + ".";
             }
             fullName += tableModel.name + "." + tableModel.columns[i].name;
-            console.log('fullName',fullName,this.tableCol)
+            // console.log('fullName',fullName,this.tableCol)
             destCol.prop = fullName;
             destCol.key = fullName;
             this.tableCol.push(destCol);
-console.log('tableCol',this.tableCol )
+// console.log('tableCol',this.tableCol )
             for (var t = 0; t < datas.length; t++) {
               if (datas[t]) {
                 this.tableData[t][fullName] = datas[t][tableModel.columns[i].name];
@@ -487,7 +493,7 @@ console.log('tableCol',this.tableCol )
               }
               _tableChain.push(tableModel.name);
             
-              console.log('tableModel.columns[i]',tableModel.columns[i])
+              // console.log('tableModel.columns[i]',tableModel.columns[i])
               let _datas = [];
               for (var t = 0; t < datas.length; t++) {
                 _datas.push(datas[t][tableModel.columns[i].name]);
@@ -502,8 +508,9 @@ console.log('tableCol',this.tableCol )
   getDataOnComplate(data) {
     // console.log('allColer', data)
     this.tableLoading = false
-    this.tableCol = [];
     if (!this.checkResults(data)) return
+    this.tableCol = [];
+    this.tableData = [];
     this.tableData = data.entity.list;
     if (data.entity.count) {
       this.total = data.entity.count
@@ -513,7 +520,7 @@ console.log('tableCol',this.tableCol )
       //解决所有对象模型，并查找主对象
       let models = [];
       let mainModel;
-      console.log('data.entity.columnsJsonStr', data.entity.columnsJsonStr)
+      // console.log('data.entity.columnsJsonStr', data.entity.columnsJsonStr)
       for (var i in data.entity.columnsJsonStr) {
         let a = JSON.parse(data.entity.columnsJsonStr[i]);
         models.push(a);
@@ -521,7 +528,7 @@ console.log('tableCol',this.tableCol )
           mainModel = a;
         }
       }
-     console.log('models', models)
+    //  console.log('models', models)
       //转换模型到Table显示的行和列
       for (let i = 0; i < mainModel.columns.length; i++) {
 
@@ -534,7 +541,11 @@ console.log('tableCol',this.tableCol )
             let datas = [];
             for (var t = 0; t < this.tableData.length; t++) {
               datas.push(this.tableData[t][mainModel.columns[i].name]);
-            }            
+            }
+            // console.log('\nthis.JoinOther[mainModel.columns[i].name]',this.JoinOther[mainModel.columns[i].name],
+            //   '\nthis.JoinOther',this.JoinOther,
+            //   '\nmainModel.columns[i].name',mainModel.columns[i].name
+            //   )       
             this.dependCol(datas, models, this.JoinOther[mainModel.columns[i].name], mainModel.columns[i], []);
           }
         }
@@ -543,7 +554,7 @@ console.log('tableCol',this.tableCol )
     //case2: 非联合查询
     else {
       let model = JSON.parse(data.entity.columnsJsonStr[0]);
-      console.log('model',model)
+      // console.log('model',model)
       for(let i = 0; i < model.columns.length; i++) {
         this.tableCol.push(this.defineCol(model.columns[i]));
       }
@@ -554,7 +565,7 @@ console.log('tableCol',this.tableCol )
       this.tableData[i].editstyle = false
       this.tableData[i].line = i
     }
-    console.log('tableData',this.tableData,this.tableCol)
+    // console.log('tableData',this.tableData,this.tableCol)
     if (this.searchLoading) this.searchLoading = false
     if (this.advSearchLoading) this.advSearchLoading = false
   },
@@ -739,20 +750,22 @@ console.log('tableCol',this.tableCol )
         this.createForm = {}
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].editable) {
-            this.$set(this.createForm, i, this.tableCol[i])
+            //数据深拷贝
+            this.$set(this.createForm, i, JSON.parse(JSON.stringify(this.tableCol[i])));
           }
         }
       },
       // 获取对象类型的更多页
       getServerObj (item, pageNO = 1, keyword = '') {
         // 传入pagenNO可获取更多数据
-        if (item.referenceTableName) {
+        console.log('item',item, "pageno",pageNO,'keyword', keyword)
+        if (item.f_tableName) {
           // 默认获取20行
-          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 20, pageNO: pageNO}
+          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 10, pageNO: pageNO}
           params.filter = {}
           params.filter[item.f_readable] = '%' + keyword + '%'
           params.filter[item.f_readable + 'ComparisonOperator'] = 'like'
-          fetch2(BASICURL + item.referenceTableName + '/queryPager.api', this.getServerObjOnComplate, params, item, pageNO)
+          fetch2(BASICURL + item.f_tableName + '/queryPager.api', this.getServerObjOnComplate, params, item, pageNO)
         }
       },
       getServerObjOnComplate (data, ...states) {
@@ -780,7 +793,7 @@ console.log('tableCol',this.tableCol )
         }
         states[0][0].f_loading = false
         // 未查看的行=当前页码×每页条数 如果大于0说明有剩余行未显示，则可加载
-        states[0][0].f_count = data.entity.count - states[0][1] * 20
+        states[0][0].f_count = data.entity.count - states[0][1] * 10
       },
       // 创建单行表格行提交
       handleCreateSubmit () {
@@ -789,7 +802,8 @@ console.log('tableCol',this.tableCol )
         for (var i in this.createForm) {
           let key = this.createForm[i].key
           if (this.createForm[i].type === 'OBJECT') {
-            key = key + 'uid'
+            // 引用类型key为 表名称 + uid
+            key = this.createForm[i].f_tableName + 'uid';
           }
           params[key] = this.createForm[i].f_value
         }
@@ -813,7 +827,7 @@ console.log('tableCol',this.tableCol )
           this.singleEditForm = {}
           for (let i = 0; i < this.tableCol.length; i++) {
             if (this.tableCol[i].editable) {
-              this.$set(this.singleEditForm, i, this.tableCol[i])
+              this.$set(this.singleEditForm, i, JSON.parse(JSON.stringify(this.tableCol[i])));
               this.singleEditForm[i].f_value = this.multipleSelection[0][this.tableCol[i].key]
             }
           }
@@ -864,7 +878,8 @@ console.log('tableCol',this.tableCol )
         for (var i in this.singleEditForm) {
           let key = this.singleEditForm[i].key
           if (this.singleEditForm[i].type === 'OBJECT') {
-            key = key + 'uid'
+            // 引用类型key为 表名称 + uid
+            key = this.singleEditForm[i].f_tableName + 'uid';
             params[key] = this.singleEditForm[i].f_value
           } else {
             params[key] = this.singleEditForm[i].f_value
@@ -954,7 +969,7 @@ console.log('tableCol',this.tableCol )
           params.ifJoinReference = true
           // params.condition = {company: {}}
           params.condition = {}
-          console.log('reloadingData-condition', this.JoinOther)
+          // console.log('reloadingData-condition', this.JoinOther)
           for (var i in this.JoinOther) {
             params.condition[i] = this.JoinOther[i]
           }

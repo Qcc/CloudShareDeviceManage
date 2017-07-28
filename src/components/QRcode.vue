@@ -1,6 +1,8 @@
 <template>
   <div id='qr'>
-    <img v-if="qrnode !== null" :src="qrnode.toDataURL()"></img>
+    <a :href="qrnode.toDataURL()" :download='bianhao'>
+    <img v-if="qrnode !== null" alt="二维码" title="点击下载二维码图片" :src="qrnode.toDataURL()"></img>
+    </a>
 	</div>
 </template>
 <script>
@@ -10,6 +12,7 @@ export default {
   //   this.createQr()
   // },
 	props: {
+    bianhao: {type: String, required: true},    
     // 二维码内容，尺寸，背景色，前景色，基点色，logo，logo尺寸
     text: {type: String, required: true},
 		size: {type: Number, default:150, required: false},

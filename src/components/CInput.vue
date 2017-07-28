@@ -184,9 +184,7 @@
       }
     },
     created: function () {
-      console.log('ibject')
       if (this.columns.type === 'OBJECT') {
-        console.log('qingqiu')
         this.getser(this.columns, 1, this.keywords)
       }
     },
@@ -204,7 +202,7 @@
         } else {
           let flag = true
           for (var key in this.columns.filters) {
-            if (this.columns.filters[key].text === keywords || keywords === '') {
+            if (this.columns.filters[key].text === keywords) {
               flag = false
             }
           }

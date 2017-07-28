@@ -1,5 +1,6 @@
 <template>
-  <div v-show="islogin">
+  <div style="height:100%" v-show="islogin">
+    <div class="page-wrap">
     <top-nav :role="curUserName" :account="currentAccount" ></top-nav>
     <el-row>
       <el-col :span="menuWidth" style="margin-left:-20px">
@@ -21,13 +22,15 @@
           ></router-view>
       </el-col>
     </el-row>
+    </div>
+    <site-footer class="footer"></site-footer>
   </div>
 </template>
 
 <script>
 import TopNav from '../components/TopNav.vue'
 import LeftMenu from '../components/LeftMenu.vue'
-// import TableModule from '../components/TableModule.vue'
+import SiteFooter from '../components/SiteFooter.vue'
 import {isLoggedIn, fetch} from '../api/api.js'
 export default {
   watch: {
@@ -159,11 +162,21 @@ export default {
   },
   components: {
     TopNav,
-    LeftMenu
-    // TableModule
+    LeftMenu,
+    SiteFooter
   }
 }
 </script>
 <style>
-
+.page-wrap {
+  height: 100%;
+  margin-bottom: -34px;
+}
+.page-wrap:after {
+  content: "";
+  display: block;
+}
+.footer, .page-wrap:after {
+  height: 34px; 
+}
 </style>

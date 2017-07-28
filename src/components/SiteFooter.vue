@@ -1,0 +1,25 @@
+<template>
+  <el-row>
+      <el-col :span="24">
+          <div class="footer">
+          <p>Copyright © 2017 深圳市云享智能科技有限公司</p>
+          <a href="http://www.miitbeian.gov.cn">粤ICP备09149236 号</a>
+          </div>
+      </el-col>
+  </el-row>
+</template>
+<script>
+export default {
+  
+}
+</script>
+<style>
+.footer{
+    height: 34px;
+}
+.footer>p,.footer>a{
+    line-height: 34px;
+    font-size: 14px;
+    display: inline;    
+}
+</style>

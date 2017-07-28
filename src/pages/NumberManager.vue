@@ -21,7 +21,7 @@
           </el-form-item>
 					</div>
           <el-form-item class="qrcode" label="设备二维码">
-						<q-rcode :text ="props.row.dizhi"></q-rcode>
+						<q-rcode :text ="props.row.dizhi" :bianhao="props.row.bianhao"></q-rcode>
           </el-form-item>
         </el-form>
       </template>

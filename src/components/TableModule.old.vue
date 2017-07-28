@@ -687,6 +687,7 @@
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].editable) {
             this.$set(this.createForm, i, this.tableCol[i])
+            console.log(this.tableCol[i])
           }
         }
       },
