@@ -14,7 +14,7 @@
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '?list=1001' }">运行总览</el-breadcrumb-item>
         </el-breadcrumb>
-        <!--<table-module :fetchObj = "'user'" :JoinOther="['company']"></table-module>-->
+        <!--<table-module :fetchObj = "'user'" :JoinOther="['gongsi']"></table-module>-->
         <router-view :fetchObj = "fetchObj"
           :JoinOther="JoinOther"
           :propADUQ="propADUQ"
@@ -111,11 +111,11 @@ export default {
       switch (index) {
         case 'userManager':
           this.fetchObj = 'user'
-          this.JoinOther.company = {}
+          this.JoinOther.gongsi = {}
           break
         case 'partnerManager':
-          this.fetchObj = 'company'
-          this.JoinOther.company = {}
+          this.fetchObj = 'gongsi'
+          this.JoinOther.mugongsi = {}
           break
         case 'deviceManager':
           this.fetchObj = 'shebei'
@@ -145,12 +145,12 @@ export default {
           break
         case 'performance':
           this.propADUQ = false
-          this.fetchObj = 'company'
-          this.JoinOther.company = {}
+          this.fetchObj = 'gongsi'
+          this.JoinOther.gongsi = {}
           break
         case 'comboGroup':
           this.fetchObj = 'taocanzu'
-          this.JoinOther.company = {}
+          this.JoinOther.gongsi = {}
           break
         case 'guke':
           this.propADUQ = false

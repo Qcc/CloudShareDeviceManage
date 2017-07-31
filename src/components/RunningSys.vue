@@ -111,7 +111,6 @@ export default {
   },
   methods: {
     handleUse (val) {
-      console.log(val)
     }
   }
 }

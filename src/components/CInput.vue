@@ -74,6 +74,7 @@
   <!--字符串类型-->
 	<el-input
 		v-if="!this.row && columns.editable && columns.type === 'STRING'"
+		style="width:200px"
 		clearable
     :disabled="disabled"
 		@change="change"
@@ -83,6 +84,7 @@
 	<!--日期类型样式 -->
 	<el-date-picker
 		v-else-if="!this.row &&  columns.editable && columns.type === 'DATETIME'"
+		style="width:200px"
 		clearable
     :disabled="disabled"
 		@change="change"
@@ -93,6 +95,7 @@
 	<!--数字类型样式-->
 	<el-input
 		v-else-if="!this.row && columns.editable && columns.type === 'INT'"
+		style="width:200px"
 		clearable
     :disabled="disabled"
 		@change="change"
@@ -103,6 +106,7 @@
 	<!--数字类型样式-->
 	<el-input
 		v-else-if="!this.row && columns.editable && columns.type === 'PASSWORD'"
+		style="width:200px"
 		clearable
     :disabled="disabled"
 		@change="change"
@@ -113,6 +117,7 @@
 	<!--枚举类型样式-->
 	<el-select
 		v-else-if="!this.row && columns.editable && columns.type === 'ENUM'"
+		style="width:200px"
 		clearable
     :disabled="disabled"
 		@change="change"
@@ -127,8 +132,9 @@
 	</el-select>
 	<!--依赖对象-->
 	<el-select
-		v-else-if="!this.row && columns.editable && columns.type === 'OBJECT'" 
-	  v-model="columns.f_value"
+		v-else-if="!this.row && columns.editable && columns.type === 'OBJECT'"
+		style="width:200px"
+	  v-model="columns.selected"
 	  filterable
     :disabled="disabled"
 		clearable

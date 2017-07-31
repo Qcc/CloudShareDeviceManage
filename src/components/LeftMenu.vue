@@ -11,88 +11,93 @@
       <!--云享管理员菜单-->
       <el-submenu v-if="curUserId === 2026226681" index="101">
         <template slot="title"><i class="el-icon-information"></i><span slot="title">系统信息</span></template>
-          <el-menu-item index="default">运行总览</el-menu-item>
+          <el-menu-item class="MenuItem" index="default"> 运行总览</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="102">
         <template slot="title"><i class="el-icon-menu"></i><span slot="title">用户管理</span></template>
-          <el-menu-item index="userManager">用户管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="userManager"> 用户管理</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="103">
         <template slot="title"><i class="el-icon-time"></i><span slot="title">伙伴管理</span></template>
-          <el-menu-item index="partnerManager">伙伴管理</el-menu-item>
-          <!--<el-menu-item index="partnerInfo">伙伴运营信息</el-menu-item>-->
+          <el-menu-item class="MenuItem" index="partnerManager"> 伙伴管理</el-menu-item>
+          <!--<el-menu-item class="MenuItem" index="partnerInfo">伙伴运营信息</el-menu-item>-->
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="104">
         <template slot="title"><i class="el-icon-setting"></i><span slot="title">设备管理</span></template>
-          <el-menu-item index="deviceId">编号管理</el-menu-item>          
-          <el-menu-item index="deviceManager">设备管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="deviceId"> 编号管理</el-menu-item>          
+          <el-menu-item class="MenuItem" index="deviceManager"> 设备管理</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="105">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
-          <el-menu-item index="combo">套餐配置</el-menu-item>
-          <el-menu-item index="comboGroup">套餐组配置</el-menu-item>          
-          <el-menu-item index="orderManager">订单管理</el-menu-item>
-          <el-menu-item index="guke">消费者</el-menu-item>          
-          <el-menu-item index="point">积分管理</el-menu-item>
-          <el-menu-item index="performance">业绩统计</el-menu-item>
+          <el-menu-item class="MenuItem" index="combo"> 套餐配置</el-menu-item>
+          <el-menu-item class="MenuItem" index="comboGroup"> 套餐组配置</el-menu-item>          
+          <el-menu-item class="MenuItem" index="orderManager"> 订单管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="guke"> 消费者</el-menu-item>
+          <el-menu-item class="MenuItem" index="point"> 积分管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
       <!--云享员工菜单-->
       <el-submenu v-if="curUserId === 2031278906" index="201">
         <template slot="title"><i class="el-icon-information"></i><span slot="title">系统信息</span></template>
-          <el-menu-item index="default">运行总览</el-menu-item>
+          <el-menu-item class="MenuItem" index="default"> 运行总览</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2031278906" index="202">
         <template slot="title"><i class="el-icon-time"></i><span slot="title">伙伴管理</span></template>
-          <el-menu-item index="partnerManager">伙伴管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="partnerManager"> 伙伴管理</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2031278906" index="203">
         <template slot="title"><i class="el-icon-setting"></i><span slot="title">设备管理</span></template>
-          <el-menu-item index="deviceId">编号管理</el-menu-item> 
-          <el-menu-item index="deviceManager">设备管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="deviceId"> 编号管理</el-menu-item> 
+          <el-menu-item class="MenuItem" index="deviceManager"> 设备管理</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === 2031278906" index="204">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
-          <el-menu-item index="combo">套餐配置</el-menu-item>
-          <el-menu-item index="orderManager">订单管理</el-menu-item>
-          <el-menu-item index="guke">消费者</el-menu-item> 
-          <el-menu-item index="point">积分管理</el-menu-item>
-          <el-menu-item index="performance">业绩统计</el-menu-item>
+          <el-menu-item class="MenuItem" index="combo"> 套餐配置</el-menu-item>
+          <el-menu-item class="MenuItem" index="comboGroup"> 套餐组配置</el-menu-item>          
+          <el-menu-item class="MenuItem" index="orderManager"> 订单管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="guke"> 消费者</el-menu-item> 
+          <el-menu-item class="MenuItem" index="point"> 积分管理</el-menu-item>
+          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
       <!--伙伴管理员菜单-->
       <el-submenu v-if="curUserId === -2139060392" index="301">
         <template slot="title"><i class="el-icon-information"></i><span slot="title">系统信息</span></template>
-          <el-menu-item index="default">运行总览</el-menu-item>
+          <el-menu-item class="MenuItem" index="default"> 运行总览</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === -2139060392" index="302">
         <template slot="title"><i class="el-icon-time"></i><span slot="title">门店管理</span></template>
-          <el-menu-item index="partnerManager">门店运营信息</el-menu-item>
+          <el-menu-item class="MenuItem" index="partnerManager"> 门店运营信息</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === -2139060392" index="303">
         <template slot="title"><i class="el-icon-setting"></i><span slot="title">设备管理</span></template>
-          <el-menu-item index="deviceManager">设备监控</el-menu-item>
+          <el-menu-item class="MenuItem" index="deviceManager"> 设备监控</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === -2139060392" index="304">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
-        <el-menu-item index="guke">消费者</el-menu-item> 
-          <el-menu-item index="performance">业绩统计</el-menu-item>
+          <el-menu-item class="MenuItem" index="combo"> 查看套餐</el-menu-item>
+          <el-menu-item class="MenuItem" index="comboGroup"> 查看套餐组</el-menu-item>          
+          <el-menu-item class="MenuItem" index="orderManager"> 查看订单</el-menu-item>
+          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
       <!--伙伴员工菜单-->
       <el-submenu v-if="curUserId === -2134008167" index="401">
         <template slot="title"><i class="el-icon-information"></i><span slot="title">系统信息</span></template>
-          <el-menu-item index="default">运行总览</el-menu-item>
+          <el-menu-item class="MenuItem" index="default"> 运行总览</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === -2134008167" index="402">
         <template slot="title"><i class="el-icon-time"></i><span slot="title">门店管理</span></template>
-          <el-menu-item index="partnerManager">门店运营信息</el-menu-item>
+          <el-menu-item class="MenuItem" index="partnerManager"> 门店运营信息</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === -2134008167" index="403">
         <template slot="title"><i class="el-icon-setting"></i><span slot="title">设备管理</span></template>
-          <el-menu-item index="deviceManager">设备监控</el-menu-item>
+          <el-menu-item class="MenuItem" index="deviceManager"> 设备监控</el-menu-item>
       </el-submenu>
       <el-submenu v-if="curUserId === -2134008167" index="404">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
-          <el-menu-item index="guke">消费者</el-menu-item> 
-          <el-menu-item index="performance">业绩统计</el-menu-item>
+          <el-menu-item class="MenuItem" index="combo"> 查看套餐</el-menu-item>
+          <el-menu-item class="MenuItem" index="comboGroup">查看套餐组</el-menu-item>          
+          <el-menu-item class="MenuItem" index="orderManager"> 查看订单</el-menu-item>
+          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
     </el-menu>
   </el-col>
@@ -156,3 +161,14 @@ export default {
   }
 }
 </script>
+<style>
+.MenuItem{
+  text-align: left;
+}
+.MenuItem:before{
+  text-align: right;
+  display: inline-block;
+  content:"-- ";
+  width: 40%;
+}
+</style>

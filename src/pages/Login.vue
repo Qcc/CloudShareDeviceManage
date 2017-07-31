@@ -124,7 +124,6 @@ export default {
       }
       let login = this.$route.path.indexOf('login')
       let path = this.$route.path.substr(0, login - 1)
-      console.log(path + '/default' + '?item=' + item)
       this.$router.push(path + '/default' + '?item=' + item)
     },
     refreshValidateCode () {

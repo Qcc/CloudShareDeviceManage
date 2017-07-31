@@ -3,6 +3,7 @@
 		<el-table
     :data="tableData"
 		align='left'
+    stripe
 		@filter-change="handleFilterChange"
     @sort-change="handleSortChange"
     style="width: 100%">
@@ -84,7 +85,6 @@ export default {
 			var str = ''
 			for(let i = 0; i < this.tableData.length; i++){
 				str += this.tableData[i].dizhi +','
-				console.log('str', str)
 			}
 			var time = new Date()
 			var name = '二维码地址' + this.tableData.length + '条_' + time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + '.txt'
@@ -162,7 +162,6 @@ export default {
     },
     // 筛选
     handleFilterChange (filters) {
-			console.log(filters)
       for (let key in filters) {
         this.filterValues[key + 'List'] = filters[key]
         if (filters[key].length === 0) {
@@ -201,14 +200,23 @@ export default {
           })
           return false
         }
-        if (data.errorCode !== 0) {
+        if (data.errorCode === 0) {
+          return true
+        }else if(data.errorCode === 3) {
           this.$notify.error({
             title: '错误',
             message: '当前页面发生错误，' + data.message
           })
+          let path = this.$route.path.split('/')
+          let login = path[path.length - 2]
+          this.$router.push({path: '/idev/' + login + '/login'})
+        } else {
           return false
+          this.$notify.error({
+            title: '错误',
+            message: '当前页面发生错误，' + data.message
+          })
         }
-        return true
       }
 	},
   components:{

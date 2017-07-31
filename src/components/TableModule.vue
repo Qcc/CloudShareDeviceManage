@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-row style="margin-bottom:10px">
+  <el-row style="margin-bottom:10px;min-width:800px;">
     <el-col v-if="propSearch" :span="13">
         <div style="float:left">
           <span>搜索数据 : </span>
@@ -9,7 +9,8 @@
                 <el-button slot="append" :loading="searchLoading"  @click="handleSearch" icon="search">搜索</el-button>
               </el-input>
             </div>
-        <a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
+        <!--<a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>            -->
+        <a @click="showAdvancedSearch" v-if="false" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
         </div>
     </el-col>
     <el-col :span="11" v-if="propADUQ && ADUQVisible" >
@@ -162,7 +163,7 @@
     </el-pagination>
     <!--单行编辑-->
     <el-dialog  title="编辑" :visible.sync="singleEditVisible">
-      <el-form :model="singleEditForm" :inline="true" label-position="left" label-width="80px">
+      <el-form :model="singleEditForm" :inline="true" label-position="right" label-width="80px">
         <el-form-item v-for="item in singleEditForm" v-bind:key="item.key" v-bind:label="item.label">
           <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-select>
@@ -175,7 +176,7 @@
     </el-dialog>
     <!--新建记录-->
     <el-dialog  title="新建" :visible.sync="createVisible">
-      <el-form :model="createForm" :inline="true" label-position="left" label-width="80px">
+      <el-form :model="createForm" :inline="true" label-position="right" label-width="80px">
         <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
           <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-form-item>
@@ -445,7 +446,6 @@
         return col;
       },
       dependCol(datas, models, joins, srcCol, tableChain) {
-        // console.log('datas',datas,'\nmodels',models,'\njoins',joins,'\nsrcCol',srcCol,'\ntableChain',tableChain)
         let tableModel;
         for (let i = 0; i < models.length; i++) {
           if (models[i].name == srcCol.referenceTableName) {
@@ -453,30 +453,23 @@
             break;
           }
         }
-        // console.log('dependCol - tableModel',tableModel.name,'tableCol',this.tableCol)
-        // if(typeof tableModel == 'undefined')
-        //   return;
         for (let i = 0; i < tableModel.columns.length; i++) {
           if (tableModel.columns[i].readableIdentifier.length > 0) {
             let destCol = this.defineCol(tableModel.columns[i]);
-            //if (destCol.referenceTable === '') {
-            //  destCol.type = this.conversionType(tableModel.columns[i].type)
-            //} else {
               destCol.type = 'OBJECT'
-            //}
+            // 引用类型表名称
             destCol.f_tableName = tableModel.name
-            console.log('tableModel',tableModel)
+            // 确定当前select默认选中项
+            destCol.selected = ''
             destCol.label = tableModel.columns[i].readableIdentifier
             let fullName = '';
             for (let j = 0; j < tableChain.length; j++) {
               fullName += tableChain[j] + ".";
             }
             fullName += tableModel.name + "." + tableModel.columns[i].name;
-            // console.log('fullName',fullName,this.tableCol)
             destCol.prop = fullName;
             destCol.key = fullName;
             this.tableCol.push(destCol);
-// console.log('tableCol',this.tableCol )
             for (var t = 0; t < datas.length; t++) {
               if (datas[t]) {
                 this.tableData[t][fullName] = datas[t][tableModel.columns[i].name];
@@ -493,7 +486,6 @@
               }
               _tableChain.push(tableModel.name);
             
-              // console.log('tableModel.columns[i]',tableModel.columns[i])
               let _datas = [];
               for (var t = 0; t < datas.length; t++) {
                 _datas.push(datas[t][tableModel.columns[i].name]);
@@ -506,7 +498,6 @@
   },
   // data回调数据  api调用类型url states数据操作对象
   getDataOnComplate(data) {
-    // console.log('allColer', data)
     this.tableLoading = false
     if (!this.checkResults(data)) return
     this.tableCol = [];
@@ -520,7 +511,6 @@
       //解决所有对象模型，并查找主对象
       let models = [];
       let mainModel;
-      // console.log('data.entity.columnsJsonStr', data.entity.columnsJsonStr)
       for (var i in data.entity.columnsJsonStr) {
         let a = JSON.parse(data.entity.columnsJsonStr[i]);
         models.push(a);
@@ -528,7 +518,6 @@
           mainModel = a;
         }
       }
-    //  console.log('models', models)
       //转换模型到Table显示的行和列
       for (let i = 0; i < mainModel.columns.length; i++) {
 
@@ -542,10 +531,6 @@
             for (var t = 0; t < this.tableData.length; t++) {
               datas.push(this.tableData[t][mainModel.columns[i].name]);
             }
-            // console.log('\nthis.JoinOther[mainModel.columns[i].name]',this.JoinOther[mainModel.columns[i].name],
-            //   '\nthis.JoinOther',this.JoinOther,
-            //   '\nmainModel.columns[i].name',mainModel.columns[i].name
-            //   )       
             this.dependCol(datas, models, this.JoinOther[mainModel.columns[i].name], mainModel.columns[i], []);
           }
         }
@@ -554,7 +539,6 @@
     //case2: 非联合查询
     else {
       let model = JSON.parse(data.entity.columnsJsonStr[0]);
-      // console.log('model',model)
       for(let i = 0; i < model.columns.length; i++) {
         this.tableCol.push(this.defineCol(model.columns[i]));
       }
@@ -562,10 +546,9 @@
 
     //添加是否编辑状态与行号
     for (let i = 0; i < this.tableData.length; i++) {
-      this.tableData[i].editstyle = false
-      this.tableData[i].line = i
+      this.$set(this.tableData[i],'editstyle',false);
+      this.$set(this.tableData[i],'line',i);
     }
-    // console.log('tableData',this.tableData,this.tableCol)
     if (this.searchLoading) this.searchLoading = false
     if (this.advSearchLoading) this.advSearchLoading = false
   },
@@ -731,7 +714,7 @@
             filters[this.SearchForm.item2.f_column + 'List'] = value2
           }
         }
-        let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        let params = {ifGetCount: true,ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = filters
         if (!this.isEmptyObject(this.JoinOther)) {
           params.ifJoinReference = true
@@ -758,7 +741,6 @@
       // 获取对象类型的更多页
       getServerObj (item, pageNO = 1, keyword = '') {
         // 传入pagenNO可获取更多数据
-        console.log('item',item, "pageno",pageNO,'keyword', keyword)
         if (item.f_tableName) {
           // 默认获取20行
           let params = {ifGetCount: true, ifGetColumns: true, pageSize: 10, pageNO: pageNO}
@@ -802,10 +784,16 @@
         for (var i in this.createForm) {
           let key = this.createForm[i].key
           if (this.createForm[i].type === 'OBJECT') {
-            // 引用类型key为 表名称 + uid
-            key = this.createForm[i].f_tableName + 'uid';
+            if(this.JoinOther.mugongsi && this.fetchObj === 'gongsi'){
+              params.mugongsiuid = this.createForm[i].selected
+            } else {
+              // 引用类型key为 表名称 + uid
+              key = this.createForm[i].f_tableName + 'uid';
+              params[key] = this.createForm[i].selected
+            }
+          } else {
+            params[key] = this.createForm[i].f_value
           }
-          params[key] = this.createForm[i].f_value
         }
         if (this.fetchObj === 'user') params.password = params.account
         fetch(BASICURL + this.fetchObj + '/create.api', this.createComplate, params)
@@ -828,13 +816,22 @@
           for (let i = 0; i < this.tableCol.length; i++) {
             if (this.tableCol[i].editable) {
               this.$set(this.singleEditForm, i, JSON.parse(JSON.stringify(this.tableCol[i])));
-              this.singleEditForm[i].f_value = this.multipleSelection[0][this.tableCol[i].key]
+              this.singleEditForm[i].f_value = this.multipleSelection[0][this.tableCol[i].key];
+              if(this.singleEditForm[i].type === 'OBJECT'){
+                if(this.multipleSelection[0][this.singleEditForm[i].f_tableName]){
+                  //添加当前对象为默认选中
+                  this.singleEditForm[i].filters.unshift({text:this.multipleSelection[0][this.tableCol[i].key],
+                    value:this.multipleSelection[0][this.singleEditForm[i].f_tableName].uid})
+                  this.singleEditForm[i].selected = this.multipleSelection[0][this.singleEditForm[i].f_tableName].uid;
+                }else {
+                  this.singleEditForm[i].selected = null;
+                }
+              }
             }
           }
         } else {
           for (let i = 0; i < this.multipleSelection.length; i++) {
-            let line = this.multipleSelection[i].line
-            this.tableData[line].editstyle = true
+            this.tableData[this.multipleSelection[i].line].editstyle = true
           }
           if (this.rowModified) {
             this.batchEditLoading = true
@@ -846,20 +843,19 @@
         }
       },
       batchEditComplate (data) {
-        if (!this.checkResults(data)) return
-        this.$message({
-          type: 'success',
-          message: '修改成功!'
-        })
         for (let i = 0; i < this.multipleSelection.length; i++) {
-          let line = this.multipleSelection[i].line
-          this.tableData[line].editstyle = false
+          this.tableData[this.multipleSelection[i].line].editstyle = false
         }
         this.reloadingData()
         this.batchEditLoading = false
         this.rowModified = false
         this.cancelEdit = false
         this.editCOl = '批量编辑'
+        if (!this.checkResults(data)) return
+        this.$message({
+          type: 'success',
+          message: '修改成功!'
+        })
       },
       // 取消修改
       handleCancelEditCOl () {
@@ -878,9 +874,13 @@
         for (var i in this.singleEditForm) {
           let key = this.singleEditForm[i].key
           if (this.singleEditForm[i].type === 'OBJECT') {
-            // 引用类型key为 表名称 + uid
-            key = this.singleEditForm[i].f_tableName + 'uid';
-            params[key] = this.singleEditForm[i].f_value
+            if(this.JoinOther.mugongsi && this.fetchObj === 'gongsi'){
+              params.mugongsiuid = this.singleEditForm[i].selected
+            } else {
+              // 引用类型key为 表名称 + uid
+              key = this.singleEditForm[i].f_tableName + 'uid';
+              params[key] = this.singleEditForm[i].selected
+            }
           } else {
             params[key] = this.singleEditForm[i].f_value
           }
@@ -940,16 +940,25 @@
           })
           return false
         }
-        if (data.errorCode !== 0) {
+        if (data.errorCode === 0) {
+          return true
+        } else if(data.errorCode === 3) {
+          this.$notify.error({
+            title: '错误',
+            message: '当前页面发生错误，' + data.message
+          })
+          let path = this.$route.path.split('/')
+          let login = path[path.length - 2]
+          this.$router.push({path: '/idev/' + login + '/login'})
+        } else {
           this.$notify.error({
             title: '错误',
             message: '当前页面发生错误，' + data.message
           })
           return false
         }
-        return true
       },
-      // 根据行打值返回枚举类型的名称
+      // 根据的值返回枚举类型的名称
       enumDescribes (row, col, key) {
         if (col.type === 'ENUM') {
           for (let i = 0; i < col.filters.length; i++) {
@@ -969,7 +978,6 @@
           params.ifJoinReference = true
           // params.condition = {company: {}}
           params.condition = {}
-          // console.log('reloadingData-condition', this.JoinOther)
           for (var i in this.JoinOther) {
             params.condition[i] = this.JoinOther[i]
           }

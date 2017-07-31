@@ -408,7 +408,6 @@
       },
       // data回调数据  api调用类型url states数据操作对象
       getDataOnComplate (data, ...states) {
-        // console.log('allColer', data)
         this.tableLoading = false
         if (!this.checkResults(data)) return
         // 联合查询columnsJsonStr为数组，非联合查询columnsJsonStr为对象
@@ -420,7 +419,6 @@
         if (!this.isEmptyObject(this.JoinOther)) {
           for (var i in allCol) {
             let allColer = JSON.parse(allCol[i])
-            console.log("=========allColer========", allColer)
             if (allColer.name === this.fetchObj) {
               for (var j in allColer.columns) {
                 columns.push(allColer.columns[j])
@@ -440,7 +438,6 @@
         } else {
           columns = JSON.parse(allCol).columns
         }
-        console.log('this.tableCol', columns)        
         this.tableCol = []
         for (let i = 0; i < columns.length; i++) {
           let colObj = {}
@@ -488,7 +485,6 @@
         if (data.entity.count) {
           this.total = data.entity.count
         }
-        console.log('data.entity.list', data.entity.list)
         //  添加是否编辑状态与行号
         this.tableData = []
         if (data.entity.list) {
@@ -605,7 +601,6 @@
       }, 
       // 筛选
       handleFilterChange (filters) {
-        console.log(filters)
         for (let key in filters) {
           this.filterValues[key + 'List'] = filters[key]
           if (filters[key].length === 0) {
@@ -687,7 +682,6 @@
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].editable) {
             this.$set(this.createForm, i, this.tableCol[i])
-            console.log(this.tableCol[i])
           }
         }
       },
@@ -900,9 +894,7 @@
         }
         if (!this.isEmptyObject(this.JoinOther)) {
           params.ifJoinReference = true
-          // params.condition = {company: {}}
           params.condition = {}
-          console.log('condition', this.JoinOther)
           for (var i in this.JoinOther) {
             params.condition[i] = this.JoinOther[i]
           }

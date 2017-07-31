@@ -106,13 +106,18 @@ export default {
       this.$refs[pwdForm].resetFields()
     },
     modPwdSubmit (pwdForm) {
-      this.modLoading = true
-      this.logins++
       this.$refs[pwdForm].validate((valid) => {
         if (valid) {
-          fetch(modPassword, this.modPwdComplate, {oldPassword: pwdForm.pwd,
-            newPassword: pwdForm.newPwd2,
-            validateCode: pwdForm.code})
+          this.modLoading = true
+          this.modPWDVisible = false
+          this.logins++
+          fetch(modPassword, this.modPwdComplate, {oldPassword: this.modPwd.pwd,
+            newPassword: this.modPwd.newPwd2,
+            validateCode: this.modPwd.code});
+          this.modPwd.pwd = '';
+          this.modPwd.newPwd2 = '';
+          this.modPwd.newPwd = '';          
+          this.modPwd.code = '';
         } else {
           return false
         }
@@ -120,9 +125,24 @@ export default {
     },
     modPwdComplate (data) {
       this.modLoading = false
-      if (data.entity) {
-        console.log(data)
-      }
+      if (data === null) {
+          this.$notify.error({
+            title: '提示',
+            message: '网络错误，请刷新（F5）后重试。'
+          })
+          return false
+        }
+        if (data.errorCode !== 0) {
+          this.$notify.error({
+            title: '错误',
+            message: '修改密码时发生错误，' + data.message
+          })
+        }else{
+          this.$notify.success({
+            title: '成功',
+            message: '修改密码成功，请牢记新密码！'
+          })
+        }
     },
     handleLogout (command) {
       if (command === '1') {
