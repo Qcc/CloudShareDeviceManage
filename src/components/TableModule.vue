@@ -213,7 +213,7 @@
       propColumn: {type: Boolean, default: true}
     },
     watch: {
-      '$route' (to, from) {
+      'fetchObj' () {
         this.reloadingData()
       }
     },

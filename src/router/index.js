@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 const Login = r => require.ensure([], () => r(require('../pages/Login.vue')), 'Login')
 const TableModule = r => require.ensure([], () => r(require('../components/TableModule.vue')), 'Main')
-const RunningSys = r => require.ensure([], () => r(require('../components/RunningSys.vue')), 'RunningSys')
+const RunningSys = r => require.ensure([], () => r(require('../pages/RunningSys.vue')), 'RunningSys')
 const Main = r => require.ensure([], () => r(require('../pages/Main.vue')), 'Main')
 const NotFound = r => require.ensure([], () => r(require('../pages/NotFound404.vue')), 'NotFound')
 const NumberManager = r => require.ensure([], () => r(require('../pages/NumberManager.vue')), 'NumberManager')

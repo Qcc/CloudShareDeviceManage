@@ -145,7 +145,7 @@ export default {
 					} else {
           	data.entity.list[i].zhuangtaiming = '未分配'
 					}
-					data.entity.list[i].dizhi = 'http://www.szcloudshare/idev/idx.api?d=' + data.entity.list[i].bianhao
+					data.entity.list[i].dizhi = 'http://szcloudshare.com/idev/idx.api?d=' + data.entity.list[i].bianhao
           data.entity.list[i].line = i
           this.tableData.push(data.entity.list[i])
         }

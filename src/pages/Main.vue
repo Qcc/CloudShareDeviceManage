@@ -35,7 +35,7 @@ import {isLoggedIn, fetch} from '../api/api.js'
 export default {
   watch: {
     '$route' (to, from) {
-      this.getRouterPath(to)
+      this.getRouterPath(to,from)
     }
   },
   data () {
@@ -102,9 +102,14 @@ export default {
         case 1233636: return '顾客'
       }
     },
-    getRouterPath (route) {
+    getRouterPath (route,from = null) {
       let path = route.path.split('/')
       let index = path[path.length - 1]
+      if(from){
+        let f_path = from.path.split('/')
+        let f_index = f_path[f_path.length - 1]
+        if(f_index === index) return
+      }
       this.fetchObj = ''
       this.JoinOther = {}
       this.propADUQ = true
