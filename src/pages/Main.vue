@@ -4,7 +4,7 @@
     <top-nav :role="curUserName" :account="currentAccount" ></top-nav>
     <el-row>
       <el-col :span="menuWidth" style="margin-left:-20px">
-        <left-Menu :curUserId="curUserId" :activeItem="activeItem" :collpase="isCollpase"></left-Menu>
+        <left-Menu ref="leftMenu" :curUserId="curUserId" :activeItem="activeItem" :collpase="isCollpase"></left-Menu>
       </el-col>
       <el-col :span="contentWidth" style="margin-left:20px">
         <el-breadcrumb style="margin:15px 0" separator="/">
@@ -18,6 +18,7 @@
         <router-view :fetchObj = "fetchObj"
           :JoinOther="JoinOther"
           :propADUQ="propADUQ"
+          :isCollpase="isCollpase"
           style="margin-right:10px"
           ></router-view>
       </el-col>
@@ -70,13 +71,15 @@ export default {
       if(this.isCollpase){
         this.menuWidth = 1;
         this.contentWidth = 23;
-        this.collpaseName = '>>'
-        this.tips= '展开菜单'
+        this.collpaseName = '>>';
+        this.tips= '展开菜单';
+        this.$refs.leftMenu.openedMenu = [];
       } else {
         this.menuWidth = 5;
         this.contentWidth = 19;
-        this.collpaseName = '<<'
-        this.tips= '收起菜单'        
+        this.collpaseName = '<<';
+        this.tips= '收起菜单';
+        this.$refs.leftMenu.openedMenu = this.$route.query.item.split(',');
       }
     },
     isLoggedInCompalte (data) {
