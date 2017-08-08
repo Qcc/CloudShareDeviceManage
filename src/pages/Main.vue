@@ -186,5 +186,7 @@ export default {
 }
 .footer, .page-wrap:after {
   height: 34px; 
+  position: relative;
+  z-index: -1;
 }
 </style>

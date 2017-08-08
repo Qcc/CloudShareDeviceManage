@@ -22,7 +22,13 @@
           </el-form-item>
 					</div>
           <el-form-item class="qrcode" label="设备二维码">
-						<q-rcode :text ="props.row.dizhi" :bianhao="props.row.bianhao"></q-rcode>
+						<q-rcode :text ="props.row.dizhi" 
+              :bianhao="props.row.bianhao"
+              :size = "size"
+		          :bgcolor="bgcolor"
+		          :fgcolor="fgcolor"
+		          :pgcolor="pgcolor"
+              ></q-rcode>
           </el-form-item>
         </el-form>
       </template>
@@ -44,9 +50,10 @@
     </el-table-column>
   </el-table>
 	<div class="batch-add">
-		<el-input-number v-model="num" :min="1"></el-input-number>
+		<el-input-number v-model="num" :min="1" style="width:140px"></el-input-number>
   	<el-button  @click="batchCreate" :loading="loading" :plain="true">生成编号</el-button>
-  	<el-button  @click="saveFile" :plain="true">导出二维码数据</el-button>		
+  	<el-button  @click="saveFile" :plain="true">导出链接</el-button>
+  	<el-button  @click="openConfigQr" :plain="true">配置</el-button>    		
   </div>
 	<el-pagination
       class="pagination"
@@ -58,6 +65,30 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <el-dialog
+      title="自定义二维码"
+      :visible.sync="configRcodeVisible"
+      size="tiny"
+      :before-close="handleClose">
+      <q-rcode :text ="'http://szcloudshare.com/idev/idx.api?d=123456'" 
+              :size = "size"
+		          :bgcolor="bgcolor"
+		          :fgcolor="fgcolor"
+		          :pgcolor="pgcolor"
+              ></q-rcode><br />
+      <span class="demonstration">尺寸</span>
+      <el-input v-model.number="size" type="number" min=50 max=250 style="width:130px" placeholder="请输尺寸(像素)"></el-input><br/><br/>
+      <span class="demonstration">背景色</span>
+      <el-color-picker v-model="bgcolor"></el-color-picker>&nbsp;&nbsp;&nbsp;
+      <span class="demonstration">内容色</span>
+      <el-color-picker v-model="fgcolor"></el-color-picker>&nbsp;&nbsp;&nbsp;
+      <span class="demonstration"> 定位色</span>
+      <el-color-picker v-model="pgcolor"></el-color-picker>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="configRcodeVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
 	</div>
 </template>
 <script>
@@ -74,13 +105,38 @@ export default {
 			// 表格筛选
       filterValues: {},
 			num:0,
-			loading:false
+			loading:false,
+      configRcodeVisible:false,
+      size: 150,
+		  bgcolor: '#fff',
+		  fgcolor: '#000',
+		  pgcolor: '#000',
+      backbup:{
+        size: 150,
+		    bgcolor: '#fff',
+		    fgcolor: '#000',
+		    pgcolor: '#000',
+      }
     }
   },
 	created: function () {
     this.reloadingData();
   },
 	methods:{
+    openConfigQr () {
+      this.configRcodeVisible = true;
+      this.backbup.size = this.size;
+      this.backbup.bgcolor = this.bgcolor;  
+      this.backbup.fgcolor = this.fgcolor;  
+      this.backbup.pgcolor = this.pgcolor;          
+    },
+    handleClose () {
+      this.configRcodeVisible = false;
+      this.size = this.backbup.size;
+      this.bgcolor =  this.backbup.bgcolor;  
+      this.fgcolor =  this.backbup.fgcolor;  
+      this.pgcolor =  this.backbup.pgcolor;
+    },
 		saveFile() {
 			var str = ''
 			for(let i = 0; i < this.tableData.length; i++){

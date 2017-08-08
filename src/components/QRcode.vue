@@ -12,7 +12,7 @@ export default {
   //   this.createQr()
   // },
 	props: {
-    bianhao: {type: String, required: true},    
+    bianhao: {type: String, default:'download', required: false},    
     // 二维码内容，尺寸，背景色，前景色，基点色，logo，logo尺寸
     text: {type: String, required: true},
 		size: {type: Number, default:150, required: false},
@@ -25,6 +25,20 @@ export default {
     return {
       qrnode: null
     }
+  },
+  watch:{
+    bgcolor:function(){
+      this.createQr()
+    },
+    fgcolor:function(){
+      this.createQr()
+    },
+    pgcolor:function(){
+      this.createQr()
+    },
+    size:function(){
+      this.createQr()
+    },
   },
   created: function () {
     this.createQr()
@@ -39,15 +53,6 @@ export default {
         background: this.bgcolor,
         foreground: this.fgcolor,
 	      pdground: this.pgcolor,
-	      // correctLevel: 0,
-	      // render: 'canvas',
-	      // text: this.text,
-	      // size: this.size,
-	      // background: this.bgcolor,
-	      // foreground: this.fgcolor,
-	      // pdground: this.pgcolor,
-	      // image : this.image,
-	      // imageSize : Math.ceil(this.size * 0.21)
       });
     }
   }

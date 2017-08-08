@@ -743,7 +743,7 @@
         // 传入pagenNO可获取更多数据
         if (item.f_tableName) {
           // 默认获取20行
-          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 10, pageNO: pageNO}
+          let params = {ifGetCount: true, ifGetColumns: true, pageSize: 20, pageNO: pageNO}
           params.filter = {}
           params.filter[item.f_readable] = '%' + keyword + '%'
           params.filter[item.f_readable + 'ComparisonOperator'] = 'like'
@@ -775,7 +775,7 @@
         }
         states[0][0].f_loading = false
         // 未查看的行=当前页码×每页条数 如果大于0说明有剩余行未显示，则可加载
-        states[0][0].f_count = data.entity.count - states[0][1] * 10
+        states[0][0].f_count = data.entity.count - states[0][1] * 20
       },
       // 创建单行表格行提交
       handleCreateSubmit () {
