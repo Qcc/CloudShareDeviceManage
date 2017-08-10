@@ -11,8 +11,7 @@ export default {
   },
   props: {
 		isCollpase: Boolean,
-    charData: Array,
-    id: String
+    charData: Array
   },
   mounted: function () {
    	this.drawChart();       // 第一步想到的是创建的时候更新图表，但是这个不适用于异步请求接口获取相关数据，所以采用下面的监听的方式
@@ -29,7 +28,6 @@ export default {
 		isCollpase:function(val, oldVal){
 			if(this.chart){
 				this.chart.forceFit();
-				console.log(11,this.chart.forceFit);
 			}
 		}
   },
@@ -44,9 +42,9 @@ export default {
       this.chart = new G2.Chart({
         id: 'pie',
         forceFit: true,
-        height: '200',
+        height: '220',
         plotCfg: {
-          margin: [25, 5, 25, 5] // 上，右，下，左
+          margin: [25, 0, 0, 55] // 上，右，下，左
         }
     	});
     	this.chart.source(data);
@@ -55,7 +53,8 @@ export default {
     	  radius: 0.9 // 设置饼图的大小
     	});
     	this.chart.legend('name', {
-    	  position: 'bottom',
+				title: null,
+    	  position: 'left',
     	  itemWrap: true,
     	  formatter: function(val) {
     	    for(var i = 0, len = data.length; i < len; i++) {
@@ -74,7 +73,7 @@ export default {
     	});
     	this.chart.intervalStack()
     	  .position(Stat.summary.percent('value'))
-    	  .color('name')
+    	  .color('name',['#13CE66','#20A0FF','#FF4949'])
     	  .label('name*..percent',function(name, percent){
     	  percent = (percent * 100).toFixed(2) + '%';
     	  return name + ' ' + percent;
@@ -83,7 +82,7 @@ export default {
     	// 设置默认选中
     	var geom = this.chart.getGeoms()[0]; // 获取所有的图形
     	var items = geom.getData(); // 获取图形对应的数据
-    	geom.setSelected(items[1]); // 设置选中
+    	geom.setSelected(items[0]); // 设置选中
     }
   }
 }

@@ -8,16 +8,15 @@ export default {
       return {
         chart: null,
         second: 1000,
-        minute: 1000 * 60,
-        hour: 60 * this.minute,
-        day: 24 * this.hour,
+        minute: 6000,
+        hour: 360000,
+        day: 8640000,
       };
     },
     props: {
       data: Array,
       dash: Array,      
-      width:Number,
-      id: String
+      isCollpase: Boolean
     },
     mounted: function () {
      this.drawChart();       // 第一步想到的是创建的时候更新图表，但是这个不适用于异步请求接口获取相关数据，所以采用下面的监听的方式
@@ -27,17 +26,15 @@ export default {
     // },
     watch: {
       charData: function (val, oldVal) {    // 监听charData，当放生变化时，触发这个回调函数绘制图表
-        console.log('new: %s, old: %s', val, oldVal);
         if(this.chart){
 					this.chart.changeData(val);
 				}
       },
-      width: function (val, oldVal) {    // 监听charData，当放生变化时，触发这个回调函数绘制图表
-        console.log('new: %s, old: %s', val, oldVal);
-        if(this.chart){
-					this.drawChart();
-				}
-      }
+      isCollpase:function(val, oldVal){
+			  if(this.chart){
+			  	this.chart.forceFit();
+			  }
+		  }
     },
     methods: {
       toInterge (number, fix = 1) {
@@ -120,8 +117,8 @@ export default {
 
         var view1 = this.chart.createView();
         view1.source(this.pick(this.data, [ 'pv', 'time', 'date' ]), scale);
-        view1.line().position('date*pv*count').color('#4FAAEB').size(2);
-        view1.line().position('date*time').color('#9AD681').size(2);
+        view1.line().shape('smooth').position('date*pv*count').color('#4FAAEB').size(2);
+        view1.line().shape('smooth').position('date*time').color('#9AD681').size(2);
 
         var view2 = this.chart.createView();
         view2.source(this.pick(this.dash, [ 'pv', 'time', 'date' ]), scale);
@@ -130,7 +127,7 @@ export default {
         });
         view2.axis('time', false);
         view2.tooltip(false);
-        view2.line().position('date*time').color('white').size(3).style({
+        view2.line().shape('smooth').position('date*time').color('white').size(2).style({
           lineDash: [ 4, 4 ]
         });
         this.chart.render();

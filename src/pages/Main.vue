@@ -4,15 +4,15 @@
     <top-nav :role="curUserName" :account="currentAccount" ></top-nav>
     <el-row>
       <el-col :span="menuWidth" style="margin-left:-20px">
-        <left-Menu ref="leftMenu" :curUserId="curUserId" :activeItem="activeItem" :collpase="isCollpase"></left-Menu>
+        <left-Menu ref="leftMenu" :curUserId="curUserId" :collpase="isCollpase"></left-Menu>
       </el-col>
       <el-col :span="contentWidth" style="margin-left:20px">
         <el-breadcrumb style="margin:15px 0" separator="/">
           <el-tooltip effect="dark" :content="tips" placement="bottom">
             <el-breadcrumb-item ><a @click="collpaseMenu">{{collpaseName}}</a></el-breadcrumb-item>        
           </el-tooltip>
-          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '?list=1001' }">运行总览</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: `default?item=101` }">首页</el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: `${nav}`}">{{navName}}</el-breadcrumb-item>
         </el-breadcrumb>
         <!--<table-module :fetchObj = "'user'" :JoinOther="['gongsi']"></table-module>-->
         <router-view :fetchObj = "fetchObj"
@@ -32,6 +32,9 @@
 import TopNav from '../components/TopNav.vue'
 import LeftMenu from '../components/LeftMenu.vue'
 import SiteFooter from '../components/SiteFooter.vue'
+import PersonnelChart from '../components/personnelChart.vue'
+import DeviceChart from '../components/deviceChart.vue'
+import OrderChart from '../components/orderChart.vue'
 import {isLoggedIn, fetch} from '../api/api.js'
 export default {
   watch: {
@@ -53,8 +56,9 @@ export default {
       isCollpase: false,
       menuWidth: 5,
       contentWidth: 19,
+      nav:'2',
+      navName:'3',
       tips: '收起菜单',
-      activeItem: 'deviceManager',
       // 表格组件props
       fetchObj: '',
       JoinOther: {},
@@ -117,26 +121,40 @@ export default {
       this.JoinOther = {}
       this.propADUQ = true
       switch (index) {
+        case 'default':
+          this.navName = '运行总览'
+          this.nav = this.$route.fullPath
+          break
         case 'userManager':
           this.fetchObj = 'user'
           this.JoinOther.gongsi = {}
+          this.navName = '用户管理'
+          this.nav = this.$route.fullPath
           break
         case 'partnerManager':
           this.fetchObj = 'gongsi'
           this.JoinOther.mugongsi = {}
+          this.navName = '伙伴管理'
+          this.nav = this.$route.fullPath
           break
         case 'deviceManager':
           this.fetchObj = 'shebei'
           this.JoinOther.shebeibianhao = {}
           this.JoinOther.taocanzu = {}
           this.JoinOther.gongsi = {}
+          this.navName = '设备管理'
+          this.nav = this.$route.fullPath
           break
         case 'deviceId':
           this.fetchObj = 'shebeibianhao'
+          this.navName = '设备编号'
+          this.nav = this.$route.fullPath
           break
         case 'combo':
           this.fetchObj = 'taocan'
           this.JoinOther.taocanzu = {}
+          this.navName = '套餐配置'
+          this.nav = this.$route.fullPath
           break
         case 'orderManager':
           this.propADUQ = false
@@ -145,33 +163,50 @@ export default {
           this.JoinOther.weixindingdan = {}
           this.JoinOther.shebei = {gongsi: {},shebeibianhao: {}}
           this.JoinOther.taocan = {taocanzu: {}}
+          this.navName = '订单管理'
+          this.nav = this.$route.fullPath
           break
         case 'point':
           this.propADUQ = false
           this.fetchObj = 'jifenmingxi'
           this.JoinOther.dingdan = { guke: {} }
-          break
-        case 'performance':
-          this.propADUQ = false
-          this.fetchObj = 'gongsi'
-          this.JoinOther.gongsi = {}
+          this.navName = '积分管理'
+          this.nav = this.$route.fullPath
           break
         case 'comboGroup':
           this.fetchObj = 'taocanzu'
           this.JoinOther.gongsi = {}
+          this.navName = '套餐组配置'
+          this.nav = this.$route.fullPath
           break
         case 'guke':
           this.propADUQ = false
           this.fetchObj = 'guke'
+          this.navName = '消费者'
+          this.nav = this.$route.fullPath
+          break
+        case 'personnelChart':
+          this.navName = '消费习惯'
+          this.nav = this.$route.fullPath
+          break
+        case 'deviceChart':
+          this.navName = '设备使用'
+          this.nav = this.$route.fullPath
+          break
+        case 'orderChart':
+          this.navName = '订单套餐'
+          this.nav = this.$route.fullPath
           break
       }
-      this.activeItem = index
     }
   },
   components: {
     TopNav,
     LeftMenu,
-    SiteFooter
+    SiteFooter,
+    PersonnelChart,
+    DeviceChart,
+    OrderChart
   }
 }
 </script>

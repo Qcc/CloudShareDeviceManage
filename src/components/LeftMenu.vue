@@ -34,7 +34,12 @@
           <el-menu-item class="MenuItem" index="orderManager"> 订单管理</el-menu-item>
           <el-menu-item class="MenuItem" index="guke"> 消费者</el-menu-item>
           <el-menu-item class="MenuItem" index="point"> 积分管理</el-menu-item>
-          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
+      </el-submenu>
+      <el-submenu v-if="curUserId === 2026226681" index="106">
+        <template slot="title"><i class="el-icon-picture"></i><span slot="title">运维统计</span></template>
+          <el-menu-item class="MenuItem" index="personnelChart"> 消费习惯</el-menu-item>
+          <el-menu-item class="MenuItem" index="deviceChart"> 设备使用</el-menu-item>          
+          <el-menu-item class="MenuItem" index="orderChart"> 订单套餐</el-menu-item>
       </el-submenu>
       <!--云享员工菜单-->
       <el-submenu v-if="curUserId === 2031278906" index="201">
@@ -57,7 +62,6 @@
           <el-menu-item class="MenuItem" index="orderManager"> 订单管理</el-menu-item>
           <el-menu-item class="MenuItem" index="guke"> 消费者</el-menu-item> 
           <el-menu-item class="MenuItem" index="point"> 积分管理</el-menu-item>
-          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
       <!--伙伴管理员菜单-->
       <el-submenu v-if="curUserId === -2139060392" index="301">
@@ -77,7 +81,6 @@
           <el-menu-item class="MenuItem" index="combo"> 查看套餐</el-menu-item>
           <el-menu-item class="MenuItem" index="comboGroup"> 查看套餐组</el-menu-item>          
           <el-menu-item class="MenuItem" index="orderManager"> 查看订单</el-menu-item>
-          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
       <!--伙伴员工菜单-->
       <el-submenu v-if="curUserId === -2134008167" index="401">
@@ -97,7 +100,6 @@
           <el-menu-item class="MenuItem" index="combo"> 查看套餐</el-menu-item>
           <el-menu-item class="MenuItem" index="comboGroup">查看套餐组</el-menu-item>          
           <el-menu-item class="MenuItem" index="orderManager"> 查看订单</el-menu-item>
-          <el-menu-item class="MenuItem" index="performance"> 业绩统计</el-menu-item>
       </el-submenu>
     </el-menu>
   </el-col>
@@ -156,7 +158,8 @@ export default {
       }
     },
     handleSelect (index, path) {
-      this.$router.push({path: index, query: {item: this.$route.query.item}})
+      this.activeItem = index;
+      this.$router.push({path: index, query: {item: this.$route.query.item}});
     }
   }
 }

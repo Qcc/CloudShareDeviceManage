@@ -12,57 +12,52 @@
   <div id="c1"></div>
   <script>
     var data = [{
-      month: 'Jan',
-      temperature: 7.0
+      "value": 10,
+      "time": "2015-03-01T16:00:00.000Z"
     }, {
-      month: 'Feb',
-      temperature: 6.9
+      "value": 15,
+      "time": "2015-03-01T16:10:00.000Z"
     }, {
-      month: 'Mar',
-      temperature: 9.5
+      "value": 26,
+      "time": "2015-03-01T16:20:00.000Z"
     }, {
-      month: 'Apr',
-      temperature: 14.5
+      "value": 9,
+      "time": "2015-03-01T16:30:00.000Z"
     }, {
-      month: 'May',
-      temperature: 18.2
+      "value": 12,
+      "time": "2015-03-01T16:40:00.000Z"
     }, {
-      month: 'Jun',
-      temperature: 21.5
+      "value": 23,
+      "time": "2015-03-01T16:50:00.000Z"
     }, {
-      month: 'Jul',
-      temperature: 25.2
+      "value": 18,
+      "time": "2015-03-01T17:00:00.000Z"
     }, {
-      month: 'Aug',
-      temperature: 26.5
+      "value": 21,
+      "time": "2015-03-01T17:10:00.000Z"
     }, {
-      month: 'Sep',
-      temperature: 23.3
-    }, {
-      month: 'Oct',
-      temperature: 18.3
-    }, {
-      month: 'Nov',
-      temperature: 13.9
-    }, {
-      month: 'Dec',
-      temperature: 9.6
+      "value": 22,
+      "time": "2015-03-01T17:20:00.000Z"
     }];
     var chart = new G2.Chart({
       id: 'c1',
       forceFit: true,
-      height: 450
+      height: 300
     });
-    chart.source(data, {
-      month: {
-        alias: '月份',
-        range: [0, 1]
+    var defs = {
+      'time': {
+        type: 'time',
+        nice: false,
+        mask: 'HH:MM'
       },
-      temperature: {
-        alias: '平均温度(°C)'
+      'value': {
+        formatter: function(val) {
+          return val + ' k';
+        }
       }
-    });
-    chart.line().position('month*temperature').size(2);
+    };
+    chart.source(data, defs);
+    chart.line().shape('smooth').position('time*value').color("time", '#13CE66-#FF4949').size(1);
     chart.render();
   </script>
 </body>

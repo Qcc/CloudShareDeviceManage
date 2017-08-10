@@ -7,6 +7,9 @@ const Main = r => require.ensure([], () => r(require('../pages/Main.vue')), 'Mai
 const NotFound = r => require.ensure([], () => r(require('../pages/NotFound404.vue')), 'NotFound')
 const NumberManager = r => require.ensure([], () => r(require('../pages/NumberManager.vue')), 'NumberManager')
 const Demo = r => require.ensure([], () => r(require('../test/Demo.vue')), 'Demo')
+const PersonnelChart = r => require.ensure([], () => r(require('../components/personnelChart.vue')), 'PersonnelChart')
+const DeviceChart = r => require.ensure([], () => r(require('../components/deviceChart.vue')), 'DeviceChart')
+const OrderChart = r => require.ensure([], () => r(require('../components/orderChart.vue')), 'OrderChart')
 Vue.use(Router)
 
 export default new Router({
@@ -29,7 +32,9 @@ export default new Router({
         { path: 'orderManager', component: TableModule },
         { path: 'guke', component: TableModule },
         { path: 'point', component: TableModule },
-        { path: 'performance', component: TableModule }
+        { path: 'personnelChart', component: PersonnelChart },
+        { path: 'deviceChart', component: DeviceChart },
+        { path: 'orderChart', component: OrderChart }
       ]
     },
     { path: '*', name: 'NotFound', component: NotFound }

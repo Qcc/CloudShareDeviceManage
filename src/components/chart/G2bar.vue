@@ -11,18 +11,22 @@ export default {
     },
     props: {
       charData: Array,
-      id: String
+      isCollpase: Boolean
     },
     mounted: function () {
      this.drawChart();       // 第一步想到的是创建的时候更新图表，但是这个不适用于异步请求接口获取相关数据，所以采用下面的监听的方式
     },
     watch: {
       charData: function (val, oldVal) {    // 监听charData，当放生变化时，触发这个回调函数绘制图表
-        console.log('new: %s, old: %s', val, oldVal);
         if(this.chart){
 					this.chart.changeData(val);
 				}
-      }
+      },
+      isCollpase:function(val, oldVal){
+			  if(this.chart){
+			  	this.chart.forceFit();
+			  }
+		  }
     },
     methods: {
       drawChart: function (datas) {

@@ -114,13 +114,13 @@ export default {
         {"date":1490284800000, "pv":7, "successRate":0.2857142857142857, "time":0, "count":2}
       ],
       lineData2 :[
-        {"count":4, "date":1489593600000, "time":null},
+        {"count":4, "date":1489593600000, "time":600},
         {"count":6, "date":1489680000000, "time":18000},
         {"count":0, "date":1489766400000, "time":0},
-        {"count":0, "date":1489852800000, "time":0},
+        {"count":0, "date":1489852800000, "time":2000},
         {"count":4, "date":1489939200000, "time":21157000},
-        {"count":8, "date":1490025600000, "time":null},
-        {"count":14, "date":1490112000000, "time":null},
+        {"count":8, "date":1490025600000, "time":2500},
+        {"count":14, "date":1490112000000, "time":25002},
         {"count":10, "date":1490198400000, "time":24000},
         {"count":2, "date":1490284800000, "time":0}
       ],
