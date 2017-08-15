@@ -50,7 +50,7 @@
         <el-card class="crd-box">
           <div class="header-title" slot="header">
             <span>使用人次</span>
-            <el-select class="crd-action" size="mini" v-model="defaultValue" @change="handleUse"  placeholder="请选择">
+            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUse">
               <el-option default  :value="7" :label="'最近7天'"></el-option>
               <el-option :value="30" :label="'最近30天'"></el-option>
               <el-option :value="90" :label="'最近90天'"></el-option>              
@@ -69,7 +69,12 @@
         <el-card class="crd-box">
           <div class="header-title" slot="header">
             <span>使用率</span>
-            <el-button class="crd-action" size="mini" type="primary">更多...</el-button>
+            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUse">
+              <el-option default  :value="7" :label="'最近7天'"></el-option>
+              <el-option :value="30" :label="'最近30天'"></el-option>
+              <el-option :value="90" :label="'最近90天'"></el-option>              
+            </el-select>
+            <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
           </div>
           <div class="crd-content">
             <g2-pie  v-if="this.chartWidth" :isCollpase="isCollpase" :charData="pieData"></g2-pie>
@@ -80,7 +85,12 @@
         <el-card class="crd-box">
           <div class="header-title" slot="header">
             <span>注册会员</span>
-            <el-button class="crd-action" size="mini" type="primary">更多...</el-button>
+            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUse">
+              <el-option default  :value="7" :label="'最近7天'"></el-option>
+              <el-option :value="30" :label="'最近30天'"></el-option>
+              <el-option :value="90" :label="'最近90天'"></el-option>              
+            </el-select>
+            <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
           </div>
           <div class="crd-content">
             <g2-bar  v-if="this.chartWidth" :isCollpase="isCollpase" :charData="barData"></g2-bar>
