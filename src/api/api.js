@@ -50,10 +50,14 @@ export function fetch2(url, onComplate, params, ...states) {
 // export function customQueryPagerURL(obj) {
 //   return ROOTURL + '/protected/' + obj + '/queryPager.api'
 // }
-export const ROOTURL = 'http://www.szcloudshare.com/idev'
-export const BASICURL = 'http://www.szcloudshare.com/idev/protected/'
-  // export const ROOTURL = 'http://192.168.200.104:8080/idev'
-  // export const BASICURL = 'http://192.168.200.104:8080/idev/protected/'
+// export const ROOTURL = 'http://www.szcloudshare.com/idev'
+// export const BASICURL = 'http://www.szcloudshare.com/idev/protected/'
+export const ROOTURL = 'http://192.168.200.104:8080/idev'
+export const BASICURL = 'http://192.168.200.104:8080/idev/protected/'
+  //使用人次
+export const lineUrl = BASICURL + 'shebei/getStat.api';
+//门店总数
+export const parnterUrl = BASICURL + 'shebei/getStat1.api';
 
 export const loginhref = ROOTURL + '/public/'
 export const login = ROOTURL + '/public/1/login.api'

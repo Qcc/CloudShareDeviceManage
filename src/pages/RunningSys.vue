@@ -11,35 +11,35 @@
             <div class="wel-box wd">
               <div class="wd-left">覆盖网点</div>
               <div class="wd-right">
-                <p>5家</p>
+                <p>{{state.mendian}}家</p>
                 <a>详情>></a>
               </div>
             </div>
             <div class="wel-box shb">
               <div class="wd-left">投放设备</div>
               <div class="wd-right">
-                <p>300台</p>
+                <p>{{state.shebei}}台</p>
                 <a>详情>></a>
               </div>
             </div>
             <div class="wel-box rc">
               <div class="wd-left">使用人次</div>
               <div class="wd-right">
-                <p>23421次</p>
+                <p>{{state.shiyong}}次</p>
                 <a>详情>></a>
               </div>
             </div>
             <div class="wel-box shr">
               <div class="wd-left">累计收入</div>
               <div class="wd-right">
-                <p>124520003元</p>
+                <p>{{state.shouru}}元</p>
                 <a>详情>></a>
               </div>
             </div>
             <div class="wel-box hy">
               <div class="wd-left">注册会员</div>
               <div class="wd-right">
-                <p>8201人</p>
+                <p>{{state.huiyuan}}人</p>
                 <a>详情>></a>
               </div>
             </div>
@@ -50,14 +50,14 @@
         <el-card class="crd-box">
           <div class="header-title" slot="header">
             <span>使用人次</span>
-            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUse">
+            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUsePerson">
               <el-option default  :value="7" :label="'最近7天'"></el-option>
               <el-option :value="30" :label="'最近30天'"></el-option>
               <el-option :value="90" :label="'最近90天'"></el-option>              
             </el-select>
           </div>
           <div class="use-content" id="lineParent">
-            <g2-line v-if="this.chartWidth" :isCollpase="isCollpase" :data="lineData1" :dash="lineData2"></g2-line>
+            <g2-line v-if="this.chartWidth" :isCollpase="isCollpase" :data="lineData"></g2-line>
           </div>
         </el-card>
       </el-col>
@@ -68,16 +68,33 @@
       <el-col>
         <el-card class="crd-box">
           <div class="header-title" slot="header">
-            <span>使用率</span>
-            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUse">
-              <el-option default  :value="7" :label="'最近7天'"></el-option>
-              <el-option :value="30" :label="'最近30天'"></el-option>
-              <el-option :value="90" :label="'最近90天'"></el-option>              
+            <span>月收款</span>
+            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultMoon" @change="handleUseMoney">
+              <el-option default  :value="0" :label="'本月'"></el-option>
+              <el-option :value="-1" :label="'前一月'"></el-option>
+              <el-option :value="-2" :label="'前二月'"></el-option>              
             </el-select>
             <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
           </div>
           <div class="crd-content">
-            <g2-pie  v-if="this.chartWidth" :isCollpase="isCollpase" :charData="pieData"></g2-pie>
+            <el-table
+              :data="tableData"
+              show-summary
+              align="left"
+              style="width: 100%">
+              <el-table-column
+                prop="name"
+                label="时间">
+              </el-table-column>
+              <el-table-column
+                prop="amount1"
+                label="收款金额">
+              </el-table-column>
+              <el-table-column
+                prop="amount2"
+                label="使用次数">
+              </el-table-column>
+            </el-table>
           </div>
         </el-card>
       </el-col>
@@ -85,7 +102,7 @@
         <el-card class="crd-box">
           <div class="header-title" slot="header">
             <span>注册会员</span>
-            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUse">
+            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultVip" @change="handleUseVip">
               <el-option default  :value="7" :label="'最近7天'"></el-option>
               <el-option :value="30" :label="'最近30天'"></el-option>
               <el-option :value="90" :label="'最近90天'"></el-option>              
@@ -103,6 +120,7 @@
 
 </template>
 <script>
+import {lineUrl, parnterUrl, fetch2} from '../api/api.js'
 import G2Line from '../components/chart/G2line'
 import G2Pie from '../components/chart/G2pie'
 import G2Bar from '../components/chart/G2bar'
@@ -110,35 +128,72 @@ export default {
   data () {
     return {
       defaultValue: 7,
+      defaultMoon:0,
+      defaultVip:7,
       // 线图
       chartWidth:null,
-      lineData1: [
-        {"date":1489593600000, "pv":17, "successRate":0.23529411764705882, "time":12351000, "count":4},
-        {"date":1489680000000, "pv":10, "successRate":0.6, "time":18000, "count":6},
-        {"date":1489766400000, "pv":3, "successRate":0, "time":0, "count":0},
-        {"date":1489852800000, "pv":3, "successRate":0, "time":0, "count":0},
-        {"date":1489939200000, "pv":18, "successRate":0.2222222222222222, "time":21157000, "count":4},
-        {"date":1490025600000, "pv":32, "successRate":0.25, "time":3543000, "count":8},
-        {"date":1490112000000, "pv":25, "successRate":0.56, "time":10000, "count":14},
-        {"date":1490198400000, "pv":23, "successRate":0.43478260869565216, "time":24000, "count":10},
-        {"date":1490284800000, "pv":7, "successRate":0.2857142857142857, "time":0, "count":2}
-      ],
-      lineData2 :[
-        {"count":4, "date":1489593600000, "time":600},
-        {"count":6, "date":1489680000000, "time":18000},
-        {"count":0, "date":1489766400000, "time":0},
-        {"count":0, "date":1489852800000, "time":2000},
-        {"count":4, "date":1489939200000, "time":21157000},
-        {"count":8, "date":1490025600000, "time":2500},
-        {"count":14, "date":1490112000000, "time":25002},
-        {"count":10, "date":1490198400000, "time":24000},
-        {"count":2, "date":1490284800000, "time":0}
-      ],
-      // 饼图
-      pieData:[
-        {name: '使用', value: 70.95 },
-        {name: '闲置', value: 27.47},
-        {name: '故障', value: 1.58}],
+      // 覆盖网点，投放设备...
+      state:{
+        mendian:0,
+        shebei:0,
+        shiyong:0,
+        shouru:0,
+        huiyuan:0
+      },
+      // 使用人次
+      useParams:{
+        gongsi:null,
+        fromDate:this.getDate(7),
+        toDate:this.getDate(),
+        type:1
+      },
+      // 单日收入
+      moneyParams:{
+        gongsi:null,
+        fromDate:this.getDate(7),
+        toDate:this.getDate(),
+        type:2
+      },
+      // 注册会员
+      vipParams:{
+        gongsi:null,
+        fromDate:this.getDate(7),
+        toDate:this.getDate(),
+        type:3
+      },
+      // 累计收入
+      allMoneyParams:{
+        gongsi:null,
+        fromDate:this.getDate(7),
+        toDate:this.getDate(),
+        type:4
+      },
+      // lineData数据格式{"money":35,"count":6,"days":"2017-08-01"},
+      lineData1: [{"money":25,"count":9,"days":"2017-08-01"}],
+      lineData: [{"money":15,"count":3,"days":"2017-08-01"},
+      {"money":14,"count":3,"days":"2017-08-02"},
+      {"money":35,"count":7,"days":"2017-08-03"}],      
+      tableData: [{
+          name: '第一周',
+          amount1: '234',
+          amount2: '3',
+          amount3: 10
+        }, {
+          name: '第二周',
+          amount1: '165',
+          amount2: '4',
+          amount3: 12
+        }, {
+          name: '第三周',
+          amount1: '324',
+          amount2: '1',
+          amount3: 9
+        }, {
+          name: '第四周',
+          amount1: '621',
+          amount2: '2',
+          amount3: 17
+        }],
       // 柱状图
       barData:[
         {name: '注册会员',data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]},
@@ -158,9 +213,120 @@ export default {
       }
     },5);  
   },
+  created:function(){
+    this.getParChartData();
+    // this.getLineChartData();
+  },
   methods: {
-    handleUse (val) {
-      console.log(val)
+    handleUsePerson (val) {
+      this.useParams.fromDate = this.getDate(val);
+      this.moneyParams.fromDate = this.getDate(val);
+      this.getLineChartData();
+    },
+    handleUseMoney (val) {
+      console.log(val,2)
+    },
+    handleUseVip (val) {
+      console.log(val,3)
+    },
+    getParChartData(){
+      fetch2(parnterUrl,this.onComplate,{},{});
+    },
+    getLineChartData(){
+      fetch2(lineUrl,this.onComplate,this.useParams,this.useParams);
+    },
+    onComplate(data,state){
+      if(!this.checkResults(data)) return;
+      // 覆盖网点，设备总数请求
+      if(this.isEmptyObject(state[0])){
+        this.state.mendian = data.entity.mengdianzs;
+        this.state.shebei = data.entity.toufangsbzs;
+        this.state.shiyong = data.entity.shiyongrczs;
+        this.state.shouru = data.entity.shoufeizs;
+        this.state.huiyuan = data.entity.zhucehyzs;
+      } else {
+        // 使用人次请求
+        if(state[0].type === 1){
+          this.lineData = this.filledData(data.entity,state[0]);
+          fetch2(lineUrl,this.onComplate,this.moneyParams,this.moneyParams);
+          // 消费金额请求
+        }else if(state[0].type === 2){
+          let tempData = [];
+          let filledData = this.filledData(data.entity,state[0])
+          for (let i =0; i < filledData.length;i++) {
+            tempData.push(Object.assign(this.lineData[i],filledData[i]));
+          }
+          this.lineData = tempData;
+        }
+      }
+    },
+    // 补全不连续日期
+    filledData(data,params){
+      let day='';
+      let fData=[];
+      let fromDate = params.fromDate;
+      do{
+        let flag = true;
+        for (var i in data) {
+          if(data[i].days === fromDate) {
+            flag = false;
+            continue;
+          }
+        }
+        if(!flag) continue;
+        let temp={}
+        for (var key in data[0]) {
+           temp[key] = 0;
+        }
+        temp.days = fromDate;
+        fData.push(temp);
+        let newDate = new Date(fromDate).getTime()
+        fromDate
+      }while(true);
+    },
+    checkResults (data) {
+      if (data === null) {
+        this.$notify.error({
+          title: '提示',
+          message: '网络错误，请刷新（F5）后重试。'
+        })
+        return false
+      }
+      if (data.errorCode === 0) {
+        return true
+      } else if(data.errorCode === 3) {
+        this.$notify.error({
+          title: '错误',
+          message: '当前页面发生错误，' + data.message
+        })
+        let path = this.$route.path.split('/')
+        let login = path[path.length - 2]
+        this.$router.push({path: '/idev/' + login + '/login'})
+      } else {
+        this.$notify.error({
+          title: '错误',
+          message: '当前页面发生错误，' + data.message
+        })
+        return false
+      }
+    },
+    //获取过去天数的日期
+    getDate(days = 0){
+      let year,month,day;
+      let milliSeconds = new Date().getTime();
+      milliSeconds -= days*24*60*60*1000;
+      let date = new Date(milliSeconds);
+      year = date.getFullYear();
+      month = date.getMonth() + 1;
+      day = date.getDate();
+      return year + '-' + month + '-' + day;
+    },
+    isEmptyObject( obj ) {    
+      var name;  
+      for ( name in obj ) {        
+        return false;
+      }    
+      return true;
     }
   },
   components:{

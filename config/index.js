@@ -10,7 +10,7 @@ module.exports = {
     // 添加可直接打开打路径原来为/
     assetsPublicPath: '/',
     //控制是否需要源码调试
-    productionSourceMap: false,
+    productionSourceMap: true,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
     // Before setting to `true`, make sure to:
