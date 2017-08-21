@@ -21,9 +21,9 @@ export default {
      this.drawChart();       // 第一步想到的是创建的时候更新图表，但是这个不适用于异步请求接口获取相关数据，所以采用下面的监听的方式
     },
     watch: {
-      charData: function (val, oldVal) {    // 监听charData，当放生变化时，触发这个回调函数绘制图表
+      data: function (val, oldVal) {    // 监听charData，当放生变化时，触发这个回调函数绘制图表
         if(this.chart){
-					this.chart.changeData(val);
+          this.chart.changeData(val);
 				}
       },
       isCollpase:function(val, oldVal){
@@ -69,10 +69,9 @@ export default {
             alias: '消费金额(元)',
           },
         };
-        var view1 = this.chart.createView();
-        view1.source(this.data, scale);
-        view1.line().shape('smooth').position('days*count').color('#4FAAEB').size(2);
-        view1.line().shape('smooth').position('days*money').color('#9AD681').size(2);
+        this.chart.source(this.data, scale);
+        this.chart.line().shape('smooth').position('days*count').color('#4FAAEB').size(2);
+        this.chart.line().shape('smooth').position('days*money').color('#9AD681').size(2);
         this.chart.render();
       }
     }

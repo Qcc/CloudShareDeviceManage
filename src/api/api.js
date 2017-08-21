@@ -55,7 +55,7 @@ export function fetch2(url, onComplate, params, ...states) {
 export const ROOTURL = 'http://192.168.200.104:8080/idev'
 export const BASICURL = 'http://192.168.200.104:8080/idev/protected/'
   //使用人次
-export const lineUrl = BASICURL + 'shebei/getStat.api';
+export const chartUrl = BASICURL + 'shebei/getStat.api';
 //门店总数
 export const parnterUrl = BASICURL + 'shebei/getStat1.api';
 

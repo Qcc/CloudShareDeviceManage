@@ -36,6 +36,7 @@ import PersonnelChart from '../components/personnelChart.vue'
 import DeviceChart from '../components/deviceChart.vue'
 import OrderChart from '../components/orderChart.vue'
 import {isLoggedIn, fetch} from '../api/api.js'
+import {setCookie, getCookie} from '../utils/cookie.js'
 export default {
   watch: {
     '$route' (to, from) {
@@ -74,43 +75,43 @@ export default {
   },
   methods: {
     init(){
-      if(this.getCookie('menuWidth') !== '')
-      this.menuWidth = +this.getCookie('menuWidth');
+      if(getCookie('menuWidth') !== '')
+      this.menuWidth = +getCookie('menuWidth');
 
-      if(this.getCookie('contentWidth') !== '')
-      this.contentWidth = +this.getCookie('contentWidth');
+      if(getCookie('contentWidth') !== '')
+      this.contentWidth = +getCookie('contentWidth');
 
-      if(this.getCookie('collpaseName') !== '')
-      this.collpaseName = this.getCookie('collpaseName');
+      if(getCookie('collpaseName') !== '')
+      this.collpaseName = getCookie('collpaseName');
 
-      if(this.getCookie('tips') !== '')      
-      this.tips= this.getCookie('tips');
+      if(getCookie('tips') !== '')      
+      this.tips= decodeURI(getCookie('tips'));
 
-      if(this.getCookie('collpaseName') !== '')      
-      this.collpaseName = this.getCookie('collpaseName');
-      if(this.getCookie('isCollpase') !== ''){
-        if(this.getCookie('isCollpase')==='true'){
+      if(getCookie('collpaseName') !== '')      
+      this.collpaseName = getCookie('collpaseName');
+      if(getCookie('isCollpase') !== ''){
+        if(getCookie('isCollpase')==='true'){
           this.isCollpase = true;
         }else{
           this.isCollpase = false;
         }
       }
-      if(this.getCookie('openedMenu') !== ''){        
-        this.$refs.leftMenu.openedMenu = this.getCookie('openedMenu').split(',');
+      if(getCookie('openedMenu') !== ''){        
+        this.$refs.leftMenu.openedMenu = getCookie('openedMenu').split(',');
       }else{
         this.$refs.leftMenu.openedMenu = [];               
       }
     },
     collpaseMenu() {
       this.isCollpase = !this.isCollpase;
-      this.setCookie('isCollpase',this.isCollpase,365);                    
+      setCookie('isCollpase',this.isCollpase,365);                    
       if(this.isCollpase){
         let tips = encodeURI('展开菜单');
-        this.setCookie('menuWidth',1,365);
-        this.setCookie('contentWidth',23,365);    
-        this.setCookie('collpaseName','>>',365);
-        this.setCookie('tips',tips,365);
-        this.setCookie('openedMenu',[],365);
+        setCookie('menuWidth',1,365);
+        setCookie('contentWidth',23,365);    
+        setCookie('collpaseName','>>',365);
+        setCookie('tips',tips,365);
+        setCookie('openedMenu',[],365);
         this.menuWidth = 1;
         this.contentWidth = 23;
         this.collpaseName = '>>';
@@ -118,12 +119,12 @@ export default {
         this.$refs.leftMenu.openedMenu = [];
       } else {
         let tips = encodeURI('收起菜单');        
-        this.setCookie('menuWidth',5,365);
-        this.setCookie('contentWidth',19,365);
-        this.setCookie('collpaseName','<<',365);
-        this.setCookie('tips',tips,365);
+        setCookie('menuWidth',5,365);
+        setCookie('contentWidth',19,365);
+        setCookie('collpaseName','<<',365);
+        setCookie('tips',tips,365);
         console.log('this.$route.query.item',this.$route.query.item);
-        this.setCookie('openedMenu',this.$route.query.item,365);
+        setCookie('openedMenu',this.$route.query.item,365);
         this.menuWidth = 5;
         this.contentWidth = 19;
         this.collpaseName = '<<';
@@ -243,22 +244,6 @@ export default {
           this.nav = this.$route.fullPath
           break
       }
-    },
-    setCookie(cname,cvalue,exdays) {
-      var d = new Date();
-      d.setTime(d.getTime()+(exdays*24*60*60*1000));
-      var expires = "expires="+d.toGMTString();
-      document.cookie = cname + "=" + cvalue + "; " + expires;
-    },
-    getCookie(cname) {
-      var name = cname + "=";
-      var ca = document.cookie.split(';');
-      for(var i=0; i<ca.length; i++) 
-      {
-        var c = ca[i].trim();
-        if (c.indexOf(name)==0) return c.substring(name.length,c.length);
-      }
-      return "";
     }
   },
   components: {

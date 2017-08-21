@@ -200,6 +200,7 @@
 ** JoinOther 联合查询对象名称数组
 */
   import {BASICURL, fetch, fetch2} from '../api/api.js'
+  import {setCookie, getCookie} from '../utils/cookie.js'
   import CInput from './CInput.vue'
   export default {
     props: {

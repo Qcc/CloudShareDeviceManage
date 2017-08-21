@@ -51,9 +51,9 @@
           <div class="header-title" slot="header">
             <span>使用人次</span>
             <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultValue" @change="handleUsePerson">
-              <el-option default  :value="7" :label="'最近7天'"></el-option>
-              <el-option :value="30" :label="'最近30天'"></el-option>
-              <el-option :value="90" :label="'最近90天'"></el-option>              
+              <el-option default  :value="-7" :label="'最近7天'"></el-option>
+              <el-option :value="-30" :label="'最近30天'"></el-option>
+              <el-option :value="-90" :label="'最近90天'"></el-option>              
             </el-select>
           </div>
           <div class="use-content" id="lineParent">
@@ -103,14 +103,14 @@
           <div class="header-title" slot="header">
             <span>注册会员</span>
             <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultVip" @change="handleUseVip">
-              <el-option default  :value="7" :label="'最近7天'"></el-option>
-              <el-option :value="30" :label="'最近30天'"></el-option>
-              <el-option :value="90" :label="'最近90天'"></el-option>              
+              <el-option default  :value="-7" :label="'最近7天'"></el-option>
+              <el-option :value="-30" :label="'最近30天'"></el-option>
+              <el-option :value="-90" :label="'最近90天'"></el-option>              
             </el-select>
             <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
           </div>
           <div class="crd-content">
-            <g2-bar  v-if="this.chartWidth" :isCollpase="isCollpase" :charData="barData"></g2-bar>
+            <g2-bar  v-if="this.chartWidth" :isCollpase="isCollpase" :data="barData"></g2-bar>
           </div>
         </el-card>
       </el-col>
@@ -120,16 +120,16 @@
 
 </template>
 <script>
-import {lineUrl, parnterUrl, fetch2} from '../api/api.js'
+import {chartUrl, parnterUrl, fetch2} from '../api/api.js'
 import G2Line from '../components/chart/G2line'
 import G2Pie from '../components/chart/G2pie'
 import G2Bar from '../components/chart/G2bar'
 export default {
   data () {
     return {
-      defaultValue: 7,
+      defaultValue: -7,
       defaultMoon:0,
-      defaultVip:7,
+      defaultVip:-7,
       // 线图
       chartWidth:null,
       // 覆盖网点，投放设备...
@@ -143,36 +143,34 @@ export default {
       // 使用人次
       useParams:{
         gongsi:null,
-        fromDate:this.getDate(7),
+        fromDate:this.getDate(new Date(),-7),
         toDate:this.getDate(),
         type:1
       },
       // 单日收入
       moneyParams:{
         gongsi:null,
-        fromDate:this.getDate(7),
+        fromDate:this.getDate(new Date(),-7),
         toDate:this.getDate(),
         type:2
       },
       // 注册会员
       vipParams:{
         gongsi:null,
-        fromDate:this.getDate(7),
+        fromDate:this.getDate(new Date(),-7),
         toDate:this.getDate(),
         type:3
       },
       // 累计收入
-      allMoneyParams:{
+      shouruParams:{
         gongsi:null,
-        fromDate:this.getDate(7),
+        fromDate:this.getDate(new Date(),-7),
         toDate:this.getDate(),
         type:4
       },
       // lineData数据格式{"money":35,"count":6,"days":"2017-08-01"},
-      lineData1: [{"money":25,"count":9,"days":"2017-08-01"}],
-      lineData: [{"money":15,"count":3,"days":"2017-08-01"},
-      {"money":14,"count":3,"days":"2017-08-02"},
-      {"money":35,"count":7,"days":"2017-08-03"}],      
+      lineData: [], 
+      lineTempData: [],
       tableData: [{
           name: '第一周',
           amount1: '234',
@@ -198,6 +196,7 @@ export default {
       barData:[
         {name: '注册会员',data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]},
         {name: '总用户',data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]}]
+      // barData:[]
     }
   },
   props: {
@@ -215,25 +214,37 @@ export default {
   },
   created:function(){
     this.getParChartData();
-    // this.getLineChartData();
+    this.getLineChartData();
+    this.getShouruData();
   },
   methods: {
     handleUsePerson (val) {
-      this.useParams.fromDate = this.getDate(val);
-      this.moneyParams.fromDate = this.getDate(val);
+      this.useParams.fromDate = this.getDate(new Date(),val);
+      this.moneyParams.fromDate = this.getDate(new Date(),val);
       this.getLineChartData();
     },
     handleUseMoney (val) {
-      console.log(val,2)
+      this.shouruParams.fromDate = this.getMonh(val);
+      this.getShouruData();
     },
     handleUseVip (val) {
       console.log(val,3)
     },
+    // 伙伴统计
     getParChartData(){
       fetch2(parnterUrl,this.onComplate,{},{});
     },
+    // 使用人次
     getLineChartData(){
-      fetch2(lineUrl,this.onComplate,this.useParams,this.useParams);
+      fetch2(chartUrl,this.onComplate,this.useParams,this.useParams);
+    },
+    // 注册会员
+    getBarChartData(){
+      fetch2(chartUrl,this.onComplate,this.vipParams,this.vipParams);
+    },
+    // 月收款
+    getShouruData(){
+      fetch2(chartUrl,this.onComplate,this.shouruParams,this.shouruParams);
     },
     onComplate(data,state){
       if(!this.checkResults(data)) return;
@@ -247,42 +258,50 @@ export default {
       } else {
         // 使用人次请求
         if(state[0].type === 1){
-          this.lineData = this.filledData(data.entity,state[0]);
-          fetch2(lineUrl,this.onComplate,this.moneyParams,this.moneyParams);
+          this.lineTempData = this.filledData(data.entity,state[0]);
+          fetch2(chartUrl,this.onComplate,this.moneyParams,this.moneyParams);
           // 消费金额请求
         }else if(state[0].type === 2){
-          let tempData = [];
-          let filledData = this.filledData(data.entity,state[0])
+          let filledData = data.entity;
           for (let i =0; i < filledData.length;i++) {
-            tempData.push(Object.assign(this.lineData[i],filledData[i]));
+            for (var key in this.lineTempData) {
+              if(this.lineTempData[key].days === filledData[i].days){
+                this.lineTempData[key].money = filledData[i].money;
+                continue; 
+              }
+            }
           }
-          this.lineData = tempData;
+          for (var key in this.lineTempData) {
+            this.lineTempData[key].money = this.lineTempData[key].money / 100; 
+          }
+          this.lineData = this.lineTempData;
+        }else if(state[0].type === 3){
+          console.log('注册会员',data.entity);
+        }else if(state[0].type === 4){
+          console.log('累计收入',data.entity);          
         }
       }
     },
-    // 补全不连续日期
+    // 线性图标补全不连续日期
     filledData(data,params){
-      let day='';
-      let fData=[];
-      let fromDate = params.fromDate;
-      do{
-        let flag = true;
-        for (var i in data) {
-          if(data[i].days === fromDate) {
-            flag = false;
+      let day = params.fromDate;
+      let fData = [];
+      while(new Date(params.toDate).getTime() >= new Date(day).getTime()){
+        let flag = false;
+        for (let i = 0; i < data.length; i++) {
+          if(data[i].days === day){
+            fData.push(data[i]);
+            data.splice(i,1);
+            flag = true;
             continue;
           }
         }
-        if(!flag) continue;
-        let temp={}
-        for (var key in data[0]) {
-           temp[key] = 0;
+        if(!flag){
+          fData.push({money:0,count:0,days:day});
         }
-        temp.days = fromDate;
-        fData.push(temp);
-        let newDate = new Date(fromDate).getTime()
-        fromDate
-      }while(true);
+        day = this.getDate(day,1);
+      };
+      return fData;
     },
     checkResults (data) {
       if (data === null) {
@@ -310,16 +329,26 @@ export default {
         return false
       }
     },
-    //获取过去天数的日期
-    getDate(days = 0){
-      let year,month,day;
-      let milliSeconds = new Date().getTime();
-      milliSeconds -= days*24*60*60*1000;
-      let date = new Date(milliSeconds);
+    //获取日期
+    getDate(days = new Date(),count = 0){
+      let date,year,month,day;
+      let milliSeconds = new Date(days).getTime();
+      count = count*24*60*60*1000;
+      date = new Date(milliSeconds + count);
       year = date.getFullYear();
       month = date.getMonth() + 1;
       day = date.getDate();
+      if(month < 10) month ='0' + month;
+      if(day < 10) day = '0' + day;
       return year + '-' + month + '-' + day;
+    },
+    getMonh(m = 0){
+      let date,year,month,day;
+      date = new Date();
+      year = date.getFullYear();
+      day = date.getDate();
+      month = date.getMonth() + 1 + m
+      return year + '-' + month + '-' + '01';            
     },
     isEmptyObject( obj ) {    
       var name;  

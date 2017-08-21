@@ -10,7 +10,7 @@ export default {
       };
     },
     props: {
-      charData: Array,
+      data: Array,
       isCollpase: Boolean
     },
     mounted: function () {
@@ -33,7 +33,7 @@ export default {
         // 如果图形存在则删除再创建，这个地方感觉稍微有点坑
         // 具体的G2 api函数说明请看上面提供的官网地址，此处不再逐一说明
         this.chart && this.chart.destroy();
-        let data = this.charData;
+        let data = this.data;
         for(var i=0; i < data.length; i++) {
           var item = data[i];
           var datas = item.data;
