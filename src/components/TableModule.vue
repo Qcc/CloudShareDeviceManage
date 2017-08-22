@@ -123,7 +123,7 @@
   </el-alert>
   <el-checkbox class="choice-col" v-for="item in tableCol"  :key="item.key" :label="item.label" v-model="item.visible" >{{item.label}}</el-checkbox>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="columnVisible = false">确 定</el-button>
+      <el-button type="primary" @click="saveColumnVidible">确 定</el-button>
     </div>
   </el-dialog>
   <!--批量修改-->
@@ -297,8 +297,24 @@
     },
     created: function () {
       this.reloadingData()
+      let cookie = getCookie('column');
+      if(cookie !== ''){
+        cookie = JSON.parse(cookie);
+        for (var i in this.tableCol) {
+          this.tableCol[i].visible = cookie[this.tableCol[i].key];
+          console.log(this.tableCol[i].visible,cookie[this.tableCol[i].key]);
+        }
+      }
     },
     methods: {
+      saveColumnVidible(){
+        this.columnVisible = false;
+        let column={};
+        for (var i in this.tableCol) {
+          column[this.tableCol[i].key] = this.tableCol[i].visible;
+        }
+        setCookie('column',JSON.stringify(column),365);
+      },
       // 更多功能
       moreFeatures () {
         this.moreVisible = !this.moreVisible

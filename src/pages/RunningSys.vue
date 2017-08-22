@@ -72,7 +72,11 @@
             <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultMoon" @change="handleUseMoney">
               <el-option default  :value="0" :label="'本月'"></el-option>
               <el-option :value="-1" :label="'前一月'"></el-option>
-              <el-option :value="-2" :label="'前二月'"></el-option>              
+              <el-option :value="-2" :label="'前二月'"></el-option>
+              <el-option :value="-10" :label="'前10月'"></el-option>           
+              <el-option :value="-13" :label="'前13月'"></el-option>           
+              <el-option :value="-25" :label="'前25月'"></el-option>           
+                         
             </el-select>
             <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
           </div>
@@ -164,9 +168,9 @@ export default {
       // 累计收入
       shouruParams:{
         gongsi:null,
-        fromDate:this.getDate(new Date(),-7),
-        toDate:this.getDate(),
-        type:4
+        fromDate:this.getFristLastDay(0),
+        toDate:this.getFristLastDay(0,true),
+        type:2
       },
       // lineData数据格式{"money":35,"count":6,"days":"2017-08-01"},
       lineData: [], 
@@ -210,7 +214,7 @@ export default {
         this.chartWidth = lineParent.offsetWidth;
         clearInterval(interVal);
       }
-    },5);  
+    },10);  
   },
   created:function(){
     this.getParChartData();
@@ -224,7 +228,8 @@ export default {
       this.getLineChartData();
     },
     handleUseMoney (val) {
-      this.shouruParams.fromDate = this.getMonh(val);
+      this.shouruParams.fromDate = this.getFristLastDay(val);
+      this.shouruParams.toDate = this.getFristLastDay(val,true);      
       this.getShouruData();
     },
     handleUseVip (val) {
@@ -244,7 +249,7 @@ export default {
     },
     // 月收款
     getShouruData(){
-      fetch2(chartUrl,this.onComplate,this.shouruParams,this.shouruParams);
+      fetch2(chartUrl,this.onMonthComplate,this.shouruParams,this.shouruParams);
     },
     onComplate(data,state){
       if(!this.checkResults(data)) return;
@@ -253,7 +258,7 @@ export default {
         this.state.mendian = data.entity.mengdianzs;
         this.state.shebei = data.entity.toufangsbzs;
         this.state.shiyong = data.entity.shiyongrczs;
-        this.state.shouru = data.entity.shoufeizs;
+        this.state.shouru = data.entity.shoufeizs / 100;
         this.state.huiyuan = data.entity.zhucehyzs;
       } else {
         // 使用人次请求
@@ -281,6 +286,10 @@ export default {
           console.log('累计收入',data.entity);          
         }
       }
+    },
+    onMonthComplate(data) {
+      if(!this.checkResults(data)) return;
+      console.log('month',data)
     },
     // 线性图标补全不连续日期
     filledData(data,params){
@@ -329,7 +338,7 @@ export default {
         return false
       }
     },
-    //获取日期
+    //获取字符串日期
     getDate(days = new Date(),count = 0){
       let date,year,month,day;
       let milliSeconds = new Date(days).getTime();
@@ -342,13 +351,58 @@ export default {
       if(day < 10) day = '0' + day;
       return year + '-' + month + '-' + day;
     },
-    getMonh(m = 0){
+    //获取月头月尾日期，last=true获取最后一天
+    getFristLastDay(months = 0,last = false){
+      let date,year,y,month,m,day,reDate;
+      date = new Date();
+      year = date.getFullYear();
+      month = date.getMonth() + 1;
+      day = date.getDate();
+      if(months > 0){
+        while(months>0){
+          if(month>11){
+            year++;
+            month = 1;
+          }else{
+            month++;
+          }
+          months--;
+        }
+      }else if(months < 0){
+         while(months < 0){
+          if(month <= 1){
+            year--;
+            month = 12;
+          }else{
+            month--;
+          }
+          months++;
+        }
+      }
+      if(month < 10) month = '0' + month;
+      reDate = year + '-' + month + '-' + '01';
+      if(last){
+        let d = new Date(year,month,0).getDate();
+        if(d < 10) d = '0' + d;
+        reDate = year + '-' + month + '-' + d;
+      }
+      return  reDate;            
+    },
+    getMonthLastDay(m = 0){
       let date,year,month,day;
       date = new Date();
       year = date.getFullYear();
       day = date.getDate();
       month = date.getMonth() + 1 + m
-      return year + '-' + month + '-' + '01';            
+      return year + '-' + month + '-' + '01';
+
+      function getFirstAndLastMonthDay( year, month){    
+               var   firstdate = year + '-' + month + '-01';  
+               var  day = new Date(year,month,0);   
+               var lastdate = year + '-' + month + '-' + day.getDate();//获取当月最后一天日期
+  //给文本控件赋值。同下
+               return lastdate;  
+            }
     },
     isEmptyObject( obj ) {    
       var name;  
