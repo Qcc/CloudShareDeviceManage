@@ -123,7 +123,6 @@ export default {
         setCookie('contentWidth',19,365);
         setCookie('collpaseName','<<',365);
         setCookie('tips',tips,365);
-        console.log('this.$route.query.item',this.$route.query.item);
         setCookie('openedMenu',this.$route.query.item,365);
         this.menuWidth = 5;
         this.contentWidth = 19;
@@ -241,6 +240,10 @@ export default {
           break
         case 'orderChart':
           this.navName = '订单套餐'
+          this.nav = this.$route.fullPath
+          break
+        case 'openDevice':
+          this.navName = '打开设备'
           this.nav = this.$route.fullPath
           break
       }

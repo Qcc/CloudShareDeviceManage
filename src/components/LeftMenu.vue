@@ -29,6 +29,7 @@
       </el-submenu>
       <el-submenu v-if="curUserId === 2026226681" index="105">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
+          <el-menu-item class="MenuItem" index="openDevice"> 打开设备</el-menu-item>
           <el-menu-item class="MenuItem" index="combo"> 套餐配置</el-menu-item>
           <el-menu-item class="MenuItem" index="comboGroup"> 套餐组配置</el-menu-item>          
           <el-menu-item class="MenuItem" index="orderManager"> 订单管理</el-menu-item>
@@ -57,7 +58,8 @@
       </el-submenu>
       <el-submenu v-if="curUserId === 2031278906" index="204">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
-          <el-menu-item class="MenuItem" index="combo"> 套餐配置</el-menu-item>
+          <el-menu-item class="MenuItem" index="openDevice"> 打开设备</el-menu-item>
+          <el-menu-item class="MenuItem" index="combo"> 套餐配置</el-menu-item>          
           <el-menu-item class="MenuItem" index="comboGroup"> 套餐组配置</el-menu-item>          
           <el-menu-item class="MenuItem" index="orderManager"> 订单管理</el-menu-item>
           <el-menu-item class="MenuItem" index="guke"> 消费者</el-menu-item> 
@@ -78,6 +80,7 @@
       </el-submenu>
       <el-submenu v-if="curUserId === -2139060392" index="304">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
+          <el-menu-item class="MenuItem" index="openDevice"> 打开设备</el-menu-item>
           <el-menu-item class="MenuItem" index="combo"> 查看套餐</el-menu-item>
           <el-menu-item class="MenuItem" index="comboGroup"> 查看套餐组</el-menu-item>          
           <el-menu-item class="MenuItem" index="orderManager"> 查看订单</el-menu-item>
@@ -97,6 +100,7 @@
       </el-submenu>
       <el-submenu v-if="curUserId === -2134008167" index="404">
         <template slot="title"><i class="el-icon-circle-check"></i><span slot="title">运维管理</span></template>
+          <el-menu-item class="MenuItem" index="openDevice"> 打开设备</el-menu-item>
           <el-menu-item class="MenuItem" index="combo"> 查看套餐</el-menu-item>
           <el-menu-item class="MenuItem" index="comboGroup">查看套餐组</el-menu-item>          
           <el-menu-item class="MenuItem" index="orderManager"> 查看订单</el-menu-item>

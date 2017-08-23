@@ -297,14 +297,6 @@
     },
     created: function () {
       this.reloadingData()
-      let cookie = getCookie('column');
-      if(cookie !== ''){
-        cookie = JSON.parse(cookie);
-        for (var i in this.tableCol) {
-          this.tableCol[i].visible = cookie[this.tableCol[i].key];
-          console.log(this.tableCol[i].visible,cookie[this.tableCol[i].key]);
-        }
-      }
     },
     methods: {
       saveColumnVidible(){
@@ -560,7 +552,7 @@
         this.tableCol.push(this.defineCol(model.columns[i]));
       }
     }
-
+    this.queryCookie(this.tableCol);
     //添加是否编辑状态与行号
     for (let i = 0; i < this.tableData.length; i++) {
       this.$set(this.tableData[i],'editstyle',false);
@@ -568,6 +560,19 @@
     }
     if (this.searchLoading) this.searchLoading = false
     if (this.advSearchLoading) this.advSearchLoading = false
+  },
+  //查询cookie状态，并修改默认打开列
+  queryCookie(column){
+    console.log(column);
+    let cookie = getCookie('column');
+    if(cookie !== ''){
+      cookie = JSON.parse(cookie);
+      for (var i in column) {
+        if(cookie[column[i].key] !== undefined){
+          column[i].visible = cookie[column[i].key];
+        }
+      }
+    }
   },
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {

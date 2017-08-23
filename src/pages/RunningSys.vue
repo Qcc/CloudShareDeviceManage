@@ -73,10 +73,6 @@
               <el-option default  :value="0" :label="'本月'"></el-option>
               <el-option :value="-1" :label="'前一月'"></el-option>
               <el-option :value="-2" :label="'前二月'"></el-option>
-              <el-option :value="-10" :label="'前10月'"></el-option>           
-              <el-option :value="-13" :label="'前13月'"></el-option>           
-              <el-option :value="-25" :label="'前25月'"></el-option>           
-                         
             </el-select>
             <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
           </div>
@@ -84,6 +80,7 @@
             <el-table
               :data="tableData"
               show-summary
+              :summary-method="summaryMethod"
               align="left"
               style="width: 100%">
               <el-table-column
@@ -91,11 +88,11 @@
                 label="时间">
               </el-table-column>
               <el-table-column
-                prop="amount1"
+                prop="money"
                 label="收款金额">
               </el-table-column>
               <el-table-column
-                prop="amount2"
+                prop="count"
                 label="使用次数">
               </el-table-column>
             </el-table>
@@ -124,6 +121,7 @@
 
 </template>
 <script>
+import {setCookie, getCookie} from '../utils/cookie.js'
 import {chartUrl, parnterUrl, fetch2} from '../api/api.js'
 import G2Line from '../components/chart/G2line'
 import G2Pie from '../components/chart/G2pie'
@@ -147,55 +145,43 @@ export default {
       // 使用人次
       useParams:{
         gongsi:null,
-        fromDate:this.getDate(new Date(),-7),
+        fromDate:this.getDate(new Date(),this.defaultValue),
         toDate:this.getDate(),
         type:1
       },
       // 单日收入
       moneyParams:{
         gongsi:null,
-        fromDate:this.getDate(new Date(),-7),
+        fromDate:this.getDate(new Date(),this.defaultValue),
         toDate:this.getDate(),
         type:2
       },
       // 注册会员
       vipParams:{
         gongsi:null,
-        fromDate:this.getDate(new Date(),-7),
+        fromDate:this.getDate(new Date(),this.defaultVip),
         toDate:this.getDate(),
         type:3
+      },
+      // 累计人次
+      renciParams:{
+        gongsi:null,
+        fromDate:this.getFristLastDay(this.defaultMoon),
+        toDate:this.getFristLastDay(this.defaultMoon,true),
+        type:1
       },
       // 累计收入
       shouruParams:{
         gongsi:null,
-        fromDate:this.getFristLastDay(0),
-        toDate:this.getFristLastDay(0,true),
+        fromDate:this.getFristLastDay(this.defaultMoon),
+        toDate:this.getFristLastDay(this.defaultMoon,true),
         type:2
       },
       // lineData数据格式{"money":35,"count":6,"days":"2017-08-01"},
       lineData: [], 
       lineTempData: [],
-      tableData: [{
-          name: '第一周',
-          amount1: '234',
-          amount2: '3',
-          amount3: 10
-        }, {
-          name: '第二周',
-          amount1: '165',
-          amount2: '4',
-          amount3: 12
-        }, {
-          name: '第三周',
-          amount1: '324',
-          amount2: '1',
-          amount3: 9
-        }, {
-          name: '第四周',
-          amount1: '621',
-          amount2: '2',
-          amount3: 17
-        }],
+      tableTempData:[],
+      tableData: [],
       // 柱状图
       barData:[
         {name: '注册会员',data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]},
@@ -207,6 +193,32 @@ export default {
     isCollpase: Boolean
   },
   mounted: function () {
+    let cookie = getCookie('defaultDate');
+    if(cookie !== ''){
+      cookie = JSON.parse(cookie);
+      if(cookie.defaultValue !== undefined) this.defaultValue = cookie.defaultValue;
+      if(cookie.defaultVip !== undefined) this.defaultVip = cookie.defaultVip;
+      if(cookie.defaultMoon !== undefined) this.defaultMoon = cookie.defaultMoon;
+    }
+    // 使用人次
+    this.useParams.fromDate = this.getDate(new Date(),this.defaultValue);
+    // 单日收入
+    this.moneyParams.fromDate = this.getDate(new Date(),this.defaultValue);
+    // 注册会员
+    this.vipParams.fromDate = this.getDate(new Date(),this.defaultVip);
+    // 使用人次
+    this.renciParams.fromDate = this.getFristLastDay(this.defaultMoon);
+    this.renciParams.toDate = this.getFristLastDay(this.defaultMoon,true);
+    // 累计收入
+    this.renciParams.fromDate = this.getFristLastDay(this.defaultMoon);
+    this.renciParams.toDate = this.getFristLastDay(this.defaultMoon,true);
+    this.shouruParams.fromDate = this.getFristLastDay(this.defaultMoon);
+    this.shouruParams.toDate = this.getFristLastDay(this.defaultMoon,true);
+    this.getParChartData();
+    this.getLineChartData();
+    this.getShouruData();
+    // this.getBarChartData();
+
     var lineParent = document.getElementById('lineParent');
     //图形容器就绪能够获取到宽度时，开始渲染图像
     var interVal = setInterval(()=>{
@@ -216,24 +228,79 @@ export default {
       }
     },10);  
   },
-  created:function(){
-    this.getParChartData();
-    this.getLineChartData();
-    this.getShouruData();
-  },
   methods: {
+    summaryMethod(param){
+        const { columns, data } = param;
+        const sums = [];
+        columns.forEach((column, index) => {
+          if (index === 0) {
+            sums[index] = '合计';
+            return;
+          }
+          const values = data.map(item => Number(item[column.property]));
+          if (index === 1) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0);
+            sums[index] = sums[index].toFixed(2);
+            sums[index] ='¥ '+ sums[index] +' 元';
+          }
+          if (index === 2) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0);
+            sums[index] +=' 次';
+          }
+        });
+      return sums;
+    },
     handleUsePerson (val) {
+      let cookie = getCookie('defaultDate');
+      if(cookie !== ''){
+        cookie = JSON.parse(cookie);
+      }else{
+        cookie = {}
+      }
+      cookie.defaultValue = val;
+      setCookie('defaultDate',JSON.stringify(cookie),365);
       this.useParams.fromDate = this.getDate(new Date(),val);
       this.moneyParams.fromDate = this.getDate(new Date(),val);
       this.getLineChartData();
     },
     handleUseMoney (val) {
+      let cookie = getCookie('defaultDate');
+      if(cookie !== ''){
+        cookie = JSON.parse(cookie);
+      }else{
+        cookie = {}
+      }
+      cookie.defaultMoon = val;
+      setCookie('defaultDate',JSON.stringify(cookie),365);
+      this.renciParams.fromDate = this.getFristLastDay(val);
+      this.renciParams.toDate = this.getFristLastDay(val,true);
       this.shouruParams.fromDate = this.getFristLastDay(val);
       this.shouruParams.toDate = this.getFristLastDay(val,true);      
       this.getShouruData();
     },
     handleUseVip (val) {
-      console.log(val,3)
+      let cookie = getCookie('defaultDate');
+      if(cookie !== ''){
+        cookie = JSON.parse(cookie);
+      }else{
+        cookie = {}
+      }
+      cookie.defaultVip = val;
+      setCookie('defaultDate',JSON.stringify(cookie),365);
     },
     // 伙伴统计
     getParChartData(){
@@ -249,7 +316,7 @@ export default {
     },
     // 月收款
     getShouruData(){
-      fetch2(chartUrl,this.onMonthComplate,this.shouruParams,this.shouruParams);
+      fetch2(chartUrl,this.onMonthComplate,this.renciParams,this.renciParams);
     },
     onComplate(data,state){
       if(!this.checkResults(data)) return;
@@ -281,15 +348,55 @@ export default {
           }
           this.lineData = this.lineTempData;
         }else if(state[0].type === 3){
-          console.log('注册会员',data.entity);
-        }else if(state[0].type === 4){
-          console.log('累计收入',data.entity);          
+          // console.log('注册会员',data.entity);
         }
       }
     },
-    onMonthComplate(data) {
+    onMonthComplate(data,state) {
       if(!this.checkResults(data)) return;
-      console.log('month',data)
+      this.tableTempData = this.filledData(data.entity,state[0]);
+      fetch2(chartUrl,this.onMonthComplate2,this.shouruParams,this.shouruParams);
+    },
+    onMonthComplate2(data){
+      if(!this.checkResults(data)) return;
+      let filledData = data.entity;
+      for (let i =0; i < filledData.length;i++) {
+        for (var key in this.tableTempData) {
+          if(this.tableTempData[key].days === filledData[i].days){
+            this.tableTempData[key].money = filledData[i].money;
+            continue; 
+          }
+        }
+      }
+      // for (var key in this.tableTempData) {
+      //   this.tableTempData[key].money = this.tableTempData[key].money / 100; 
+      // }
+      let count=0,money=0;
+      this.tableData =[];
+      for (let i = 0; i < this.tableTempData.length;i++) {
+        count += this.tableTempData[i].count;
+        money += this.tableTempData[i].money;
+        if(i!=0 && i/7 === 1){
+          this.tableData.push({'count':count,'money':money/100,'name':'第一周'});
+          count=0;
+          money=0;
+        }
+        if(i!=0 && i/14 === 1){
+          this.tableData.push({'count':count,'money':money/100,'name':'第二周'});
+          count=0;
+          money=0;
+        }
+        if(i!=0 && i/21 === 1){
+          this.tableData.push({'count':count,'money':money/100,'name':'第三周'});
+          count=0;
+          money=0;
+        }
+        if(i!=0 && i === this.tableTempData.length-1){
+          this.tableData.push({'count':count,'money':money/100,'name':'第四周'});
+          count=0;
+          money=0;
+        }
+      }
     },
     // 线性图标补全不连续日期
     filledData(data,params){

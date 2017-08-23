@@ -3,6 +3,7 @@ import Router from 'vue-router'
 const Login = r => require.ensure([], () => r(require('../pages/Login.vue')), 'Login')
 const TableModule = r => require.ensure([], () => r(require('../components/TableModule.vue')), 'Main')
 const RunningSys = r => require.ensure([], () => r(require('../pages/RunningSys.vue')), 'RunningSys')
+const OpenDevice = r => require.ensure([], () => r(require('../pages/OpenDevice.vue')), 'OpenDevice')
 const Main = r => require.ensure([], () => r(require('../pages/Main.vue')), 'Main')
 const NotFound = r => require.ensure([], () => r(require('../pages/NotFound404.vue')), 'NotFound')
 const NumberManager = r => require.ensure([], () => r(require('../pages/NumberManager.vue')), 'NumberManager')
@@ -34,35 +35,10 @@ export default new Router({
         { path: 'point', component: TableModule },
         { path: 'personnelChart', component: PersonnelChart },
         { path: 'deviceChart', component: DeviceChart },
-        { path: 'orderChart', component: OrderChart }
+        { path: 'orderChart', component: OrderChart },
+        { path: 'openDevice', component: OpenDevice },
       ]
     },
     { path: '*', name: 'NotFound', component: NotFound }
   ]
-})
-
-// 云享管理员
-// 云享运维员
-// {path: '/2031278906/:id',
-//   components: {
-//     topNva: topNva,
-//     leftMenu: LeftMenu,
-//     tableModule: TableModule
-//   }
-// },
-// 伙伴管理员
-// {path: '/-2139060392/:id',
-//   components: {
-//     topNva: topNva,
-//     leftMenu: LeftMenu,
-//     tableModule: TableModule
-//   }
-// },
-// 伙伴运维员
-// {path: '/-2134008167/:id',
-//   components: {
-//     topNva: topNva,
-//     leftMenu: LeftMenu,
-//     tableModule: TableModule
-//   }
-// },
+});

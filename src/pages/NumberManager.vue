@@ -86,7 +86,7 @@
       <el-color-picker v-model="pgcolor"></el-color-picker>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="configRcodeVisible = false">确 定</el-button>
+        <el-button type="primary" @click="saveQrConfig">确 定</el-button>
       </span>
     </el-dialog>
 	</div>
@@ -94,6 +94,7 @@
 <script>
 import QRcode from '../components/QRcode.vue'
 import {BASICURL, fetch, fetch2} from '../api/api.js'
+import {setCookie, getCookie} from '../utils/cookie.js'
 export default {
 	data() {
     return {
@@ -121,14 +122,26 @@ export default {
   },
 	created: function () {
     this.reloadingData();
+    let cookie = getCookie('qr');
+    if(cookie !== ''){
+      let qr = JSON.parse(cookie);
+      for (var key in qr) {
+        this[key]=qr[key];
+      }
+    }
   },
 	methods:{
+    saveQrConfig (){
+      this.configRcodeVisible = false
+      let qr = JSON.stringify({size:this.size,bgcolor:this.bgcolor,fgcolor:this.fgcolor,pgcolor:this.pgcolor});
+      setCookie('qr',qr,365);     
+    },
     openConfigQr () {
       this.configRcodeVisible = true;
       this.backbup.size = this.size;
       this.backbup.bgcolor = this.bgcolor;  
       this.backbup.fgcolor = this.fgcolor;  
-      this.backbup.pgcolor = this.pgcolor;          
+      this.backbup.pgcolor = this.pgcolor;
     },
     handleClose () {
       this.configRcodeVisible = false;
