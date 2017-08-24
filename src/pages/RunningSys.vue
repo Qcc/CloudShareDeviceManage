@@ -121,7 +121,7 @@
 
 </template>
 <script>
-import {setCookie, getCookie} from '../utils/cookie.js'
+import {setCookie, getCookie,checkResults} from '../utils/utils.js'
 import {chartUrl, parnterUrl, fetch2} from '../api/api.js'
 import G2Line from '../components/chart/G2line'
 import G2Pie from '../components/chart/G2pie'
@@ -319,7 +319,7 @@ export default {
       fetch2(chartUrl,this.onMonthComplate,this.renciParams,this.renciParams);
     },
     onComplate(data,state){
-      if(!this.checkResults(data)) return;
+      if(!checkResults(data)) return;
       // 覆盖网点，设备总数请求
       if(this.isEmptyObject(state[0])){
         this.state.mendian = data.entity.mengdianzs;
@@ -353,12 +353,12 @@ export default {
       }
     },
     onMonthComplate(data,state) {
-      if(!this.checkResults(data)) return;
+      if(!checkResults(data)) return;
       this.tableTempData = this.filledData(data.entity,state[0]);
       fetch2(chartUrl,this.onMonthComplate2,this.shouruParams,this.shouruParams);
     },
     onMonthComplate2(data){
-      if(!this.checkResults(data)) return;
+      if(!checkResults(data)) return;
       let filledData = data.entity;
       for (let i =0; i < filledData.length;i++) {
         for (var key in this.tableTempData) {
@@ -418,32 +418,6 @@ export default {
         day = this.getDate(day,1);
       };
       return fData;
-    },
-    checkResults (data) {
-      if (data === null) {
-        this.$notify.error({
-          title: '提示',
-          message: '网络错误，请刷新（F5）后重试。'
-        })
-        return false
-      }
-      if (data.errorCode === 0) {
-        return true
-      } else if(data.errorCode === 3) {
-        this.$notify.error({
-          title: '错误',
-          message: '当前页面发生错误，' + data.message
-        })
-        let path = this.$route.path.split('/')
-        let login = path[path.length - 2]
-        this.$router.push({path: '/idev/' + login + '/login'})
-      } else {
-        this.$notify.error({
-          title: '错误',
-          message: '当前页面发生错误，' + data.message
-        })
-        return false
-      }
     },
     //获取字符串日期
     getDate(days = new Date(),count = 0){

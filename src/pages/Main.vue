@@ -36,7 +36,7 @@ import PersonnelChart from '../components/personnelChart.vue'
 import DeviceChart from '../components/deviceChart.vue'
 import OrderChart from '../components/orderChart.vue'
 import {isLoggedIn, fetch} from '../api/api.js'
-import {setCookie, getCookie} from '../utils/cookie.js'
+import {setCookie, getCookie} from '../utils/utils.js'
 export default {
   watch: {
     '$route' (to, from) {
@@ -204,6 +204,7 @@ export default {
         case 'orderManager':
           this.propADUQ = false
           this.fetchObj = 'dingdan'
+          this.JoinOther.user = {}
           this.JoinOther.guke = {}
           this.JoinOther.weixindingdan = {}
           this.JoinOther.shebei = {gongsi: {},shebeibianhao: {}}

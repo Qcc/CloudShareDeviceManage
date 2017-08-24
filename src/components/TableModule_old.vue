@@ -1,6 +1,6 @@
 <template>
 <div>
-  <el-row style="margin-bottom:10px;min-width:800px;">
+  <el-row style="margin-bottom:10px">
     <el-col v-if="propSearch" :span="13">
         <div style="float:left">
           <span>搜索数据 : </span>
@@ -9,8 +9,7 @@
                 <el-button slot="append" :loading="searchLoading"  @click="handleSearch" icon="search">搜索</el-button>
               </el-input>
             </div>
-        <!--<a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>            -->
-        <a @click="showAdvancedSearch" v-if="false" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
+        <a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
         </div>
     </el-col>
     <el-col :span="11" v-if="propADUQ && ADUQVisible" >
@@ -123,7 +122,7 @@
   </el-alert>
   <el-checkbox class="choice-col" v-for="item in tableCol"  :key="item.key" :label="item.label" v-model="item.visible" >{{item.label}}</el-checkbox>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="saveColumnVidible">确 定</el-button>
+      <el-button type="primary" @click="columnVisible = false">确 定</el-button>
     </div>
   </el-dialog>
   <!--批量修改-->
@@ -163,7 +162,7 @@
     </el-pagination>
     <!--单行编辑-->
     <el-dialog  title="编辑" :visible.sync="singleEditVisible">
-      <el-form :model="singleEditForm" :inline="true" label-position="right" label-width="80px">
+      <el-form :model="singleEditForm" :inline="true" label-position="left" label-width="80px">
         <el-form-item v-for="item in singleEditForm" v-bind:key="item.key" v-bind:label="item.label">
           <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-select>
@@ -176,7 +175,7 @@
     </el-dialog>
     <!--新建记录-->
     <el-dialog  title="新建" :visible.sync="createVisible">
-      <el-form :model="createForm" :inline="true" label-position="right" label-width="80px">
+      <el-form :model="createForm" :inline="true" label-position="left" label-width="80px">
         <el-form-item v-for="item in createForm" v-bind:key="item.key" v-bind:label="item.label">
           <c-input :columns="item" :getser="getServerObj"></c-input>
         </el-form-item>
@@ -200,7 +199,6 @@
 ** JoinOther 联合查询对象名称数组
 */
   import {BASICURL, fetch, fetch2} from '../api/api.js'
-  import {setCookie, getCookie,checkResults} from '../utils/utils.js'
   import CInput from './CInput.vue'
   export default {
     props: {
@@ -214,7 +212,7 @@
       propColumn: {type: Boolean, default: true}
     },
     watch: {
-      'fetchObj' () {
+      '$route' (to, from) {
         this.reloadingData()
       }
     },
@@ -299,14 +297,6 @@
       this.reloadingData()
     },
     methods: {
-      saveColumnVidible(){
-        this.columnVisible = false;
-        let column={};
-        for (var i in this.tableCol) {
-          column[this.tableCol[i].key] = this.tableCol[i].visible;
-        }
-        setCookie('column',JSON.stringify(column),365);
-      },
       // 更多功能
       moreFeatures () {
         this.moreVisible = !this.moreVisible
@@ -382,7 +372,7 @@
       batchMoifyComplate (data) {
         this.batchVisible = false
         this.batchLoading = false
-        if (!checkResults(data,this)) return
+        if (!this.checkResults(data)) return
         this.$message({
           type: 'success',
           message: '修改成功!'
@@ -416,164 +406,107 @@
           return type
         }
       },
-      defineCol(srcCol) {
-        let col = {}
-        col.key = srcCol.name
-        col.prop = srcCol.name
-        col.noenull = srcCol.notnull
-        col.visible = srcCol.visible
-        col.search = true
-        col.editable = srcCol.editable
-        col.referenceTable = srcCol.referenceTable
-        col.referenceTableName = srcCol.referenceTableName
-        col.editable = srcCol.editable
-        col.sortable = true
-        col.filters = []
+      // data回调数据  api调用类型url states数据操作对象
+      getDataOnComplate (data, ...states) {
+        this.tableLoading = false
+        if (!this.checkResults(data)) return
+        // 联合查询columnsJsonStr为数组，非联合查询columnsJsonStr为对象
+        let allCol = data.entity.columnsJsonStr
+        // 表格原始列
+        let columns = []
+        // 联合查询列
+        let JoinColumn = []
+        if (!this.isEmptyObject(this.JoinOther)) {
+          for (var i in allCol) {
+            let allColer = JSON.parse(allCol[i])
+            if (allColer.name === this.fetchObj) {
+              for (var j in allColer.columns) {
+                columns.push(allColer.columns[j])
+              }
+            } else {
+              for (var k in allColer.columns) {
+                if (allColer.columns[k].readableIdentifier !== '') {
+                  allColer.columns[k].f_tableName = allColer.name
+                  // allColer.columns[k].f_flowchart = allColer.flowchart
+                  allColer.columns[k].f_flowchart = allColer.columns[k].readableIdentifier                  
+                  JoinColumn.push(allColer.columns[k])
+                  columns.push(allColer.columns[k])
+                }
+              }
+            }
+          }
+        } else {
+          columns = JSON.parse(allCol).columns
+        }
+        this.tableCol = []
+        for (let i = 0; i < columns.length; i++) {
+          let colObj = {}
+          colObj.key = columns[i].name
+          //对应行数据名称
+          colObj.prop = columns[i].name
+          colObj.noenull = columns[i].notnull
+          colObj.visible = columns[i].visible
+          colObj.search = true
+          colObj.editable = columns[i].editable
+          colObj.referenceTable = columns[i].referenceTable
+          colObj.referenceTableName = columns[i].referenceTableName
+          if (colObj.referenceTable === '') {
+            colObj.type = this.conversionType(columns[i].type)
+            //对应列名称
+            colObj.label = columns[i].flowchart
+          } else {
+            // 从服务器获取依赖对象存入数组
+            colObj.type = 'OBJECT'
+            for (var n in JoinColumn) {
+              if (colObj.referenceTableName === JoinColumn[n].f_tableName) {
+                // colObj.label = JoinColumn[n].f_flowchart             
+                colObj.label = JoinColumn[n].f_flowchart + '.' + JoinColumn[n].flowchart
+                // colObj.label = JoinColumn[n].f_tableName + '.' + JoinColumn[n].flowchart                
+              }
+            }
+          }
+          colObj.editable = columns[i].editable
+          colObj.sortable = true
+          colObj.filters = []
           // 添加备用属性，非服务器回传,添加 f_ 前缀
-        col.f_column = ''
-        col.f_value = ''
-        col.f_count = 0
-        col.f_loading = false
-        col.f_columns = []
-        col.f_readable = ''
-        if (col.referenceTable === '') {
-          col.type = this.conversionType(srcCol.type)
-        } else {
-          col.type = 'OBJECT'
-        }
-        if(col.type === 'ENUM'){
-          if (srcCol.enumvalues.length > 1) {
-            for (let j = 0; j < srcCol.enumvalues.length; j++) {
-              col.filters.push({
-                text: srcCol.enumvalueDescribes[j],
-                value: srcCol.enumvalues[j]
-              })
+          colObj.f_column = ''
+          colObj.f_value = ''
+          colObj.f_count = 0
+          colObj.f_loading = false
+          colObj.f_columns = []
+          colObj.f_readable = ''
+          if (columns[i].enumvalues.length > 1) {
+            for (let j = 0; j < columns[i].enumvalues.length; j++) {
+              colObj.filters.push({text: columns[i].enumvalueDescribes[j], value: columns[i].enumvalues[j]})
             }
           }
+          this.tableCol.push(colObj)
         }
-        col.label = srcCol.flowchart
-        return col;
+        if (data.entity.count) {
+          this.total = data.entity.count
+        }
+        //  添加是否编辑状态与行号
+        this.tableData = []
+        if (data.entity.list) {
+          for (let i = 0; i < data.entity.list.length; i++) {
+            data.entity.list[i].editstyle = false
+            data.entity.list[i].line = i
+            for (var q in data.entity.list[i]) {
+              for (var y in JoinColumn) {
+                // 查找那些字段是联合查询的对象 显示该对象的name字段
+                if (q === JoinColumn[y].f_tableName) {
+                  if (data.entity.list[i][q]) {
+                    data.entity.list[i][q] = data.entity.list[i][q][JoinColumn[y].name]
+                  }
+                }
+              }
+            }
+            this.tableData.push(data.entity.list[i])
+          }
+        }
+        if (this.searchLoading) this.searchLoading = false
+        if (this.advSearchLoading) this.advSearchLoading = false
       },
-      dependCol(datas, models, joins, srcCol, tableChain) {
-        let tableModel;
-        for (let i = 0; i < models.length; i++) {
-          if (models[i].name == srcCol.referenceTableName) {
-            tableModel = models[i];
-            break;
-          }
-        }
-        for (let i = 0; i < tableModel.columns.length; i++) {
-          if (tableModel.columns[i].readableIdentifier.length > 0) {
-            let destCol = this.defineCol(tableModel.columns[i]);
-              destCol.type = 'OBJECT'
-            // 引用类型表名称
-            destCol.f_tableName = tableModel.name
-            // 确定当前select默认选中项
-            destCol.selected = ''
-            destCol.label = tableModel.columns[i].readableIdentifier
-            let fullName = '';
-            for (let j = 0; j < tableChain.length; j++) {
-              fullName += tableChain[j] + ".";
-            }
-            fullName += tableModel.name + "." + tableModel.columns[i].name;
-            destCol.prop = fullName;
-            destCol.key = fullName;
-            this.tableCol.push(destCol);
-            for (var t = 0; t < datas.length; t++) {
-              if (datas[t]) {
-                this.tableData[t][fullName] = datas[t][tableModel.columns[i].name];
-              } else {
-                this.tableData[t][fullName] = null;
-              }
-            }
-          }
-          if (tableModel.columns[i].referenceTable.length > 0) {
-            if (typeof joins[tableModel.columns[i].name] !== "undefined") {
-              let _tableChain = [];
-              for (let t = 0; t < tableChain.length; t++) {
-                _tableChain.push(tableChain[t]);
-              }
-              _tableChain.push(tableModel.name);
-            
-              let _datas = [];
-              for (var t = 0; t < datas.length; t++) {
-                _datas.push(datas[t][tableModel.columns[i].name]);
-              }
-            
-          this.dependCol(_datas, models, joins[tableModel.columns[i].name], tableModel.columns[i], _tableChain);
-        }
-      }
-    }
-  },
-  // data回调数据  api调用类型url states数据操作对象
-  getDataOnComplate(data) {
-    this.tableLoading = false
-    if (!checkResults(data,this)) return
-    this.tableCol = [];
-    this.tableData = [];
-    this.tableData = data.entity.list;
-    if (data.entity.count) {
-      this.total = data.entity.count
-    }
-    //case1: 联合查询
-    if (!this.isEmptyObject(this.JoinOther)) {
-      //解决所有对象模型，并查找主对象
-      let models = [];
-      let mainModel;
-      for (var i in data.entity.columnsJsonStr) {
-        let a = JSON.parse(data.entity.columnsJsonStr[i]);
-        models.push(a);
-        if (a.name == this.fetchObj) {
-          mainModel = a;
-        }
-      }
-      //转换模型到Table显示的行和列
-      for (let i = 0; i < mainModel.columns.length; i++) {
-
-        let col = this.defineCol(mainModel.columns[i]);
-
-        if (mainModel.columns[i].referenceTable.length < 1) {
-          this.tableCol.push(col);
-        } else {
-          if (typeof this.JoinOther[mainModel.columns[i].name] !== "undefined") {
-            let datas = [];
-            for (var t = 0; t < this.tableData.length; t++) {
-              datas.push(this.tableData[t][mainModel.columns[i].name]);
-            }
-            this.dependCol(datas, models, this.JoinOther[mainModel.columns[i].name], mainModel.columns[i], []);
-          }
-        }
-      }
-    }
-    //case2: 非联合查询
-    else {
-      let model = JSON.parse(data.entity.columnsJsonStr[0]);
-      for(let i = 0; i < model.columns.length; i++) {
-        this.tableCol.push(this.defineCol(model.columns[i]));
-      }
-    }
-    this.queryCookie(this.tableCol);
-    //添加是否编辑状态与行号
-    for (let i = 0; i < this.tableData.length; i++) {
-      this.$set(this.tableData[i],'editstyle',false);
-      this.$set(this.tableData[i],'line',i);
-    }
-    if (this.searchLoading) this.searchLoading = false
-    if (this.advSearchLoading) this.advSearchLoading = false
-  },
-  //查询cookie状态，并修改默认打开列
-  queryCookie(column){
-    console.log(column);
-    let cookie = getCookie('column');
-    if(cookie !== ''){
-      cookie = JSON.parse(cookie);
-      for (var i in column) {
-        if(cookie[column[i].key] !== undefined){
-          column[i].visible = cookie[column[i].key];
-        }
-      }
-    }
-  },
       // 高级搜索选项一下拉列表框
       handleFristColumnChange (selectItem) {
         this.SearchForm.item1.f_value = ''
@@ -677,9 +610,9 @@
         let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
         if (!this.isEmptyObject(this.JoinOther)) {
           params.ifJoinReference = true
-          params.joinCondition = {}
+          params.condition = {}
           for (var i in this.JoinOther) {
-            params.joinCondition[i] = this.JoinOther[i]
+            params.condition[this.JoinOther[i]] = {}
           }
         }
         params.filter = this.filterValues
@@ -736,15 +669,8 @@
             filters[this.SearchForm.item2.f_column + 'List'] = value2
           }
         }
-        let params = {ifGetCount: true,ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        let params = {ifGetCount: true, pageSize: this.pageSize, pageNO: this.currentPage}
         params.filter = filters
-        if (!this.isEmptyObject(this.JoinOther)) {
-          params.ifJoinReference = true
-          params.joinCondition = {}
-          for (var i in this.JoinOther) {
-            params.joinCondition[i] = this.JoinOther[i]
-          }
-        }
         if (this.SearchForm.relational.value) params.filter.relationship = this.SearchForm.relational.value
         this.tableLoading = true
         fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
@@ -755,25 +681,24 @@
         this.createForm = {}
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].editable) {
-            //数据深拷贝
-            this.$set(this.createForm, i, JSON.parse(JSON.stringify(this.tableCol[i])));
+            this.$set(this.createForm, i, this.tableCol[i])
           }
         }
       },
       // 获取对象类型的更多页
       getServerObj (item, pageNO = 1, keyword = '') {
         // 传入pagenNO可获取更多数据
-        if (item.f_tableName) {
+        if (item.referenceTableName) {
           // 默认获取20行
           let params = {ifGetCount: true, ifGetColumns: true, pageSize: 20, pageNO: pageNO}
           params.filter = {}
           params.filter[item.f_readable] = '%' + keyword + '%'
           params.filter[item.f_readable + 'ComparisonOperator'] = 'like'
-          fetch2(BASICURL + item.f_tableName + '/queryPager.api', this.getServerObjOnComplate, params, item, pageNO)
+          fetch2(BASICURL + item.referenceTableName + '/queryPager.api', this.getServerObjOnComplate, params, item, pageNO)
         }
       },
       getServerObjOnComplate (data, ...states) {
-        if (!checkResults(data,this)) return
+        if (!this.checkResults(data)) return
         let columnsJsonStr = JSON.parse(data.entity.columnsJsonStr)
         let columns = columnsJsonStr.columns
         let names = []
@@ -806,16 +731,9 @@
         for (var i in this.createForm) {
           let key = this.createForm[i].key
           if (this.createForm[i].type === 'OBJECT') {
-            if(this.JoinOther.mugongsi && this.fetchObj === 'gongsi'){
-              params.mugongsiuid = this.createForm[i].selected
-            } else {
-              // 引用类型key为 表名称 + uid
-              key = this.createForm[i].f_tableName + 'uid';
-              params[key] = this.createForm[i].selected
-            }
-          } else {
-            params[key] = this.createForm[i].f_value
+            key = key + 'uid'
           }
+          params[key] = this.createForm[i].f_value
         }
         if (this.fetchObj === 'user') params.password = params.account
         fetch(BASICURL + this.fetchObj + '/create.api', this.createComplate, params)
@@ -823,7 +741,7 @@
       createComplate (data) {
         this.createLoading = false
         this.createVisible = false
-        if (!checkResults(data,this)) return
+        if (!this.checkResults(data)) return
         this.$message({
           type: 'success',
           message: '创建成功!'
@@ -837,23 +755,14 @@
           this.singleEditForm = {}
           for (let i = 0; i < this.tableCol.length; i++) {
             if (this.tableCol[i].editable) {
-              this.$set(this.singleEditForm, i, JSON.parse(JSON.stringify(this.tableCol[i])));
-              this.singleEditForm[i].f_value = this.multipleSelection[0][this.tableCol[i].key];
-              if(this.singleEditForm[i].type === 'OBJECT'){
-                if(this.multipleSelection[0][this.singleEditForm[i].f_tableName]){
-                  //添加当前对象为默认选中
-                  this.singleEditForm[i].filters.unshift({text:this.multipleSelection[0][this.tableCol[i].key],
-                    value:this.multipleSelection[0][this.singleEditForm[i].f_tableName].uid})
-                  this.singleEditForm[i].selected = this.multipleSelection[0][this.singleEditForm[i].f_tableName].uid;
-                }else {
-                  this.singleEditForm[i].selected = null;
-                }
-              }
+              this.$set(this.singleEditForm, i, this.tableCol[i])
+              this.singleEditForm[i].f_value = this.multipleSelection[0][this.tableCol[i].key]
             }
           }
         } else {
           for (let i = 0; i < this.multipleSelection.length; i++) {
-            this.tableData[this.multipleSelection[i].line].editstyle = true
+            let line = this.multipleSelection[i].line
+            this.tableData[line].editstyle = true
           }
           if (this.rowModified) {
             this.batchEditLoading = true
@@ -865,19 +774,20 @@
         }
       },
       batchEditComplate (data) {
+        if (!this.checkResults(data)) return
+        this.$message({
+          type: 'success',
+          message: '修改成功!'
+        })
         for (let i = 0; i < this.multipleSelection.length; i++) {
-          this.tableData[this.multipleSelection[i].line].editstyle = false
+          let line = this.multipleSelection[i].line
+          this.tableData[line].editstyle = false
         }
         this.reloadingData()
         this.batchEditLoading = false
         this.rowModified = false
         this.cancelEdit = false
         this.editCOl = '批量编辑'
-        if (!checkResults(data,this)) return
-        this.$message({
-          type: 'success',
-          message: '修改成功!'
-        })
       },
       // 取消修改
       handleCancelEditCOl () {
@@ -896,13 +806,8 @@
         for (var i in this.singleEditForm) {
           let key = this.singleEditForm[i].key
           if (this.singleEditForm[i].type === 'OBJECT') {
-            if(this.JoinOther.mugongsi && this.fetchObj === 'gongsi'){
-              params.mugongsiuid = this.singleEditForm[i].selected
-            } else {
-              // 引用类型key为 表名称 + uid
-              key = this.singleEditForm[i].f_tableName + 'uid';
-              params[key] = this.singleEditForm[i].selected
-            }
+            key = key + 'uid'
+            params[key] = this.singleEditForm[i].f_value
           } else {
             params[key] = this.singleEditForm[i].f_value
           }
@@ -913,7 +818,7 @@
       SingleEditComplate (data) {
         this.editLoading = false
         this.singleEditVisible = false
-        if (!checkResults(data,this)) return
+        if (!this.checkResults(data)) return
         this.$message({
           type: 'success',
           message: '修改成功!'
@@ -947,12 +852,29 @@
       },
       onDeleteComplate (data) {
         this.deleteLoading = false
-        if (!checkResults(data,this)) return
+        if (!this.checkResults(data)) return
         this.$message({
           type: 'success',
           message: '删除成功!'
         })
         this.reloadingData()
+      },
+      checkResults (data) {
+        if (data === null) {
+          this.$notify.error({
+            title: '提示',
+            message: '网络错误，请刷新（F5）后重试。'
+          })
+          return false
+        }
+        if (data.errorCode !== 0) {
+          this.$notify.error({
+            title: '错误',
+            message: '当前页面发生错误，' + data.message
+          })
+          return false
+        }
+        return true
       },
       // 根据行打值返回枚举类型的名称
       enumDescribes (row, col, key) {
@@ -972,7 +894,6 @@
         }
         if (!this.isEmptyObject(this.JoinOther)) {
           params.ifJoinReference = true
-          // params.condition = {company: {}}
           params.condition = {}
           for (var i in this.JoinOther) {
             params.condition[i] = this.JoinOther[i]

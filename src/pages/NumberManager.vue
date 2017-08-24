@@ -94,7 +94,7 @@
 <script>
 import QRcode from '../components/QRcode.vue'
 import {BASICURL, fetch, fetch2} from '../api/api.js'
-import {setCookie, getCookie} from '../utils/cookie.js'
+import {setCookie, getCookie, checkResults} from '../utils/utils.js'
 export default {
 	data() {
     return {
@@ -180,7 +180,7 @@ export default {
           type: 'warning'
         }).then(() => {
           this.loading = true
-					fetch(BASICURL+'shebeibianhao/batchCreate.api', this.createComplate,{param:this.num});
+					fetch2(BASICURL+'shebeibianhao/batchCreate.api', this.createComplate,this.num);
         }).catch(() => {
           this.$message({
             type: 'info',
@@ -190,7 +190,7 @@ export default {
 		},
 		createComplate(data){
 			this.loading = false;
-			if (!this.checkResults(data)) return
+			if (!checkResults(data)) return
 			this.$message({
         type: 'success',
         message: '已成功生成编号!'
@@ -201,7 +201,7 @@ export default {
 			this.$refs.Qrcode.createQr();
 		},
     getDataOnComplate (data, ...states) {
-      if (!this.checkResults(data)) return
+      if (!checkResults(data)) return
       //  添加是否编辑状态与行号
 			if (data.entity.count) {
         this.total = data.entity.count
@@ -260,33 +260,7 @@ export default {
       }
       fetch2(BASICURL + 'shebeibianhao/getPager.api', this.getDataOnComplate, params)
       this.tableLoading = true
-    },
-		checkResults (data) {
-        if (data === null) {
-          this.$notify.error({
-            title: '提示',
-            message: '网络错误，请刷新（F5）后重试。'
-          })
-          return false
-        }
-        if (data.errorCode === 0) {
-          return true
-        }else if(data.errorCode === 3) {
-          this.$notify.error({
-            title: '错误',
-            message: '当前页面发生错误，' + data.message
-          })
-          let path = this.$route.path.split('/')
-          let login = path[path.length - 2]
-          this.$router.push({path: '/idev/' + login + '/login'})
-        } else {
-          return false
-          this.$notify.error({
-            title: '错误',
-            message: '当前页面发生错误，' + data.message
-          })
-        }
-      }
+    }
 	},
   components:{
       QRcode
