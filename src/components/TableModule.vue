@@ -563,7 +563,6 @@
   },
   //查询cookie状态，并修改默认打开列
   queryCookie(column){
-    console.log(column);
     let cookie = getCookie('column');
     if(cookie !== ''){
       cookie = JSON.parse(cookie);

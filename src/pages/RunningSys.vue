@@ -319,7 +319,7 @@ export default {
       fetch2(chartUrl,this.onMonthComplate,this.renciParams,this.renciParams);
     },
     onComplate(data,state){
-      if(!checkResults(data)) return;
+      if(!checkResults(data,this)) return;
       // 覆盖网点，设备总数请求
       if(this.isEmptyObject(state[0])){
         this.state.mendian = data.entity.mengdianzs;
@@ -344,7 +344,7 @@ export default {
             }
           }
           for (var key in this.lineTempData) {
-            this.lineTempData[key].money = this.lineTempData[key].money / 100; 
+            this.lineTempData[key].money = this.lineTempData[key].money / 100;
           }
           this.lineData = this.lineTempData;
         }else if(state[0].type === 3){
@@ -353,12 +353,12 @@ export default {
       }
     },
     onMonthComplate(data,state) {
-      if(!checkResults(data)) return;
+      if(!checkResults(data,this)) return;
       this.tableTempData = this.filledData(data.entity,state[0]);
       fetch2(chartUrl,this.onMonthComplate2,this.shouruParams,this.shouruParams);
     },
     onMonthComplate2(data){
-      if(!checkResults(data)) return;
+      if(!checkResults(data,this)) return;
       let filledData = data.entity;
       for (let i =0; i < filledData.length;i++) {
         for (var key in this.tableTempData) {

@@ -7,10 +7,6 @@ export default {
   data () {
       return {
         chart: null,
-        second: 1000,
-        minute: 6000,
-        hour: 360000,
-        day: 8640000,
       };
     },
     props: {
