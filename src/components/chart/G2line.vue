@@ -63,6 +63,7 @@ export default {
           },
           money: {
             alias: '消费金额(元)',
+            type:'pow',
           },
         };
         this.chart.source(this.data, scale);

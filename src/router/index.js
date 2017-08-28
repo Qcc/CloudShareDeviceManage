@@ -7,7 +7,7 @@ const OpenDevice = r => require.ensure([], () => r(require('../pages/OpenDevice.
 const Main = r => require.ensure([], () => r(require('../pages/Main.vue')), 'Main')
 const NotFound = r => require.ensure([], () => r(require('../pages/NotFound404.vue')), 'NotFound')
 const NumberManager = r => require.ensure([], () => r(require('../pages/NumberManager.vue')), 'NumberManager')
-const Demo = r => require.ensure([], () => r(require('../test/Demo.vue')), 'Demo')
+const RevenueClose = r => require.ensure([], () => r(require('../pages/RevenueClose.vue')), 'RevenueClose')
 const PersonnelChart = r => require.ensure([], () => r(require('../components/personnelChart.vue')), 'PersonnelChart')
 const DeviceChart = r => require.ensure([], () => r(require('../components/deviceChart.vue')), 'DeviceChart')
 const OrderChart = r => require.ensure([], () => r(require('../components/orderChart.vue')), 'OrderChart')
@@ -18,7 +18,6 @@ export default new Router({
   base: __dirname,
   routes: [
     { path: '/idev/:id/login', name: 'login', component: Login },
-    { path: '/idev/:id/demo', name: 'demo', component: Demo },
     {
       path: '/idev/:id/',
       component: Main,
@@ -37,6 +36,7 @@ export default new Router({
         { path: 'deviceChart', component: DeviceChart },
         { path: 'orderChart', component: OrderChart },
         { path: 'openDevice', component: OpenDevice },
+        { path: 'revenueClose', component: RevenueClose },
       ]
     },
     { path: '*', name: 'NotFound', component: NotFound }

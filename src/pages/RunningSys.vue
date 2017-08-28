@@ -5,7 +5,7 @@
       <el-col>
         <el-card class="crd-box">
           <div class="header-title" slot="header">
-            <span>欢迎云享智能设备管理平台</span>
+            <span>欢迎使用云享智能设备管理平台</span>
           </div>
           <div class="welcom-content">
             <div class="wel-box wd">
@@ -124,7 +124,6 @@
 import {setCookie, getCookie,checkResults} from '../utils/utils.js'
 import {chartUrl, parnterUrl, fetch2} from '../api/api.js'
 import G2Line from '../components/chart/G2line'
-import G2Pie from '../components/chart/G2pie'
 import G2Bar from '../components/chart/G2bar'
 export default {
   data () {
@@ -184,8 +183,8 @@ export default {
       tableData: [],
       // 柱状图
       barData:[
-        {name: '注册会员',data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]},
-        {name: '总用户',data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]}]
+        {name: '注册会员',data: [0,0,0,0,0,0,0]},
+        {name: '总用户',data: [0,0,0,0,0,0,0]}]
       // barData:[]
     }
   },
@@ -495,7 +494,6 @@ export default {
   },
   components:{
     G2Line,
-    G2Pie,
     G2Bar    
   }
 }

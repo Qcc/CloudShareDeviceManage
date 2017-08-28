@@ -247,6 +247,10 @@ export default {
           this.navName = '打开设备'
           this.nav = this.$route.fullPath
           break
+        case 'revenueClose':
+          this.navName = '营收结算'
+          this.nav = this.$route.fullPath
+          break
       }
     }
   },

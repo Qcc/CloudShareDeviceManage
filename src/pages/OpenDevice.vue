@@ -105,9 +105,14 @@ export default {
 		}
 	},
 	mounted:function(){
-		let interval = setInterval(()=>{
+		let interval;
+		this.getActiveDevice();		
+		if(interval === undefined)
+		interval = setInterval(()=>{
 			this.getActiveDevice();
-		},3000)
+			if(getCookie('activeDevices') === '')
+			clearInterval(interval);
+		},10000)
 	},
 	methods:{
 		checkStatus(val) {
@@ -131,7 +136,6 @@ export default {
 				}					
 			}
 			if(val !== '') this.taocanDisabled = false;
-			// getActiveDevice(val)
 		},
 		onSubmit(){
 			this.$confirm('订单创建成功后会立即开启设备开始计时,并产生费用,请告知客户使用设备，是否继续?', '注意', {
