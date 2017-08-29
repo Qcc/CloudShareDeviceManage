@@ -86,6 +86,7 @@
     @sort-change="handleSortChange"
     @selection-change="handleSelectionChange">
     <el-table-column
+      v-if="selection"
       :selectable="selectable"
       type="selection"
       width="55">
@@ -211,11 +212,22 @@
       propSearch: {type: Boolean, default: true},
       propADUQ: {type: Boolean, default: true},
       propPagination: {type: Boolean, default: true},
-      propColumn: {type: Boolean, default: true}
+      propColumn: {type: Boolean, default: true},
+      // 是否可多选
+      selection: {type: Boolean, default: true},
+      // 是否自动加载数据
+      autoLoad: {type: Boolean, default: true},
+      // 高级过滤对象
+      filterObj:{type: String}
     },
     watch: {
-      'fetchObj' () {
-        this.reloadingData()
+      'fetchObj': function(val, oldVal) {
+        console.log('fetchObj',val, oldVal);        
+        this.reloadingData();
+      },
+      'filterObj': function (val, oldVal) {
+          console.log(val, oldVal);
+          this.onFilterObjChange();
       }
     },
     data () {
@@ -296,6 +308,7 @@
       }
     },
     created: function () {
+      if(this.autoLoad)
       this.reloadingData()
     },
     methods: {
@@ -664,9 +677,13 @@
         for (t in e)  
             return !1;  
         return !0  
-      }, 
+      },
+      onFilterObjChange () {
+        console.log('onFilterObjChange',this.filterObj);
+      },
       // 筛选
       handleFilterChange (filters) {
+        console.log('filters',filters);
         for (let key in filters) {
           this.filterValues[key + 'List'] = filters[key]
           if (filters[key].length === 0) {

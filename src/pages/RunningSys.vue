@@ -69,12 +69,14 @@
         <el-card class="crd-box">
           <div class="header-title" slot="header">
             <span>月收款</span>
-            <el-select class="crd-action" size="mini" style="width:120px" v-model="defaultMoon" @change="handleUseMoney">
-              <el-option default  :value="0" :label="'本月'"></el-option>
-              <el-option :value="-1" :label="'前一月'"></el-option>
-              <el-option :value="-2" :label="'前二月'"></el-option>
-            </el-select>
-            <!--<el-button class="crd-action" size="mini" type="primary">更多...</el-button>-->
+            <el-date-picker
+              class="crd-action"
+              style="width:120px"
+              size="mini"
+			      	@change="handleUseMoney"
+              v-model="defaultMoon"
+              type="month">
+            </el-date-picker>
           </div>
           <div class="crd-content">
             <el-table
@@ -121,7 +123,7 @@
 
 </template>
 <script>
-import {setCookie, getCookie,checkResults} from '../utils/utils.js'
+import {setCookie, getCookie,checkResults,getFristLastDay} from '../utils/utils.js'
 import {chartUrl, parnterUrl, fetch2} from '../api/api.js'
 import G2Line from '../components/chart/G2line'
 import G2Bar from '../components/chart/G2bar'
@@ -129,7 +131,7 @@ export default {
   data () {
     return {
       defaultValue: -7,
-      defaultMoon:0,
+      defaultMoon: new Date(),
       defaultVip:-7,
       // 线图
       chartWidth:null,
@@ -165,15 +167,15 @@ export default {
       // 累计人次
       renciParams:{
         gongsi:null,
-        fromDate:this.getFristLastDay(this.defaultMoon),
-        toDate:this.getFristLastDay(this.defaultMoon,true),
+        fromDate:getFristLastDay('-',this.defaultMoon),
+        toDate:getFristLastDay('-',this.defaultMoon,true),
         type:1
       },
       // 累计收入
       shouruParams:{
         gongsi:null,
-        fromDate:this.getFristLastDay(this.defaultMoon),
-        toDate:this.getFristLastDay(this.defaultMoon,true),
+        fromDate:getFristLastDay('-',this.defaultMoon),
+        toDate:getFristLastDay('-',this.defaultMoon,true),
         type:2
       },
       // lineData数据格式{"money":35,"count":6,"days":"2017-08-01"},
@@ -197,7 +199,7 @@ export default {
       cookie = JSON.parse(cookie);
       if(cookie.defaultValue !== undefined) this.defaultValue = cookie.defaultValue;
       if(cookie.defaultVip !== undefined) this.defaultVip = cookie.defaultVip;
-      if(cookie.defaultMoon !== undefined) this.defaultMoon = cookie.defaultMoon;
+      if(cookie.defaultMoon !== undefined) this.defaultMoon = new Date(cookie.defaultMoon);
     }
     // 使用人次
     this.useParams.fromDate = this.getDate(new Date(),this.defaultValue);
@@ -206,13 +208,13 @@ export default {
     // 注册会员
     this.vipParams.fromDate = this.getDate(new Date(),this.defaultVip);
     // 使用人次
-    this.renciParams.fromDate = this.getFristLastDay(this.defaultMoon);
-    this.renciParams.toDate = this.getFristLastDay(this.defaultMoon,true);
+    this.renciParams.fromDate = getFristLastDay('-',this.defaultMoon);
+    this.renciParams.toDate = getFristLastDay('-',this.defaultMoon,true);
     // 累计收入
-    this.renciParams.fromDate = this.getFristLastDay(this.defaultMoon);
-    this.renciParams.toDate = this.getFristLastDay(this.defaultMoon,true);
-    this.shouruParams.fromDate = this.getFristLastDay(this.defaultMoon);
-    this.shouruParams.toDate = this.getFristLastDay(this.defaultMoon,true);
+    this.renciParams.fromDate = getFristLastDay('-',this.defaultMoon);
+    this.renciParams.toDate = getFristLastDay('-',this.defaultMoon,true);
+    this.shouruParams.fromDate = getFristLastDay('-',this.defaultMoon);
+    this.shouruParams.toDate = getFristLastDay('-',this.defaultMoon,true);
     this.getParChartData();
     this.getLineChartData();
     this.getShouruData();
@@ -285,10 +287,10 @@ export default {
       }
       cookie.defaultMoon = val;
       setCookie('defaultDate',JSON.stringify(cookie),365);
-      this.renciParams.fromDate = this.getFristLastDay(val);
-      this.renciParams.toDate = this.getFristLastDay(val,true);
-      this.shouruParams.fromDate = this.getFristLastDay(val);
-      this.shouruParams.toDate = this.getFristLastDay(val,true);      
+      this.renciParams.fromDate = getFristLastDay('-',new Date(val));
+      this.renciParams.toDate = getFristLastDay('-',new Date(val),true);
+      this.shouruParams.fromDate = getFristLastDay('-',new Date(val));
+      this.shouruParams.toDate = getFristLastDay('-',new Date(val),true);      
       this.getShouruData();
     },
     handleUseVip (val) {
@@ -432,58 +434,58 @@ export default {
       return year + '-' + month + '-' + day;
     },
     //获取月头月尾日期，last=true获取最后一天
-    getFristLastDay(months = 0,last = false){
-      let date,year,y,month,m,day,reDate;
-      date = new Date();
-      year = date.getFullYear();
-      month = date.getMonth() + 1;
-      day = date.getDate();
-      if(months > 0){
-        while(months>0){
-          if(month>11){
-            year++;
-            month = 1;
-          }else{
-            month++;
-          }
-          months--;
-        }
-      }else if(months < 0){
-         while(months < 0){
-          if(month <= 1){
-            year--;
-            month = 12;
-          }else{
-            month--;
-          }
-          months++;
-        }
-      }
-      if(month < 10) month = '0' + month;
-      reDate = year + '-' + month + '-' + '01';
-      if(last){
-        let d = new Date(year,month,0).getDate();
-        if(d < 10) d = '0' + d;
-        reDate = year + '-' + month + '-' + d;
-      }
-      return  reDate;            
-    },
-    getMonthLastDay(m = 0){
-      let date,year,month,day;
-      date = new Date();
-      year = date.getFullYear();
-      day = date.getDate();
-      month = date.getMonth() + 1 + m
-      return year + '-' + month + '-' + '01';
+    // getFristLastDay('-',months = 0,last = false){
+    //   let date,year,y,month,m,day,reDate;
+    //   date = new Date();
+    //   year = date.getFullYear();
+    //   month = date.getMonth() + 1;
+    //   day = date.getDate();
+    //   if(months > 0){
+    //     while(months>0){
+    //       if(month>11){
+    //         year++;
+    //         month = 1;
+    //       }else{
+    //         month++;
+    //       }
+    //       months--;
+    //     }
+    //   }else if(months < 0){
+    //      while(months < 0){
+    //       if(month <= 1){
+    //         year--;
+    //         month = 12;
+    //       }else{
+    //         month--;
+    //       }
+    //       months++;
+    //     }
+    //   }
+    //   if(month < 10) month = '0' + month;
+    //   reDate = year + '-' + month + '-' + '01';
+    //   if(last){
+    //     let d = new Date(year,month,0).getDate();
+    //     if(d < 10) d = '0' + d;
+    //     reDate = year + '-' + month + '-' + d;
+    //   }
+    //   return  reDate;            
+    // },
+  //   getMonthLastDay(m = 0){
+  //     let date,year,month,day;
+  //     date = new Date();
+  //     year = date.getFullYear();
+  //     day = date.getDate();
+  //     month = date.getMonth() + 1 + m
+  //     return year + '-' + month + '-' + '01';
 
-      function getFirstAndLastMonthDay( year, month){    
-               var   firstdate = year + '-' + month + '-01';  
-               var  day = new Date(year,month,0);   
-               var lastdate = year + '-' + month + '-' + day.getDate();//获取当月最后一天日期
-  //给文本控件赋值。同下
-               return lastdate;  
-            }
-    },
+  //     function getFirstAndLastMonthDay( year, month){    
+  //              var   firstdate = year + '-' + month + '-01';  
+  //              var  day = new Date(year,month,0);   
+  //              var lastdate = year + '-' + month + '-' + day.getDate();//获取当月最后一天日期
+  // //给文本控件赋值。同下
+  //              return lastdate;  
+  //           }
+  //   },
     isEmptyObject( obj ) {    
       var name;  
       for ( name in obj ) {        

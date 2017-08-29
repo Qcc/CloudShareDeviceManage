@@ -46,3 +46,21 @@ export function checkResults(data, that) {
     return false
   }
 };
+
+export function getFristLastDay(split = '-', months = new Date(), last = false) {
+  let year, month, day, reDate;
+  if (!(months instanceof Date)) {
+    months = new Date();
+  }
+  year = months.getFullYear();
+  month = months.getMonth() + 1;
+  day = months.getDate();
+  if (month < 10) month = '0' + month;
+  reDate = year + split + month + split + '01';
+  if (last) {
+    let d = new Date(year, month, 0).getDate();
+    if (d < 10) d = '0' + d;
+    reDate = year + split + month + split + d;
+  }
+  return reDate;
+};
