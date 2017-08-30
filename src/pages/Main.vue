@@ -19,6 +19,7 @@
           :JoinOther="JoinOther"
           :propADUQ="propADUQ"
           :isCollpase="isCollpase"
+          :rolId="curUserId"
           style="margin-right:10px"
           ></router-view>
       </el-col>

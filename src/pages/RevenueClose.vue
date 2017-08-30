@@ -1,6 +1,6 @@
 <template>
   <div class="revenue-box">
-			<h4>2017 年 8 月 份 营 收 对 账 单</h4>
+			<h4>{{getYearMonth()}} 营 收 对 账 单</h4>
 			<a v-if="monthVisible" @click="editDate">{{currentMonth}}</a>
 			<el-date-picker
 				@change="editDate"
@@ -14,33 +14,33 @@
 				<el-tooltip effect="dark" content="所有订单收款累计" placement="bottom">
       		<span>营业额</span>
     		</el-tooltip>
-				<a @click="handleAllMoney">¥ {{allMoney}}</a>
+				<a @click="handleAllMoney">¥ {{(allMoney/100).toFixed(2)}}</a>
 			</div>
       <div class="list">
 				<el-tooltip effect="dark" content="为客户手动开启设备，收取的现金累计" placement="bottom">
 					<span>现金收款</span>
     		</el-tooltip>
-				<a @click="handleCashMoney">¥ {{cashMoney}}</a>
+				<a @click="handleCashMoney">¥ {{(cashMoney/100).toFixed(2)}}</a>
       	<el-tooltip effect="dark" content="客户扫描二维码支付累计收款累计" placement="bottom">
 					<span class="seconds">系统收款</span>
     		</el-tooltip>
-				<a @click="handleQrMoney">¥ {{qrMoney}}</a>
+				<a @click="handleQrMoney">¥ {{(qrMoney/100).toFixed(2)}}</a>
 			</div>
       <div class="list">
 				<el-tooltip effect="dark" content="合同约定合作商分成比例" placement="bottom">
 					<span>分成比例</span>
     		</el-tooltip>
-				<a @click="handleFencheng">{{fencheng}}%</a>
+				<a @click="handleFencheng">{{fenchengbili}}%</a>
 			</div>      
       <div class="list">
 				<el-tooltip effect="dark" content="现金收款未达到分成比例金额" placement="bottom">
 					<span>当月应收</span>
     		</el-tooltip>
-				<a @click="handleMonthIncome">¥ {{monthIncome}}</a>
+				<a @click="handleMonthIncome">¥ {{MonthIncome(allMoney)}}</a>
 				<el-tooltip effect="dark" content="现金收款大于分成比例金额" placement="bottom">
       		<span class="seconds">当月应付</span>
     		</el-tooltip>
-				<a @click="handleMonthExpend">¥ {{monthExpend}}</a>
+				<a @click="handleMonthExpend">¥ {{MonthExpend(allMoney)}}</a>
 			</div>
 			<div>
 				<table-module
@@ -59,7 +59,7 @@
 <script>
 import {setCookie, getCookie,checkResults,getFristLastDay} from '../utils/utils.js'
 import TableModule from '../components/TableModule.vue'
-import {chartUrl, fetch2} from '../api/api.js'
+import {chartUrl,fencheng, fetch2} from '../api/api.js'
 export default {
   data(){
       return{
@@ -69,17 +69,13 @@ export default {
 				monthEdit:false,
 				monthVisible:true,
 				// 营业额
-				allMoney:'0.00',
+				allMoney:0,
 				// 现金收款
-				cashMoney:'0.00',
+				cashMoney:0,
 				// 系统收款
-				qrMoney:'0.00',
+				qrMoney:0,
 				// 分成比例
-				fencheng:0,
-				// 当月应收
-				monthIncome:'0.00',
-				// 当月应付
-				monthExpend:'0.00',
+				fenchengbili:0,
 				// 获取主要数据表名称
 				fetchObj:'dingdan',
 				// 联合查询包含的对象
@@ -92,12 +88,59 @@ export default {
 				},
 				// columns过滤对象
 				filters:'',
+				//gongsi
+				gongsiValue:2,
       }
   },
+	props:{
+		rolId:{type:Number,required:true}
+	},
 	mounted:function(){
 		this.getMonthData();
 	},
 	methods:{
+		getYearMonth(){
+			let y = this.monthValue.getFullYear();
+			let m = this.monthValue.getMonth() + 1;
+			return y+' 年 '+m+' 月 份 ';
+		},
+		 // 当月应付 
+		MonthExpend(money){
+			// 云享管理员
+			if(this.rolId === 2026226681){
+				let m = ((this.fenchengbili/100) * money) - this.cashMoney;
+				if(m < 0){
+					m = 0;
+				}
+				return (m/100).toFixed(2);
+				// 伙伴管理员
+			}else if(this.rolId === -2139060392){
+				let m = this.cashMoney - ((this.fenchengbili/100) * money);
+				if(m < 0){
+					m = 0;
+				}
+				return (m/100).toFixed(2);
+			}
+			
+		},
+		// 当月应收
+		MonthIncome(money){
+			// 云享管理员
+			if(this.rolId === 2026226681){
+				let m = this.cashMoney - ((this.fenchengbili/100) * money);
+				if(m < 0){
+					m = 0;
+				}
+				return (m/100).toFixed(2);
+				// 伙伴管理员
+			}else if(this.rolId === -2139060392){
+				let m = ((this.fenchengbili/100) * money) - this.cashMoney;
+				if(m < 0){
+					m = 0;
+				}
+				return (m/100).toFixed(2);
+			}
+		},
 		handleMonthExpend(){
 			console.log('当月应付');			
 		},
@@ -109,7 +152,9 @@ export default {
 		},
 		handleQrMoney(){
 			console.log('系统收款');
-			this.filters='111';			
+			this.filters='111';
+			// zhifushijian 
+			// zhifuleixing  weixin 2  gongsi 3  jifen 1 			
 		},
 		handleCashMoney(){
 			console.log('现金收款');
@@ -127,8 +172,19 @@ export default {
 				this.getMonthData(d);
 			}
 		},
-		onAllMoneyComplate(data){
-			console.log('data',data);
+		onAllMoneyComplate(data,...state){
+			if(!checkResults(data,this)) return;
+			if(data.entity[0] === null)
+				data.entity[0] = {money:0};
+			if(state[0][0] === 'allMoney'){	
+				this.allMoney = data.entity[0].money;
+			}else if(state[0][0] === 'qrMoney'){
+				this.qrMoney = data.entity[0].money;
+			}else if(state[0][0] === 'cashMoney'){
+				this.cashMoney = data.entity[0].money;				
+			}else if(state[0][0] === 'gongsi'){
+				this.fenchengbili = data.entity;				
+			}
 		},
 		getMonthData(d = new Date()){
 			let params = {};
@@ -136,7 +192,18 @@ export default {
 			params.toDate = getFristLastDay('-',d,true);
 			params.type = 4;
 			params.gongsi = null;				
-			fetch2(chartUrl,this.onAllMoneyComplate,params);
+			fetch2(chartUrl,this.onAllMoneyComplate,params,'allMoney');
+			// weixin pay
+			params.zhifuleixing = 2;
+			fetch2(chartUrl,this.onAllMoneyComplate,params,'qrMoney');
+			// gongsi pay
+			params.zhifuleixing = 3;
+			fetch2(chartUrl,this.onAllMoneyComplate,params,'cashMoney');
+			let gongsi 
+			if(this.gongsiValue !== null){
+				gongsi = this.gongsiValue;
+			}
+			fetch2(fencheng,this.onAllMoneyComplate,gongsi,'gongsi');			
 		}
 	},
 	components:{

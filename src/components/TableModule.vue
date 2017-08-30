@@ -222,7 +222,6 @@
     },
     watch: {
       'fetchObj': function(val, oldVal) {
-        console.log('fetchObj',val, oldVal);        
         this.reloadingData();
       },
       'filterObj': function (val, oldVal) {
@@ -680,6 +679,21 @@
       },
       onFilterObjChange () {
         console.log('onFilterObjChange',this.filterObj);
+        let filters1 = {zhifushijian:'2017-08-01',zhifushijianComparisonOperator:'>='};
+        let filters2 = {zhifushijian:'2017-08-30',zhifushijianComparisonOperator:'<='};
+        let filters3 = {zhifuleixing:3,zhifuleixingComparisonOperator:'='};
+        let moreFilters = [filters1,filters2,filters3];
+        let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        if (!this.isEmptyObject(this.JoinOther)) {
+          params.ifJoinReference = true          
+          params.joinCondition = {}
+          for (var i in this.JoinOther) {
+            params.joinCondition[i] = this.JoinOther[i]
+          }
+        }
+        params.moreFilters = moreFilters;
+        this.tableLoading = true
+        fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
       },
       // 筛选
       handleFilterChange (filters) {
