@@ -225,8 +225,10 @@
         this.reloadingData();
       },
       'filterObj': function (val, oldVal) {
-          console.log(val, oldVal);
-          this.onFilterObjChange();
+        this.onFilterObjChange();
+      },
+      'autoLoad':function(val ,oldVal) {
+        if(val) this.reloadingData();
       }
     },
     data () {

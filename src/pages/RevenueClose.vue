@@ -10,6 +10,33 @@
         type="month"
         placeholder="请选择结算月份">
       </el-date-picker>
+			<div class="list">
+				<el-tooltip effect="dark" content="所有订单收款累计" placement="bottom">
+      		<span>合作商</span>
+    		</el-tooltip>
+				<a v-show="selectParnter === false" @click="changeParnter">{{currentParnter}}</a>
+				<el-select
+					v-show="selectParnter === true"
+					style="width:300px"
+				  v-model="parnter.parnterValue"
+				  filterable
+					clearable
+					@change="selectedParnter"
+				  remote
+					:loading="parnter.loading"
+				  placeholder="请输入伙伴公司名称"
+				  :remote-method="remoteMethod">
+				  <el-option
+				    v-for="item in parnter.parnters"
+						:key="item.value"
+				    :label="item.label"
+				    :value="item.value">
+				  </el-option>
+					<el-option v-if="parnter.count > 0" value="0" style="padding:0">
+						<a @click.stop="moreData"  class="object-more">还有{{parnter.count}}条 点击加载...</a>
+				  </el-option>
+				</el-select>
+			</div>
       <div class="list">
 				<el-tooltip effect="dark" content="所有订单收款累计" placement="bottom">
       		<span>营业额</span>
@@ -30,7 +57,7 @@
 				<el-tooltip effect="dark" content="合同约定合作商分成比例" placement="bottom">
 					<span>分成比例</span>
     		</el-tooltip>
-				<a @click="handleFencheng">{{fenchengbili}}%</a>
+				<a>{{fenchengbili}}%</a>
 			</div>      
       <div class="list">
 				<el-tooltip effect="dark" content="现金收款未达到分成比例金额" placement="bottom">
@@ -42,24 +69,28 @@
     		</el-tooltip>
 				<a @click="handleMonthExpend">¥ {{MonthExpend(allMoney)}}</a>
 			</div>
-			<div>
+			<div v-if="tableVisible">
 				<table-module
 					:fetchObj = "fetchObj"
           :JoinOther="JoinOther"
           :propADUQ="false"
           :propSearch="false"
 					:selection="false"
-					:autoLoad="false"
+					:autoLoad="autoLoad"
 					:filterObj="filters"
           style="margin-right:10px">
 				</table-module>
+			</div>
+  		<div class="revenue-discrtion" v-if="revenueVisible">
+				<h5>收付款结算计算方式</h5>
+				<span>{{shoufukuan}}</span>
 			</div>
   </div>
 </template>
 <script>
 import {setCookie, getCookie,checkResults,getFristLastDay} from '../utils/utils.js'
 import TableModule from '../components/TableModule.vue'
-import {chartUrl,fencheng, fetch2} from '../api/api.js'
+import {chartUrl,fencheng,BASICURL, fetch2} from '../api/api.js'
 export default {
   data(){
       return{
@@ -68,6 +99,10 @@ export default {
 				// 显示月份或编辑月份
 				monthEdit:false,
 				monthVisible:true,
+				// 自动显示数据内容
+				autoLoad:false,
+				tableVisible:false,
+				role:this.rolId,
 				// 营业额
 				allMoney:0,
 				// 现金收款
@@ -88,17 +123,149 @@ export default {
 				},
 				// columns过滤对象
 				filters:'',
-				//gongsi
-				gongsiValue:2,
-      }
+				shoufukuan:'',
+				revenueVisible:false,
+				//绑定伙伴查询
+				parInit:false,
+				selectParnter:false,
+				currentParnter:'',
+				parnter:{
+					parnterValue:null,
+					loading:false,
+					pageNO:1,
+					keywords:'',
+					parnters:[],
+					count:0
+				}
+			}
   },
 	props:{
-		rolId:{type:Number,required:true}
+		rolId:{type:Number,required:true,default:0}
+	},
+	watch:{
+		'rolId':function(val,oldVal){
+				// 云享管理员
+			if(this.rolId === 2026226681){
+				this.getServerObj(this.parnter);
+			// 伙伴管理员
+			}else if(this.rolId === -2139060392){
+				this.getMonthData(this.monthValue)
+			}
+		},
+		'parInit':function(val,oldVal){
+			let cookie = getCookie('huobanduizhangdan');
+			console.log('cookie',cookie);
+			if(cookie !== ''){
+				cookie = JSON.parse(cookie);
+				if(cookie.parnterName){
+					this.currentParnter = cookie.parnterName;
+				}else{
+					this.currentParnter = this.parnter.parnters[0].label;
+				}
+
+				if(cookie.defaultMonth){
+					this.getMonthData(new Date(cookie.defaultMonth),cookie.parnterUid); 
+					this.currentMonth = cookie.defaultCurrentM;
+				}else{
+					this.getMonthData(this.monthValue,this.parnter.parnters[0].value);					
+				}
+				
+			}else{
+				this.currentParnter = this.parnter.parnters[0].label;
+				this.getMonthData(this.monthValue,this.parnter.parnters[0].value);
+			}
+		}
 	},
 	mounted:function(){
-		this.getMonthData();
+		// 云享管理员
+		if(this.rolId === 2026226681){
+			this.getServerObj(this.parnter);
+		// 伙伴管理员
+		}else if(this.rolId === -2139060392){
+			this.getMonthData(this.monthValue)
+		}
 	},
 	methods:{
+		changeParnter(val){
+			this.selectParnter = !this.selectParnter;
+			this.parnter.parnterValue='';
+		},
+		selectedParnter(val){
+			if(val !== '') {
+				this.selectParnter = !this.selectParnter;
+				for (var i in this.parnter.parnters) {
+					if (this.parnter.parnters[i].value === val) {
+						this.currentParnter = this.parnter.parnters[i].label;				
+					}
+				}
+				let cookie = getCookie('huobanduizhangdan');
+				if(cookie !== ''){
+					cookie = JSON.parse(cookie);
+				}else{
+					cookie = {}
+				}
+				cookie.parnterUid = val;
+				cookie.parnterName = this.currentParnter;
+				setCookie('huobanduizhangdan',JSON.stringify(cookie),365);
+				this.getMonthData(this.monthValue)
+			}
+		},
+		moreData () {
+      this.parnter.loading = true
+      this.parnter.pageNO++
+      this.getServerObj(this.parnter)
+    },
+    remoteMethod (keywords) {
+			if(keywords === '') return;
+			if(this.parnter.keywords !== keywords){
+				this.parnter.pageNO = 1;
+			}
+      this.keywords = keywords
+      if (this.parnter.parnters.length === 0) {
+        this.parnter.loading = true
+        this.getServerObj(this.parnter)
+      } else {
+        let flag = true
+        for (var key in this.parnter.parnters) {
+          if (this.parnter.parnters[key].label === keywords) {
+            flag = false
+          }
+        }
+        if (flag) {
+					this.parnter.pageNO = 1
+          this.getServerObj(this.parnter)
+          this.parnter.loading = true
+        }
+      }
+    },
+		// 获取对象类型的更多页
+    getServerObj (parnter) {
+      // 传入pagenNO可获取更多数据
+      // 默认获取20行
+      let params = {ifGetCount: true, ifJoinReference:true, pageSize: 20, pageNO: parnter.pageNO}
+      params.joinCondition={};
+			params.joinCondition.mugongsi={};
+			params.filter = {}
+      params.filter.mingcheng = '%' + parnter.keywords + '%'
+      params.filter.mingchengComparisonOperator = 'like'
+      fetch2(BASICURL + 'gongsi' + '/queryPager.api', this.getServerObjOnComplate, params);
+    },
+    getServerObjOnComplate (data) {
+			this.parnter.loading = false;
+      if (!checkResults(data,this)) return
+			let tData = data.entity.list;
+			this.parnter.parnters = [];
+      for (let i = 0; i < tData.length; i++) {
+				if(tData[i].uid === 1) continue;
+				let par = {}
+				par.label = tData[i].mingcheng;
+				par.value = tData[i].uid;
+        this.parnter.parnters.push(par);
+      }
+			this.parInit = true
+      // 未查看的行=当前页码×每页条数 如果大于0说明有剩余行未显示，则可加载
+      this.parnter.count = data.entity.count - this.parnter.pageNO * 20;
+    },
 		getYearMonth(){
 			let y = this.monthValue.getFullYear();
 			let m = this.monthValue.getMonth() + 1;
@@ -141,27 +308,47 @@ export default {
 				return (m/100).toFixed(2);
 			}
 		},
+		// 当月应付
 		handleMonthExpend(){
-			console.log('当月应付');			
+			this.tableVisible = false;
+			this.revenueVisible = true;
+				// 云享管理员
+			if(this.rolId === 2026226681){
+				this.shoufukuan = '当月应付 = 现金收款 -（营业额 X 分成比例)';
+				// 伙伴管理员
+			}else if(this.rolId === -2139060392){
+				this.shoufukuan = '当月应付 =（营业额 X 分成比例) - 现金收款';				
+			}		
 		},
+		// 当月应收
 		handleMonthIncome(){
-			console.log('当月应收');
+			this.tableVisible = false;
+			this.revenueVisible = true;
+				// 云享管理员
+			if(this.rolId === 2026226681){
+				this.shoufukuan = '当月应收 = 现金收款 -（营业额 X 分成比例)';
+				// 伙伴管理员
+			}else if(this.rolId === -2139060392){
+				this.shoufukuan = '当月应收 =（营业额 X 分成比例) - 现金收款';				
+			}	
 		},
-		handleFencheng(){
-			console.log('分成比例');			
-		},
+		// 系统收款
 		handleQrMoney(){
-			console.log('系统收款');
-			this.filters='111';
-			// zhifushijian 
-			// zhifuleixing  weixin 2  gongsi 3  jifen 1 			
+			this.revenueVisible = false;			
+			this.tableVisible = true;
+			this.filters='xitong';
 		},
+		// 现金收款
 		handleCashMoney(){
-			console.log('现金收款');
-			this.filters='333';
+			this.revenueVisible = false;					
+			this.tableVisible = true;	
+			this.filters='xianjin';
 		},
+		// 营业额
 		handleAllMoney(){
-			console.log('营业额');
+			this.revenueVisible = false;					
+			this.tableVisible = true;	
+			this.autoLoad = true;
 		},
 		editDate(e){
 			this.monthVisible = this.monthEdit;
@@ -170,6 +357,15 @@ export default {
 				let d = new Date(e);
 				this.currentMonth =getFristLastDay('/',d) +' - '+getFristLastDay('/',d,true);
 				this.getMonthData(d);
+				let cookie = getCookie('huobanduizhangdan');
+				if(cookie !== ''){
+					cookie = JSON.parse(cookie);
+				}else{
+					cookie = {}
+				}
+				cookie.defaultMonth = d;
+				cookie.defaultCurrentM = this.currentMonth;				
+				setCookie('huobanduizhangdan',JSON.stringify(cookie),365);
 			}
 		},
 		onAllMoneyComplate(data,...state){
@@ -186,12 +382,21 @@ export default {
 				this.fenchengbili = data.entity;				
 			}
 		},
-		getMonthData(d = new Date()){
+		getMonthData(d = new Date(),uid=null){
 			let params = {};
 			params.fromDate = getFristLastDay('-',d);
 			params.toDate = getFristLastDay('-',d,true);
 			params.type = 4;
-			params.gongsi = null;				
+			params.gongsi = uid;		
+			if(this.parnter.parnters){
+				params.gongsi = this.parnter.parnters[0].value
+			}
+			if(this.parnter.parnterValue !== null){
+				params.gongsi = this.parnter.parnterValue;
+			}
+			if(uid){
+				params.gongsi = uid;
+			}
 			fetch2(chartUrl,this.onAllMoneyComplate,params,'allMoney');
 			// weixin pay
 			params.zhifuleixing = 2;
@@ -199,11 +404,7 @@ export default {
 			// gongsi pay
 			params.zhifuleixing = 3;
 			fetch2(chartUrl,this.onAllMoneyComplate,params,'cashMoney');
-			let gongsi 
-			if(this.gongsiValue !== null){
-				gongsi = this.gongsiValue;
-			}
-			fetch2(fencheng,this.onAllMoneyComplate,gongsi,'gongsi');			
+			fetch2(fencheng,this.onAllMoneyComplate,params.gongsi,'gongsi');			
 		}
 	},
 	components:{
@@ -242,5 +443,8 @@ a:hover {
 }
 a:active {
   color: #ff9900;
+}
+.revenue-discrtion{
+	text-align: left;
 }
 </style>
