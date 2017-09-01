@@ -9,7 +9,7 @@
                 <el-button slot="append" :loading="searchLoading"  @click="handleSearch" icon="search">搜索</el-button>
               </el-input>
             </div>
-        <!--<a @click="showAdvancedSearch" v-if="!AdvancedSearchVisible" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>            -->
+        <a @click="clearSearch" v-if="searchValue != ''" style="margin-left:10px;color:#108ee9;cursor:pointer;">清除</a>            
         <a @click="showAdvancedSearch" v-if="false" style="margin-left:10px;color:#108ee9;cursor:pointer;">高级搜索</a>
         </div>
     </el-col>
@@ -305,12 +305,18 @@
         // 数据是否有修改
         rowModified: false,
         // 表格筛选
-        filterValues: {}
+        filterValues: {},
+        moreFilters:[],
+        // 表格排序
+        sorter:{}
       }
     },
     created: function () {
       if(this.autoLoad)
-      this.reloadingData()
+      this.reloadingData();
+      if(this.filterObj !== undefined){
+        this.onFilterObjChange();
+      }
     },
     methods: {
       saveColumnVidible(){
@@ -670,7 +676,8 @@
         if (val.order === 'ascending') order = 'ASC'
         if (val.order === 'descending') order = 'DESC'
         sorter[val.prop + 'Direction'] = order
-        this.reloadingData({sorter: sorter})
+        this.sorter = sorter
+        this.reloadingData();
       },
       // 判断对象是否为空
       isEmptyObject(e) {  
@@ -680,43 +687,56 @@
         return !0  
       },
       onFilterObjChange () {
-        console.log('onFilterObjChange',this.filterObj);
-        let filters1 = {zhifushijian:'2017-08-01',zhifushijianComparisonOperator:'>='};
-        let filters2 = {zhifushijian:'2017-08-30',zhifushijianComparisonOperator:'<='};
-        let filters3 = {zhifuleixing:3,zhifuleixingComparisonOperator:'='};
+        let dingdan = JSON.parse(this.filterObj);
+
+        // let filters1 = {zhifushijian:'2017-08-01',zhifushijianComparisonOperator:'>='};
+        // let filters2 = {zhifushijian:'2017-08-30',zhifushijianComparisonOperator:'<='};
+        // let filters3 = {zhifuleixing:3,zhifuleixingComparisonOperator:'='};
+        // let moreFilters = [filters1,filters2,filters3];
+        
+
+        let filters1 = {zhifushijian:dingdan.fromDate,zhifushijianComparisonOperator:'>='};
+        let filters2 = {zhifushijian:dingdan.toDate,zhifushijianComparisonOperator:'<='};
+        let filters3 = {zhifuleixing:dingdan.zhifuleixing,zhifuleixingComparisonOperator:'='};
+        // let filters4 = {zhifuleixing:dingdan.zhifuleixing,zhifuleixingComparisonOperator:'='};
+        // 公司UID
+        
         let moreFilters = [filters1,filters2,filters3];
-        let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
-        if (!this.isEmptyObject(this.JoinOther)) {
-          params.ifJoinReference = true          
-          params.joinCondition = {}
-          for (var i in this.JoinOther) {
-            params.joinCondition[i] = this.JoinOther[i]
-          }
-        }
-        params.moreFilters = moreFilters;
-        this.tableLoading = true
-        fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
+        this.moreFilters = moreFilters;
+
+        // let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        // if (!this.isEmptyObject(this.JoinOther)) {
+        //   params.ifJoinReference = true          
+        //   params.joinCondition = {}
+        //   for (var i in this.JoinOther) {
+        //     params.joinCondition[i] = this.JoinOther[i]
+        //   }
+        // }
+        // params.moreFilters = moreFilters;
+        // this.tableLoading = true
+        // fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
+        this.reloadingData();
       },
       // 筛选
       handleFilterChange (filters) {
-        console.log('filters',filters);
         for (let key in filters) {
           this.filterValues[key + 'List'] = filters[key]
           if (filters[key].length === 0) {
             delete this.filterValues[key + 'List']
           }
         }
-        let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
-        if (!this.isEmptyObject(this.JoinOther)) {
-          params.ifJoinReference = true
-          params.joinCondition = {}
-          for (var i in this.JoinOther) {
-            params.joinCondition[i] = this.JoinOther[i]
-          }
-        }
-        params.filter = this.filterValues
-        this.tableLoading = true
-        fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
+        // let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
+        // if (!this.isEmptyObject(this.JoinOther)) {
+        //   params.ifJoinReference = true
+        //   params.joinCondition = {}
+        //   for (var i in this.JoinOther) {
+        //     params.joinCondition[i] = this.JoinOther[i]
+        //   }
+        // }
+        // params.filter = this.filterValues;
+        this.reloadingData();
+        // this.tableLoading = true
+        // fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
       },
       // 分页
       handleSizeChange (value) {
@@ -729,6 +749,10 @@
         this.reloadingData()
       },
       // 模糊搜索 发起请求
+      clearSearch(){
+        this.searchValue = ''
+        this.reloadingData();
+      },
       handleSearch () {
         if (this.searchValue === '') {
           this.$message({
@@ -738,7 +762,7 @@
           return
         }
         this.searchLoading = true
-        this.reloadingData({fuzzySearchKeyword: this.searchValue})
+        this.reloadingData()
       },
       // 高级搜索 发起请求
       handleAdvancedSearch () {
@@ -997,20 +1021,39 @@
         }
       },
       // 重新获取表格行数据
-      reloadingData (...param) {
+      reloadingData () {
         let params = {ifGetCount: true, ifGetColumns: true, pageSize: this.pageSize, pageNO: this.currentPage}
-        for (let i = 0; i < param.length; i++) {
-          params = Object.assign(params, param[i])
-        }
-        if (!this.isEmptyObject(this.JoinOther)) {
-          params.ifJoinReference = true
-          // params.condition = {company: {}}
-          params.condition = {}
-          for (var i in this.JoinOther) {
-            params.condition[i] = this.JoinOther[i]
+        if(this.isEmptyObject(this.filterValues) && this.moreFilters.length === 0 ){
+          if (!this.isEmptyObject(this.JoinOther)) {
+            params.ifJoinReference = true
+            params.condition = {}
+            for (var i in this.JoinOther) {
+              params.condition[i] = this.JoinOther[i]
+            }
           }
+          if(!this.isEmptyObject(this.sorter)){
+            params.sorter = this.sorter;
+          }
+          if(this.searchValue !== ''){
+            params.fuzzySearchKeyword = this.searchValue;
+          }
+          fetch2(BASICURL + this.fetchObj + '/getPager.api', this.getDataOnComplate, params);
+        }else{
+          if (!this.isEmptyObject(this.JoinOther)) {
+            params.ifJoinReference = true
+            params.joinCondition = {}
+            for (var i in this.JoinOther) {
+              params.joinCondition[i] = this.JoinOther[i]
+            }
+          }
+          if(!this.isEmptyObject(this.filterValues)){
+            params.filter = this.filterValues;
+          }
+          if(this.moreFilters.length !== 0){
+            params.moreFilters = this.moreFilters;
+          }          
+          fetch2(BASICURL + this.fetchObj + '/queryPager.api', this.getDataOnComplate, params)
         }
-        fetch2(BASICURL + this.fetchObj + '/getPager.api', this.getDataOnComplate, params)
         this.tableLoading = true
       }
     },

@@ -129,6 +129,7 @@ export default {
 				parInit:false,
 				selectParnter:false,
 				currentParnter:'',
+				currentUid:null,
 				parnter:{
 					parnterValue:null,
 					loading:false,
@@ -154,22 +155,28 @@ export default {
 		},
 		'parInit':function(val,oldVal){
 			let cookie = getCookie('huobanduizhangdan');
-			console.log('cookie',cookie);
 			if(cookie !== ''){
 				cookie = JSON.parse(cookie);
 				if(cookie.parnterName){
-					this.currentParnter = cookie.parnterName;
+					this.currentParnter = decodeURI(cookie.parnterName);
 				}else{
 					this.currentParnter = this.parnter.parnters[0].label;
+				}
+
+				if(cookie.parnterUid){
+					this.currentUid = cookie.parnterUid;
+				}else{
+					this.currentUid = this.parnter.parnters[0].value;
 				}
 
 				if(cookie.defaultMonth){
 					this.getMonthData(new Date(cookie.defaultMonth),cookie.parnterUid); 
 					this.currentMonth = cookie.defaultCurrentM;
+					this.monthValue = new Date(cookie.defaultMonth);
 				}else{
 					this.getMonthData(this.monthValue,this.parnter.parnters[0].value);					
 				}
-				
+
 			}else{
 				this.currentParnter = this.parnter.parnters[0].label;
 				this.getMonthData(this.monthValue,this.parnter.parnters[0].value);
@@ -195,7 +202,8 @@ export default {
 				this.selectParnter = !this.selectParnter;
 				for (var i in this.parnter.parnters) {
 					if (this.parnter.parnters[i].value === val) {
-						this.currentParnter = this.parnter.parnters[i].label;				
+						this.currentParnter = this.parnter.parnters[i].label;
+						this.currentUid = this.parnter.parnters[i].value;			
 					}
 				}
 				let cookie = getCookie('huobanduizhangdan');
@@ -205,7 +213,7 @@ export default {
 					cookie = {}
 				}
 				cookie.parnterUid = val;
-				cookie.parnterName = this.currentParnter;
+				cookie.parnterName = encodeURI(this.currentParnter);
 				setCookie('huobanduizhangdan',JSON.stringify(cookie),365);
 				this.getMonthData(this.monthValue)
 			}
@@ -336,13 +344,23 @@ export default {
 		handleQrMoney(){
 			this.revenueVisible = false;			
 			this.tableVisible = true;
-			this.filters='xitong';
+			let filter ={}
+			filter.uid = this.currentUid;
+			filter.fromDate = getFristLastDay('-',this.monthValue);
+			filter.toDate = getFristLastDay('-',this.monthValue,true);
+			filter.zhifuleixing = 2;
+			this.filters = JSON.stringify(filter);
 		},
 		// 现金收款
 		handleCashMoney(){
 			this.revenueVisible = false;					
-			this.tableVisible = true;	
-			this.filters='xianjin';
+			this.tableVisible = true;
+			let filter ={}
+			filter.uid = this.currentUid;
+			filter.fromDate = getFristLastDay('-',this.monthValue);
+			filter.toDate = getFristLastDay('-',this.monthValue,true);
+			filter.zhifuleixing = 3;
+			this.filters = JSON.stringify(filter);
 		},
 		// 营业额
 		handleAllMoney(){
@@ -365,7 +383,7 @@ export default {
 				}
 				cookie.defaultMonth = d;
 				cookie.defaultCurrentM = this.currentMonth;				
-				setCookie('huobanduizhangdan',JSON.stringify(cookie),365);
+				setCookie('huobanduizhangdan',JSON.stringify(cookie),15);
 			}
 		},
 		onAllMoneyComplate(data,...state){
@@ -391,11 +409,8 @@ export default {
 			if(this.parnter.parnters){
 				params.gongsi = this.parnter.parnters[0].value
 			}
-			if(this.parnter.parnterValue !== null){
-				params.gongsi = this.parnter.parnterValue;
-			}
-			if(uid){
-				params.gongsi = uid;
+			if(this.currentUid !== null){
+				params.gongsi = this.currentUid;
 			}
 			fetch2(chartUrl,this.onAllMoneyComplate,params,'allMoney');
 			// weixin pay

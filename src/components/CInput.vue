@@ -149,7 +149,7 @@
 	    :label="item.text"
 	    :value="item.value">
 	  </el-option>
-		<el-option v-if="columns.f_count > 0" :value="null" style="padding:0">
+		<el-option v-if="columns.f_count > 0" value="0" style="padding:0">
 			<a @click.stop="moreData"  class="object-more">还有{{columns.f_count}}条 点击加载...</a>
 	  </el-option>
 	</el-select>
