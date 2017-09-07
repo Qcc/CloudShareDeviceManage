@@ -180,7 +180,7 @@ export default {
 				cookie = JSON.parse(cookie);
 			}
 			cookie.push({deviceUid:deviceUid,start:start,end:end,money:money});
-			setCookie('activeDevices',JSON.stringify(cookie),jishi+60,true);
+			setCookie('activeDevices',JSON.stringify(cookie),jishi+600,true);
 			this.formOrder.shebeiid = '';
 			this.formOrder.taocanid = '';
 			this.getActiveDevice();

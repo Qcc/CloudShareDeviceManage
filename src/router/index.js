@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+const Test = r => require.ensure([], () => r(require('../pages/Test.vue')), 'Test')
 const Login = r => require.ensure([], () => r(require('../pages/Login.vue')), 'Login')
 const TableModule = r => require.ensure([], () => r(require('../components/TableModule.vue')), 'Main')
 const RunningSys = r => require.ensure([], () => r(require('../pages/RunningSys.vue')), 'RunningSys')
@@ -18,6 +19,7 @@ export default new Router({
   base: __dirname,
   routes: [
     { path: '/idev/:id/login', name: 'login', component: Login },
+    { path: '/test', name: 'test', component: Test },
     {
       path: '/idev/:id/',
       component: Main,
