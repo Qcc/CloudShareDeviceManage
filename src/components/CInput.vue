@@ -4,6 +4,8 @@
 	<el-input
 		v-if="this.row && columns.editable && columns.type === 'STRING'"
 		clearable
+		:min="columns.minValue"
+		:max="columns.maxValue"
 		@change="change"
 		v-model="row[columns.key]"
 		placeholder="请输入内容...">
@@ -12,6 +14,8 @@
 	<el-date-picker
 		v-else-if="this.row &&  columns.editable && columns.type === 'DATETIME'"
 		clearable
+		:min="columns.minValue"
+		:max="columns.maxValue"
 		@change="change"
 		v-model.lazy="row[columns.key]"
 		type="datetime"
@@ -21,12 +25,14 @@
 	<el-input
 		v-else-if="this.row && columns.editable && columns.type === 'INT'"
 		clearable
+		:min="columns.minValue"
+		:max="columns.maxValue"
 		@change="change"
 		v-model.number="row[columns.key]"
 		type="number"
 		placeholder="请输入...">
 	</el-input>
-	<!--数字类型样式-->
+	<!--密码类型样式-->
 	<el-input
 		v-else-if="this.row && columns.editable && columns.type === 'PASSWORD'"
 		clearable
@@ -76,6 +82,8 @@
 		v-if="!this.row && columns.editable && columns.type === 'STRING'"
 		style="width:200px"
 		clearable
+		:min="columns.minValue"
+		:max="columns.maxValue"
     :disabled="disabled"
 		@change="change"
 		v-model="columns.f_value"
@@ -86,6 +94,8 @@
 		v-else-if="!this.row &&  columns.editable && columns.type === 'DATETIME'"
 		style="width:200px"
 		clearable
+		:min="columns.minValue"
+		:max="columns.maxValue"
     :disabled="disabled"
 		@change="change"
 		v-model.lazy="columns.f_value"
@@ -97,13 +107,15 @@
 		v-else-if="!this.row && columns.editable && columns.type === 'INT'"
 		style="width:200px"
 		clearable
+		:min="columns.minValue"
+		:max="columns.maxValue"
     :disabled="disabled"
 		@change="change"
 		v-model.number="columns.f_value"
 		type="number"
 		placeholder="请输入...">
 	</el-input>
-	<!--数字类型样式-->
+	<!--密码样式-->
 	<el-input
 		v-else-if="!this.row && columns.editable && columns.type === 'PASSWORD'"
 		style="width:200px"

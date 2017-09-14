@@ -252,6 +252,12 @@ export default {
           this.navName = '营收结算'
           this.nav = this.$route.fullPath
           break
+        case 'systemBug':
+          this.fetchObj = 'guzhangshenbao'
+          this.JoinOther.dingdan = {sheibei:{},taocan:{},guke:{},weixindingdan:{},user:{}}          
+          this.navName = '故障反馈'
+          this.nav = this.$route.fullPath
+          break 
       }
     }
   },

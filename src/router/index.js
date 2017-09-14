@@ -19,7 +19,7 @@ export default new Router({
   base: __dirname,
   routes: [
     { path: '/idev/:id/login', name: 'login', component: Login },
-    { path: '/test', name: 'test', component: Test },
+    { path: '/idev/test', name: 'test', component: Test },
     {
       path: '/idev/:id/',
       component: Main,
@@ -39,6 +39,7 @@ export default new Router({
         { path: 'orderChart', component: OrderChart },
         { path: 'openDevice', component: OpenDevice },
         { path: 'revenueClose', component: RevenueClose },
+        { path: 'systemBug', component: TableModule },
       ]
     },
     { path: '*', name: 'NotFound', component: NotFound }
