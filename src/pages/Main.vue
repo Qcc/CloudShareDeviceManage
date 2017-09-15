@@ -20,6 +20,7 @@
           :propADUQ="propADUQ"
           :isCollpase="isCollpase"
           :rolId="curUserId"
+          :createbale="createbale"
           style="margin-right:10px"
           ></router-view>
       </el-col>
@@ -64,7 +65,8 @@ export default {
       // 表格组件props
       fetchObj: '',
       JoinOther: {},
-      propADUQ: true
+      propADUQ: true,
+      createbale: true
     }
   },
   created: function () {
@@ -166,6 +168,7 @@ export default {
       this.fetchObj = ''
       this.JoinOther = {}
       this.propADUQ = true
+      this.createbale = true
       switch (index) {
         case 'default':
           this.navName = '运行总览'
@@ -253,6 +256,7 @@ export default {
           this.nav = this.$route.fullPath
           break
         case 'systemBug':
+          this.createbale = false
           this.fetchObj = 'guzhangshenbao'
           this.JoinOther.dingdan = {sheibei:{},taocan:{},guke:{},weixindingdan:{},user:{}}          
           this.navName = '故障反馈'

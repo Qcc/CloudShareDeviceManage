@@ -15,7 +15,7 @@
     </el-col>
     <el-col :span="11" v-if="propADUQ && ADUQVisible" >
         <el-button-group style="float:right">
-          <el-button @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
+          <el-button v-if="createbale" @click="handleCreateCOl" :plain="true" type="success" icon="document">{{createCOl}}</el-button>
           <el-button @click="handleEditCOl" :plain="true" :loading="batchEditLoading" :disabled="disabled" type="info" icon="edit">{{editCOl}}</el-button>
           <el-button @click="handleCancelEditCOl" v-if="cancelEdit" :plain="true" type="warning" icon="d-arrow-left">{{cancelEditCOl}}</el-button>
           <el-button @click="handleDeleteCol" :plain="true" :loading="deleteLoading" :disabled="disabled" type="danger" icon="delete" >{{deleteCol}}</el-button>
@@ -218,7 +218,9 @@
       // 是否自动加载数据
       autoLoad: {type: Boolean, default: true},
       // 高级过滤对象
-      filterObj:{type: String}
+      filterObj:{type: String},
+      // 是否可新建
+      createbale: {type: Boolean, default: true},      
     },
     watch: {
       'fetchObj': function(val, oldVal) {
