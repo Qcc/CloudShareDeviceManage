@@ -54,10 +54,10 @@ export function fetch2(url, onComplate, params, ...states) {
 // export const ROOTURL = 'http://123.56.68.222:8080/idev'
 // export const BASICURL = 'http://123.56.68.222:8080/idev/protected/'
 
-// export const ROOTURL = 'http://www.szcloudshare.com/idev'
-// export const BASICURL = 'http://www.szcloudshare.com/idev/protected/'
-export const ROOTURL = 'http://123.56.68.222:8080/idev'
-export const BASICURL = 'http://123.56.68.222:8080/idev/protected/'
+export const ROOTURL = 'http://www.szcloudshare.com/idev'
+export const BASICURL = 'http://www.szcloudshare.com/idev/protected/'
+  // export const ROOTURL = 'http://123.56.68.222:8080/idev'
+  // export const BASICURL = 'http://123.56.68.222:8080/idev/protected/'
   // export const ROOTURL = 'http://192.168.200.104:8080/idev'
   // export const BASICURL = 'http://192.168.200.104:8080/idev/protected/'
 
