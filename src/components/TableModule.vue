@@ -141,7 +141,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="修改为" prop="f_value" >
+      <el-form-item label="修改为" prop="f_value">
         <c-input :columns="bratchForm" :disabled="bratchDis" :getser="getServerObj"></c-input>
       </el-form-item>
     </el-form>
@@ -220,7 +220,9 @@
       // 高级过滤对象
       filterObj:{type: String},
       // 是否可新建
-      createbale: {type: Boolean, default: true},      
+      createbale: {type: Boolean, default: true}, 
+      //当前用户ID
+      rolId:{type: String},
     },
     watch: {
       'fetchObj': function(val, oldVal) {
@@ -280,7 +282,7 @@
         // 批量修改
         batchVisible: false,
         batchLoading: false,
-        bratchForm: {},
+        bratchForm: {selected:''},
         bratchFormRules: {
           f_column: [{ required: true, message: '请选择要修改的列', trigger: 'change' }]
         },
@@ -376,10 +378,18 @@
         this.bratchDis = false
         for (let i = 0; i < this.tableCol.length; i++) {
           if (this.tableCol[i].key === val) {
+            // this.$set(this.bratchForm,type,this.tableCol[i].type);
+            //   this.$set(this.bratchForm,filters,this.tableCol[i].filters);
+            // if (this.bratchForm.type === 'OBJECT') {
+            //   this.$set(this.bratchForm,referenceTableName,this.tableCol[i].referenceTableName);                            
+            //   this.$set(this.bratchForm,f_tableName,this.tableCol[i].f_tableName);              
+            //   this.getServerObj(this.bratchForm)
+            // }
             this.bratchForm.type = this.tableCol[i].type
             this.bratchForm.filters = this.tableCol[i].filters
             if (this.bratchForm.type === 'OBJECT') {
               this.bratchForm.referenceTableName = this.tableCol[i].referenceTableName
+              this.bratchForm.f_tableName = this.tableCol[i].f_tableName
               this.getServerObj(this.bratchForm)
             }
             break
@@ -503,9 +513,11 @@
             this.tableCol.push(destCol);
             for (var t = 0; t < datas.length; t++) {
               if (datas[t]) {
-                this.tableData[t][fullName] = datas[t][tableModel.columns[i].name];
+                // this.tableData[t][fullName] = datas[t][tableModel.columns[i].name];
+                this.$set(this.tableData[t],fullName,datas[t][tableModel.columns[i].name]);
               } else {
-                this.tableData[t][fullName] = null;
+                // this.tableData[t][fullName] = null;
+                this.$set(this.tableData[t],fullName,null);                
               }
             }
           }
@@ -534,6 +546,13 @@
     this.tableCol = [];
     this.tableData = [];
     this.tableData = data.entity.list;
+    // for (var j in data.entity.list) {
+    //   let obj = {};
+    //   for (var i in data.entity.list[j]) {
+    //     this.$set(obj,i,data.entity.list[j][i]);
+    //   }
+    //   this.tableData.push(obj);        
+    // }
     if (data.entity.count) {
       this.total = data.entity.count
     }

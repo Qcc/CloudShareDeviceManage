@@ -201,7 +201,7 @@
         keywords: ''
       }
     },
-    created: function () {
+    mounted: function () {
       if (this.columns.type === 'OBJECT') {
         this.getser(this.columns, 1, this.keywords)
       }

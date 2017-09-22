@@ -112,7 +112,8 @@ export default {
 			this.getActiveDevice();
 			if(getCookie('activeDevices') === '')
 			clearInterval(interval);
-		},10000)
+		},10000);
+		this.remoteMethod ('');
 	},
 	methods:{
 		checkStatus(val) {
@@ -191,7 +192,7 @@ export default {
       this.getServerObj(this.device)
     },
     remoteMethod (keywords) {
-			if(keywords === '') return;
+			// if(keywords === '') return;
 			if(this.device.keywords !== keywords){
 				this.device.pageNO = 1;
 			}
