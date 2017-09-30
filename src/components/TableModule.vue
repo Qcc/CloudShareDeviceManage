@@ -222,7 +222,7 @@
       // 是否可新建
       createbale: {type: Boolean, default: true}, 
       //当前用户ID
-      rolId:{type: String},
+      rolId:{type: Number},
     },
     watch: {
       'fetchObj': function(val, oldVal) {

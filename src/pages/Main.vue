@@ -17,7 +17,7 @@
         <!--<table-module :fetchObj = "'user'" :JoinOther="['gongsi']"></table-module>-->
         <router-view :fetchObj = "fetchObj"
           :JoinOther="JoinOther"
-          :propADUQ="propADUQ"
+          :propADUQ="tableADUQ"
           :isCollpase="isCollpase"
           :rolId="curUserId"
           :createbale="createbale"
@@ -65,7 +65,7 @@ export default {
       // 表格组件props
       fetchObj: '',
       JoinOther: {},
-      propADUQ: true,
+      tableADUQ: true,
       createbale: true
     }
   },
@@ -141,6 +141,10 @@ export default {
         this.islogin = true
         this.currentAccount = data.entity.account
         this.curUserId = data.entity.role
+        // 伙伴管理员
+		    if(this.curUserId === -2139060392 || this.curUserId ===-2134008167){
+		    	this.tableADUQ = false;
+		    }
         this.curUserName = this.connverRole(data.entity.role)
       } else {
         let path = this.$route.path.split('/')

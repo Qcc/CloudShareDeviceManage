@@ -185,7 +185,7 @@ export default {
 	},
 	mounted:function(){
 		// 云享管理员
-		if(this.rolId === 2026226681){
+		if(this.rolId === 2026226681 || this.rolId === 2031278906){
 			this.getServerObj(this.parnter);
 		// 伙伴管理员
 		}else if(this.rolId === -2139060392){
@@ -406,7 +406,7 @@ export default {
 			params.toDate = getFristLastDay('-',d,true);
 			params.type = 4;
 			params.gongsi = uid;		
-			if(this.parnter.parnters){
+			if(this.parnter.parnters.length > 0){
 				params.gongsi = this.parnter.parnters[0].value
 			}
 			if(this.currentUid !== null){
@@ -419,6 +419,9 @@ export default {
 			// gongsi pay
 			params.zhifuleixing = 3;
 			fetch2(chartUrl,this.onAllMoneyComplate,params,'cashMoney');
+			if(!params.gongsi){
+				params.gongsi ='0'
+			}
 			fetch2(fencheng,this.onAllMoneyComplate,params.gongsi,'gongsi');			
 		}
 	},

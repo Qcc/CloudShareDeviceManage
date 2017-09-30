@@ -73,10 +73,10 @@
         <template slot="title"><i class="el-icon-information"></i><span slot="title">系统信息</span></template>
           <el-menu-item class="MenuItem" index="default"> 运行总览</el-menu-item>
       </el-submenu>
-      <el-submenu v-if="curUserId === -2139060392" index="302">
+      <!--<el-submenu v-if="curUserId === -2139060392" index="302">
         <template slot="title"><i class="el-icon-time"></i><span slot="title">门店管理</span></template>
           <el-menu-item class="MenuItem" index="partnerManager"> 门店运营信息</el-menu-item>
-      </el-submenu>
+      </el-submenu>-->
       <el-submenu v-if="curUserId === -2139060392" index="303">
         <template slot="title"><i class="el-icon-setting"></i><span slot="title">设备管理</span></template>
           <el-menu-item class="MenuItem" index="deviceManager"> 设备监控</el-menu-item>
@@ -94,10 +94,10 @@
         <template slot="title"><i class="el-icon-information"></i><span slot="title">系统信息</span></template>
           <el-menu-item class="MenuItem" index="default"> 运行总览</el-menu-item>
       </el-submenu>
-      <el-submenu v-if="curUserId === -2134008167" index="402">
+      <!--<el-submenu v-if="curUserId === -2134008167" index="402">
         <template slot="title"><i class="el-icon-time"></i><span slot="title">门店管理</span></template>
           <el-menu-item class="MenuItem" index="partnerManager"> 门店运营信息</el-menu-item>
-      </el-submenu>
+      </el-submenu>-->
       <el-submenu v-if="curUserId === -2134008167" index="403">
         <template slot="title"><i class="el-icon-setting"></i><span slot="title">设备管理</span></template>
           <el-menu-item class="MenuItem" index="deviceManager"> 设备监控</el-menu-item>
