@@ -70,7 +70,7 @@
       :visible.sync="configRcodeVisible"
       size="tiny"
       :before-close="handleClose">
-      <q-rcode :text ="'http://szcloudshare.com/idev/idx.api?d=123456'" 
+      <q-rcode :text ="QRUrl+'123456'" 
               :size = "size"
 		          :bgcolor="bgcolor"
 		          :fgcolor="fgcolor"
@@ -93,7 +93,7 @@
 </template>
 <script>
 import QRcode from '../components/QRcode.vue'
-import {BASICURL, fetch, fetch2} from '../api/api.js'
+import {BASICURL, fetch, fetch2,QRUrl} from '../api/api.js'
 import {setCookie, getCookie, checkResults} from '../utils/utils.js'
 export default {
 	data() {
@@ -214,7 +214,7 @@ export default {
 					} else {
           	data.entity.list[i].zhuangtaiming = '未分配'
 					}
-					data.entity.list[i].dizhi = 'http://szcloudshare.com/idev/idx.api?d=' + data.entity.list[i].bianhao
+					data.entity.list[i].dizhi = QRUrl + data.entity.list[i].bianhao
           data.entity.list[i].line = i
           this.tableData.push(data.entity.list[i])
         }

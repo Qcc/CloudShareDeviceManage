@@ -53,7 +53,8 @@ export function fetch2(url, onComplate, params, ...states) {
 //new server
 // export const ROOTURL = 'http://123.56.68.222:8080/idev'
 // export const BASICURL = 'http://123.56.68.222:8080/idev/protected/'
-
+export const QRUrl = 'http://test.szcloudshare.com/idev/test/idx.api?d='
+  // export const QRUrl =  'http://szcloudshare.com/idev/idx.api?d='
 export const ROOTURL = 'http://test.szcloudshare.com/idev'
 export const BASICURL = 'http://test.szcloudshare.com/idev/protected/'
   // export const ROOTURL = 'http://123.56.68.222:8080/idev'
