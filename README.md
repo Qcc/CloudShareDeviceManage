@@ -1,6 +1,6 @@
 # app
 
-> A Vue.js project
+> cloudshare设备管理平台
 
 ## Build Setup
 
