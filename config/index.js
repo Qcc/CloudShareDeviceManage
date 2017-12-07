@@ -6,7 +6,7 @@ module.exports = {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
+    assetsSubDirectory: 'idevRoot',
     // 添加可直接打开打路径原来为/
     assetsPublicPath: '/',
     //控制是否需要源码调试
@@ -27,7 +27,7 @@ module.exports = {
     env: require('./dev.env'),
     port: 8080,
     autoOpenBrowser: true,
-    assetsSubDirectory: 'static',
+    assetsSubDirectory: 'idevRoot',
     assetsPublicPath: '/',
     proxyTable: {},
     // CSS Sourcemaps off by default because relative paths are "buggy"
